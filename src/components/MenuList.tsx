@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
-import { ChevronDownIcon, ChevronRightIcon, Bars4Icon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronRightIcon, Bars4Icon, PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import ProductCard from './ProductCard';
 import ModalForm from './ModalForm';
 
@@ -26,7 +26,7 @@ interface Product {
   categoryId: string;
   image: string;
   featured: boolean;
-  visible: boolean;  // ✅ Visibilidad del producto
+  visible: boolean;
   currency: string;
 }
 
@@ -67,6 +67,8 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editedCategoryName, setEditedCategoryName] = useState<string>('');
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) =>
@@ -94,13 +96,11 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     }
   };
 
-  // ✅ Editar producto
   const handleEditProduct = (product: Product) => {
-    setProductToEdit(product);  // 🔥 Pasamos el producto completo
+    setProductToEdit(product);
     setIsModalOpen(true);
   };
 
-  // ✅ Alternar visibilidad
   const handleToggleVisibility = (productId: string) => {
     setCategories((prevCategories) =>
       prevCategories.map((category) => ({
@@ -112,7 +112,6 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     );
   };
 
-  // ✅ Eliminar producto
   const handleDeleteProduct = (productId: string) => {
     setCategories((prevCategories) =>
       prevCategories.map((category) => ({
@@ -120,6 +119,34 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         products: category.products.filter((product) => product.id !== productId),
       }))
     );
+  };
+
+  const handleStartEditingCategory = (categoryId: string, currentName: string) => {
+    setEditingCategoryId(categoryId);
+    setEditedCategoryName(currentName);
+  };
+
+  const handleSaveCategoryName = (categoryId: string) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((category) =>
+        category.id === categoryId ? { ...category, name: editedCategoryName } : category
+      )
+    );
+    setEditingCategoryId(null);
+    setEditedCategoryName('');
+  };
+
+  const handleCancelEditCategory = () => {
+    setEditingCategoryId(null);
+    setEditedCategoryName('');
+  };
+
+  const handleDeleteCategory = (categoryId: string) => {
+    if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.id !== categoryId)
+      );
+    }
   };
 
   return (
@@ -141,9 +168,19 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                         <button {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing p-1">
                           <Bars4Icon className="h-5 w-5 text-gray-500" />
                         </button>
+
                         <h3 className="text-base font-semibold text-gray-800">{category.name}</h3>
+
+                        <button onClick={() => handleStartEditingCategory(category.id, category.name)}>
+                          <PencilIcon className="h-4 w-4 text-blue-500" />
+                        </button>
+
+                        <button onClick={() => handleDeleteCategory(category.id)}>
+                          <TrashIcon className="h-5 w-5 text-red-500" />
+                        </button>
                       </div>
-                      <button onClick={() => toggleCategory(category.id)} className="p-1 rounded-md hover:bg-gray-200 transition">
+
+                      <button onClick={() => toggleCategory(category.id)}>
                         {expandedCategories.includes(category.id) ? (
                           <ChevronDownIcon className="h-5 w-5 text-gray-600" />
                         ) : (
@@ -181,12 +218,11 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         </SortableContext>
       </DndContext>
 
-      {/* ✅ Modal de edición */}
       {isModalOpen && (
         <ModalForm
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSubmit={() => setIsModalOpen(false)}  // 🔥 Aquí se puede conectar la lógica
+          onSubmit={() => setIsModalOpen(false)}
           categories={categories}
           productToEdit={productToEdit}
         />
