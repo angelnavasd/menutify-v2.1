@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
-import { ChevronDownIcon, ChevronRightIcon, Bars4Icon, PencilIcon, TrashIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronRightIcon, Bars4Icon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ProductCard from './ProductCard';
 import ModalForm from './ModalForm';
 
@@ -101,26 +101,6 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     setIsModalOpen(true);
   };
 
-  const handleToggleVisibility = (productId: string) => {
-    setCategories((prevCategories) =>
-      prevCategories.map((category) => ({
-        ...category,
-        products: category.products.map((product) =>
-          product.id === productId ? { ...product, visible: !product.visible } : product
-        ),
-      }))
-    );
-  };
-
-  const handleDeleteProduct = (productId: string) => {
-    setCategories((prevCategories) =>
-      prevCategories.map((category) => ({
-        ...category,
-        products: category.products.filter((product) => product.id !== productId),
-      }))
-    );
-  };
-
   const handleStartEditingCategory = (categoryId: string, currentName: string) => {
     setEditingCategoryId(categoryId);
     setEditedCategoryName(currentName);
@@ -132,11 +112,6 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         category.id === categoryId ? { ...category, name: editedCategoryName } : category
       )
     );
-    setEditingCategoryId(null);
-    setEditedCategoryName('');
-  };
-
-  const handleCancelEditCategory = () => {
     setEditingCategoryId(null);
     setEditedCategoryName('');
   };
@@ -158,40 +133,61 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SortableContext items={categories} strategy={verticalListSortingStrategy}>
-          <div className="p-4 space-y-4 bg-white max-h-[calc(100vh-180px)] overflow-y-auto rounded-lg border border-gray-200">
+          <div className="p-6 space-y-4 bg-white max-h-[calc(100vh-180px)] overflow-y-auto rounded-xl border border-gray-200 shadow-md">
             {categories.map((category) => (
               <SortableCategoryItem key={category.id} category={category}>
                 {({ listeners, attributes }) => (
-                  <div className="border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
-                    <div className="flex items-center justify-between px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <button {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing p-1">
-                          <Bars4Icon className="h-5 w-5 text-gray-500" />
+                  <div className="border border-gray-300 bg-white rounded-lg hover:shadow-sm transition-all">
+                    <div className="flex items-center justify-between px-4 py-2">
+                      <div className="flex items-center gap-2">
+                        <button {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded-md">
+                          <Bars4Icon className="h-4 w-4 text-gray-500" />
                         </button>
 
-                        <h3 className="text-base font-semibold text-gray-800">{category.name}</h3>
+                        {editingCategoryId === category.id ? (
+                          <input
+                            type="text"
+                            value={editedCategoryName}
+                            onChange={(e) => setEditedCategoryName(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSaveCategoryName(category.id)}
+                            autoFocus
+                            className="border px-2 py-1 rounded-md text-sm"
+                          />
+                        ) : (
+                          <h3 className="text-md font-medium text-gray-800">{category.name}</h3>
+                        )}
 
-                        <button onClick={() => handleStartEditingCategory(category.id, category.name)}>
-                          <PencilIcon className="h-4 w-4 text-blue-500" />
+                        {/* Botón Editar */}
+                        <button
+                          onClick={() => handleStartEditingCategory(category.id, category.name)}
+                          className="p-1 hover:bg-gray-200 rounded-md"
+                        >
+                          <PencilIcon className="h-4 w-4 text-gray-400 hover:text-blue-600" />
                         </button>
 
-                        <button onClick={() => handleDeleteCategory(category.id)}>
-                          <TrashIcon className="h-5 w-5 text-red-500" />
+                        {/* Botón Eliminar */}
+                        <button
+                          onClick={() => handleDeleteCategory(category.id)}
+                          className="p-1 hover:bg-gray-200 rounded-md"
+                        >
+                          <TrashIcon className="h-4 w-4 text-gray-400 hover:text-red-600" />
                         </button>
                       </div>
 
-                      <button onClick={() => toggleCategory(category.id)}>
+                      {/* Botón Expandir */}
+                      <button onClick={() => toggleCategory(category.id)} className="p-1 hover:bg-gray-200 rounded-md">
                         {expandedCategories.includes(category.id) ? (
-                          <ChevronDownIcon className="h-5 w-5 text-gray-600" />
+                          <ChevronDownIcon className="h-4 w-4 text-gray-500" />
                         ) : (
-                          <ChevronRightIcon className="h-5 w-5 text-gray-600" />
+                          <ChevronRightIcon className="h-4 w-4 text-gray-500" />
                         )}
                       </button>
                     </div>
 
+                    {/* ✅ Productos dentro de la categoría */}
                     {expandedCategories.includes(category.id) && (
                       <SortableContext items={category.products.map((product) => product.id)} strategy={verticalListSortingStrategy}>
-                        <div className="pl-8 pr-8 py-2 space-y-2">
+                        <div className="pl-6 pr-6 py-2 space-y-2">
                           {category.products.length > 0 ? (
                             category.products.map((product) => (
                               <ProductCard
@@ -200,8 +196,8 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                                 name={product.name}
                                 visible={product.visible}
                                 onEdit={() => handleEditProduct(product)}
-                                onToggleVisibility={() => handleToggleVisibility(product.id)}
-                                onDelete={() => handleDeleteProduct(product.id)}
+                                onToggleVisibility={() => {}}
+                                onDelete={() => {}}
                               />
                             ))
                           ) : (
