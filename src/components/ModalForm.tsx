@@ -10,6 +10,7 @@ interface Product {
   image: string;
   featured: boolean;
   currency: string;
+  visible: boolean;  // ✅ Control de visibilidad
 }
 
 interface Category {
@@ -35,7 +36,9 @@ const ModalForm = ({ isOpen, onClose, onSubmit, categories, productToEdit }: Mod
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [highlight, setHighlight] = useState(false);
+  const [visible, setVisible] = useState(true);  // ✅ Estado para visibilidad
 
+  // ✅ Cargar datos al editar producto
   useEffect(() => {
     if (productToEdit) {
       setTitle(productToEdit.name);
@@ -45,7 +48,9 @@ const ModalForm = ({ isOpen, onClose, onSubmit, categories, productToEdit }: Mod
       setCategoryId(productToEdit.categoryId);
       setImagePreview(productToEdit.image);
       setHighlight(productToEdit.featured);
+      setVisible(productToEdit.visible);  // ✅ Cargar visibilidad
     } else {
+      // 🔥 Limpiar formulario al crear nuevo producto
       setTitle('');
       setDescription('');
       setPrice('');
@@ -54,6 +59,7 @@ const ModalForm = ({ isOpen, onClose, onSubmit, categories, productToEdit }: Mod
       setImage(null);
       setImagePreview(null);
       setHighlight(false);
+      setVisible(true);  // ✅ Visible por defecto
     }
   }, [productToEdit, isOpen]);
 
@@ -91,6 +97,7 @@ const ModalForm = ({ isOpen, onClose, onSubmit, categories, productToEdit }: Mod
       image: image ? URL.createObjectURL(image) : (productToEdit?.image || ''),
       featured: highlight,
       currency,
+      visible,  // ✅ Guardar visibilidad
     };
 
     onSubmit(newProduct);
@@ -150,37 +157,43 @@ const ModalForm = ({ isOpen, onClose, onSubmit, categories, productToEdit }: Mod
           </div>
 
           <div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-  <textarea
-    value={description}
-    onChange={(e) => setDescription(e.target.value)}
-    placeholder="Descripción del platillo"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-    required
-  />
-</div>
-
-<div className="flex items-center gap-2">
-  <input
-    type="checkbox"
-    checked={highlight}
-    onChange={(e) => setHighlight(e.target.checked)}
-    className="h-4 w-4"
-  />
-  <label className="text-sm">Destacar platillo</label>
-</div>
-
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descripción del platillo" className="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+          </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
-            <div className="flex">
-              <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="px-3 py-2 border border-gray-300 rounded-l-lg">
-                <option value="ARS">ARS</option>
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Precio" className="w-full px-3 py-2 border border-gray-300 rounded-r-lg" required />
-            </div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Precio</label>
+          <div className="flex">
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-l-lg"
+            >
+              <option value="ARS">ARS</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+            </select>
+            
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Precio"
+              className="w-full px-3 py-2 border border-gray-300 rounded-r-lg"
+              required
+            />
+          </div>
+        </div>
+
+
+          <div className="flex items-center gap-2">
+            <input type="checkbox" checked={highlight} onChange={(e) => setHighlight(e.target.checked)} className="h-4 w-4" />
+            <label className="text-sm">Destacar platillo</label>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input type="checkbox" checked={visible} onChange={(e) => setVisible(e.target.checked)} className="h-4 w-4" />
+            <label className="text-sm">Hacer visible</label>
           </div>
 
           <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-lg">

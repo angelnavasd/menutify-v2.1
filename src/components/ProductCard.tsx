@@ -1,17 +1,18 @@
-import { useSortable } from '@dnd-kit/sortable';  // ✅ Importación correcta
-import { CSS } from '@dnd-kit/utilities';         // ✅ Importación correcta
-import { PencilIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';  // ✅ Íconos
-import { useState } from 'react';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { PencilIcon, TrashIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 
 interface ProductCardProps {
   id: string;
   name: string;
-  onEdit: (id: string) => void;  // ✅ Nueva prop para editar
+  visible: boolean;
+  onEdit: (id: string) => void;
+  onToggleVisibility: (productId: string) => void;
+  onDelete: (productId: string) => void;  // ✅ Nueva prop para eliminar
 }
 
-const ProductCard = ({ id, name, onEdit }: ProductCardProps) => {
+const ProductCard = ({ id, name, visible, onEdit, onToggleVisibility, onDelete }: ProductCardProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-  const [visible, setVisible] = useState(true);
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -36,7 +37,7 @@ const ProductCard = ({ id, name, onEdit }: ProductCardProps) => {
         </button>
 
         {/* 🔥 Botón para ocultar/mostrar */}
-        <button onClick={() => setVisible(!visible)}>
+        <button onClick={() => onToggleVisibility(id)}>
           {visible ? (
             <EyeIcon className="h-5 w-5 text-green-500" />
           ) : (
@@ -45,7 +46,7 @@ const ProductCard = ({ id, name, onEdit }: ProductCardProps) => {
         </button>
 
         {/* 🔥 Botón para eliminar */}
-        <button onClick={() => alert(`Eliminar ${name}`)}>
+        <button onClick={() => onDelete(id)}>
           <TrashIcon className="h-5 w-5 text-red-500" />
         </button>
       </div>
@@ -54,3 +55,4 @@ const ProductCard = ({ id, name, onEdit }: ProductCardProps) => {
 };
 
 export default ProductCard;
+

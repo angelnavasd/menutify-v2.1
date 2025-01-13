@@ -18,7 +18,6 @@ import { ChevronDownIcon, ChevronRightIcon, Bars4Icon } from '@heroicons/react/2
 import ProductCard from './ProductCard';
 import ModalForm from './ModalForm';
 
-// ✅ Interfaces
 interface Product {
   id: string;
   name: string;
@@ -27,6 +26,7 @@ interface Product {
   categoryId: string;
   image: string;
   featured: boolean;
+  visible: boolean;  // ✅ Visibilidad del producto
   currency: string;
 }
 
@@ -41,7 +41,6 @@ interface MenuListProps {
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
 }
 
-// ✅ Componente Drag & Drop
 interface SortableCategoryItemProps {
   category: Category;
   children: (props: { listeners: any; attributes: any }) => ReactNode;
@@ -69,7 +68,6 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
-  // ✅ Expandir/Colapsar categoría
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) =>
       prev.includes(categoryId)
@@ -78,16 +76,12 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     );
   };
 
-  // ✅ Sensor con restricción vertical
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
+      activationConstraint: { distance: 5 },
     })
   );
 
-  // ✅ Manejador de Drag & Drop
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
 
@@ -100,15 +94,32 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     }
   };
 
-  // ✅ Manejar la edición del producto
+  // ✅ Editar producto
   const handleEditProduct = (product: Product) => {
-    const productWithCurrency = {
-      ...product,
-      currency: product.currency || 'ARS', // ✅ Asignar 'ARS' si falta
-    };
-
-    setProductToEdit(productWithCurrency);
+    setProductToEdit(product);  // 🔥 Pasamos el producto completo
     setIsModalOpen(true);
+  };
+
+  // ✅ Alternar visibilidad
+  const handleToggleVisibility = (productId: string) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((category) => ({
+        ...category,
+        products: category.products.map((product) =>
+          product.id === productId ? { ...product, visible: !product.visible } : product
+        ),
+      }))
+    );
+  };
+
+  // ✅ Eliminar producto
+  const handleDeleteProduct = (productId: string) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((category) => ({
+        ...category,
+        products: category.products.filter((product) => product.id !== productId),
+      }))
+    );
   };
 
   return (
@@ -117,10 +128,7 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
-        modifiers={[
-          restrictToVerticalAxis,
-          restrictToParentElement
-        ]}
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SortableContext items={categories} strategy={verticalListSortingStrategy}>
           <div className="p-4 space-y-4 bg-white max-h-[calc(100vh-180px)] overflow-y-auto rounded-lg border border-gray-200">
@@ -130,21 +138,12 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                   <div className="border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
                     <div className="flex items-center justify-between px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <button
-                          {...listeners}
-                          {...attributes}
-                          className="cursor-grab active:cursor-grabbing p-1"
-                        >
+                        <button {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing p-1">
                           <Bars4Icon className="h-5 w-5 text-gray-500" />
                         </button>
-                        <h3 className="text-base font-semibold text-gray-800">
-                          {category.name}
-                        </h3>
+                        <h3 className="text-base font-semibold text-gray-800">{category.name}</h3>
                       </div>
-                      <button
-                        onClick={() => toggleCategory(category.id)}
-                        className="p-1 rounded-md hover:bg-gray-200 transition"
-                      >
+                      <button onClick={() => toggleCategory(category.id)} className="p-1 rounded-md hover:bg-gray-200 transition">
                         {expandedCategories.includes(category.id) ? (
                           <ChevronDownIcon className="h-5 w-5 text-gray-600" />
                         ) : (
@@ -152,11 +151,9 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                         )}
                       </button>
                     </div>
+
                     {expandedCategories.includes(category.id) && (
-                      <SortableContext
-                        items={category.products.map((product) => product.id)}
-                        strategy={verticalListSortingStrategy}
-                      >
+                      <SortableContext items={category.products.map((product) => product.id)} strategy={verticalListSortingStrategy}>
                         <div className="pl-8 pr-8 py-2 space-y-2">
                           {category.products.length > 0 ? (
                             category.products.map((product) => (
@@ -164,13 +161,14 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                                 key={product.id}
                                 id={product.id}
                                 name={product.name}
+                                visible={product.visible}
                                 onEdit={() => handleEditProduct(product)}
+                                onToggleVisibility={() => handleToggleVisibility(product.id)}
+                                onDelete={() => handleDeleteProduct(product.id)}
                               />
                             ))
                           ) : (
-                            <p className="text-sm text-gray-400 italic">
-                              No hay productos en esta categoría.
-                            </p>
+                            <p className="text-sm text-gray-400 italic">No hay productos en esta categoría.</p>
                           )}
                         </div>
                       </SortableContext>
@@ -182,11 +180,13 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
           </div>
         </SortableContext>
       </DndContext>
+
+      {/* ✅ Modal de edición */}
       {isModalOpen && (
         <ModalForm
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSubmit={() => {}}
+          onSubmit={() => setIsModalOpen(false)}  // 🔥 Aquí se puede conectar la lógica
           categories={categories}
           productToEdit={productToEdit}
         />
