@@ -16,6 +16,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
 import { ChevronDownIcon, ChevronRightIcon, Bars4Icon } from '@heroicons/react/24/outline';
 import ProductCard from './ProductCard';
+import ModalForm from './ModalForm';
 
 // ✅ Interfaces
 interface Product {
@@ -26,6 +27,7 @@ interface Product {
   categoryId: string;
   image: string;
   featured: boolean;
+  currency: string;
 }
 
 interface Category {
@@ -64,6 +66,8 @@ const SortableCategoryItem = ({ category, children }: SortableCategoryItemProps)
 
 const MenuList = ({ categories, setCategories }: MenuListProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
   // ✅ Expandir/Colapsar categoría
   const toggleCategory = (categoryId: string) => {
@@ -96,6 +100,17 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     }
   };
 
+  // ✅ Manejar la edición del producto
+  const handleEditProduct = (product: Product) => {
+    const productWithCurrency = {
+      ...product,
+      currency: product.currency || 'ARS', // ✅ Asignar 'ARS' si falta
+    };
+
+    setProductToEdit(productWithCurrency);
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="h-full overflow-hidden">
       <DndContext
@@ -108,17 +123,13 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         ]}
       >
         <SortableContext items={categories} strategy={verticalListSortingStrategy}>
-          {/* ✅ Contenedor de categorías */}
           <div className="p-4 space-y-4 bg-white max-h-[calc(100vh-180px)] overflow-y-auto rounded-lg border border-gray-200">
             {categories.map((category) => (
               <SortableCategoryItem key={category.id} category={category}>
                 {({ listeners, attributes }) => (
                   <div className="border border-gray-300 bg-white rounded-lg hover:bg-gray-50 transition">
-                    
-                    {/* 🔥 Encabezado de la categoría */}
                     <div className="flex items-center justify-between px-4 py-3">
                       <div className="flex items-center gap-3">
-                        {/* ✅ Ícono Drag & Drop */}
                         <button
                           {...listeners}
                           {...attributes}
@@ -126,14 +137,10 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                         >
                           <Bars4Icon className="h-5 w-5 text-gray-500" />
                         </button>
-
-                        {/* ✅ Nombre de la categoría */}
                         <h3 className="text-base font-semibold text-gray-800">
                           {category.name}
                         </h3>
                       </div>
-
-                      {/* ✅ Botón para expandir/colapsar */}
                       <button
                         onClick={() => toggleCategory(category.id)}
                         className="p-1 rounded-md hover:bg-gray-200 transition"
@@ -145,8 +152,6 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                         )}
                       </button>
                     </div>
-
-                    {/* 🔥 Productos desplegables */}
                     {expandedCategories.includes(category.id) && (
                       <SortableContext
                         items={category.products.map((product) => product.id)}
@@ -159,6 +164,7 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                                 key={product.id}
                                 id={product.id}
                                 name={product.name}
+                                onEdit={() => handleEditProduct(product)}
                               />
                             ))
                           ) : (
@@ -176,6 +182,15 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
           </div>
         </SortableContext>
       </DndContext>
+      {isModalOpen && (
+        <ModalForm
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={() => {}}
+          categories={categories}
+          productToEdit={productToEdit}
+        />
+      )}
     </div>
   );
 };
