@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToParentElement } from '@dnd-kit/modifiers';
-import { ChevronDownIcon, ChevronRightIcon, Bars4Icon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ChevronRightIcon, EllipsisVerticalIcon } from '@heroicons/react/24/outline';
 import ProductCard from './ProductCard';
 import ModalForm from './ModalForm';
 
@@ -57,7 +57,7 @@ const SortableCategoryItem = ({ category, children }: SortableCategoryItemProps)
   };
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className="mb-4">
       {children({ listeners, attributes })}
     </div>
   );
@@ -65,6 +65,7 @@ const SortableCategoryItem = ({ category, children }: SortableCategoryItemProps)
 
 const MenuList = ({ categories, setCategories }: MenuListProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
@@ -76,21 +77,22 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     );
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 5 },
-    })
-  );
+  const handleEditCategory = (category: Category) => {
+    const newName = prompt('Editar nombre de la categoría:', category.name);
+    if (newName && newName.trim() !== '') {
+      setCategories((prevCategories) =>
+        prevCategories.map((cat) =>
+          cat.id === category.id ? { ...cat, name: newName } : cat
+        )
+      );
+    }
+  };
 
-  const handleDragEnd = (event: any) => {
-    const { active, over } = event;
-
-    if (active.id !== over.id) {
-      setCategories((prevCategories) => {
-        const oldIndex = prevCategories.findIndex((cat) => cat.id === active.id);
-        const newIndex = prevCategories.findIndex((cat) => cat.id === over.id);
-        return arrayMove(prevCategories, oldIndex, newIndex);
-      });
+  const handleDeleteCategory = (categoryId: string) => {
+    if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+      setCategories((prevCategories) =>
+        prevCategories.filter((category) => category.id !== categoryId)
+      );
     }
   };
 
@@ -119,8 +121,26 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     );
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    })
+  );
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setCategories((prevCategories) => {
+        const oldIndex = prevCategories.findIndex((cat) => cat.id === active.id);
+        const newIndex = prevCategories.findIndex((cat) => cat.id === over.id);
+        return arrayMove(prevCategories, oldIndex, newIndex);
+      });
+    }
+  };
+
   return (
-    <div className="h-full overflow-hidden">
+    <div className="h-full overflow-hidden px-0 md:px-0">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -128,51 +148,39 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SortableContext items={categories} strategy={verticalListSortingStrategy}>
-          <div className="p-6 space-y-4 bg-white max-h-[calc(100vh-180px)] overflow-y-auto rounded-xl border border-gray-200 shadow-md">
+          <div className="space-y-4 bg-white w-full max-h-[calc(100vh-180px)] overflow-y-auto rounded-xl border border-gray-200 shadow-md p-4 md:p-6">
             {categories.map((category) => (
               <SortableCategoryItem key={category.id} category={category}>
                 {({ listeners, attributes }) => (
-                  <div className="border border-gray-300 bg-white rounded-lg hover:shadow-sm transition-all">
-                    {/* Ajuste de padding uniforme */}
-                    <div className="flex items-center justify-between px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded-md">
-                          <Bars4Icon className="h-4 w-4 text-gray-500" />
-                        </button>
-
+                  <div {...attributes} className="border border-gray-300 bg-white rounded-lg hover:shadow-sm transition-all">
+                    <div className="flex items-center justify-between px-4 py-2 md:px-6 md:py-3">
+                      <div {...listeners} className="flex items-center gap-2 cursor-grab active:cursor-grabbing">
                         <h3 className="text-md font-medium text-gray-800">{category.name}</h3>
                       </div>
-
                       <button onClick={() => toggleCategory(category.id)} className="p-1 hover:bg-gray-200 rounded-md">
                         {expandedCategories.includes(category.id) ? (
-                          <ChevronDownIcon className="h-4 w-4 text-gray-500" />
+                          <ChevronDownIcon className="h-5 w-5 text-gray-500" />
                         ) : (
-                          <ChevronRightIcon className="h-4 w-4 text-gray-500" />
+                          <ChevronRightIcon className="h-5 w-5 text-gray-500" />
                         )}
                       </button>
                     </div>
-
-                    {/* ✅ Ajuste de padding en productos */}
                     {expandedCategories.includes(category.id) && (
-                      <SortableContext items={category.products.map((product) => product.id)} strategy={verticalListSortingStrategy}>
-                        <div className="px-6 py-4 space-y-4">
+                      category.products.length === 0 ? (
+                        <p className="px-6 py-4 text-gray-500 text-sm">Aún no hay productos en esta categoría.</p>
+                      ) : (
+                        <div className="space-y-2 px-4 py-2 md:px-6 md:py-2">
                           {category.products.map((product) => (
                             <ProductCard
                               key={product.id}
-                              id={product.id}
-                              name={product.name}
-                              description={product.description}
-                              price={product.price}
-                              image={product.image}
-                              currency={product.currency}
-                              visible={product.visible}
+                              {...product}
                               onEdit={() => handleEditProduct(product)}
                               onToggleVisibility={() => handleToggleVisibility(product.id)}
                               onDelete={() => handleDeleteProduct(product.id)}
                             />
                           ))}
                         </div>
-                      </SortableContext>
+                      )
                     )}
                   </div>
                 )}

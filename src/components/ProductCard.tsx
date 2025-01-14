@@ -10,7 +10,7 @@ interface ProductCardProps {
   image: string;
   currency: string;
   visible: boolean;
-  onEdit: (id: string) => void;
+  onEdit: (productId: string) => void;
   onToggleVisibility: (productId: string) => void;
   onDelete: (productId: string) => void;
 }
@@ -33,6 +33,12 @@ const ProductCard = ({
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: 'grab',
+  };
+
+  // 🛠️ Prevenir que los botones interfieran con el Drag & Drop
+  const handleActionClick = (e: React.MouseEvent, action: () => void) => {
+    e.stopPropagation();
+    action();
   };
 
   return (
@@ -68,7 +74,7 @@ const ProductCard = ({
       <div className="flex gap-1">
         {/* ✏️ Botón Editar */}
         <button
-          onClick={() => onEdit(id)}
+          onClick={(e) => handleActionClick(e, () => onEdit(id))}
           className="p-1.5 bg-gray-100 rounded-md hover:bg-blue-100 transition"
           title="Editar"
         >
@@ -77,7 +83,7 @@ const ProductCard = ({
 
         {/* 👁️ Botón Visibilidad */}
         <button
-          onClick={() => onToggleVisibility(id)}
+          onClick={(e) => handleActionClick(e, () => onToggleVisibility(id))}
           className="p-1.5 bg-gray-100 rounded-md hover:bg-yellow-100 transition"
           title={visible ? 'Ocultar' : 'Mostrar'}
         >
@@ -90,7 +96,7 @@ const ProductCard = ({
 
         {/* 🗑️ Botón Eliminar */}
         <button
-          onClick={() => onDelete(id)}
+          onClick={(e) => handleActionClick(e, () => onDelete(id))}
           className="p-1.5 bg-gray-100 rounded-md hover:bg-red-100 transition"
           title="Eliminar"
         >
