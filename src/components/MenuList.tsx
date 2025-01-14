@@ -67,8 +67,6 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
-  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
-  const [editedCategoryName, setEditedCategoryName] = useState<string>('');
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) =>
@@ -101,27 +99,24 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
     setIsModalOpen(true);
   };
 
-  const handleStartEditingCategory = (categoryId: string, currentName: string) => {
-    setEditingCategoryId(categoryId);
-    setEditedCategoryName(currentName);
-  };
-
-  const handleSaveCategoryName = (categoryId: string) => {
+  const handleToggleVisibility = (productId: string) => {
     setCategories((prevCategories) =>
-      prevCategories.map((category) =>
-        category.id === categoryId ? { ...category, name: editedCategoryName } : category
-      )
+      prevCategories.map((category) => ({
+        ...category,
+        products: category.products.map((product) =>
+          product.id === productId ? { ...product, visible: !product.visible } : product
+        ),
+      }))
     );
-    setEditingCategoryId(null);
-    setEditedCategoryName('');
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
-      setCategories((prevCategories) =>
-        prevCategories.filter((category) => category.id !== categoryId)
-      );
-    }
+  const handleDeleteProduct = (productId: string) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((category) => ({
+        ...category,
+        products: category.products.filter((product) => product.id !== productId),
+      }))
+    );
   };
 
   return (
@@ -138,43 +133,16 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
               <SortableCategoryItem key={category.id} category={category}>
                 {({ listeners, attributes }) => (
                   <div className="border border-gray-300 bg-white rounded-lg hover:shadow-sm transition-all">
-                    <div className="flex items-center justify-between px-4 py-2">
+                    {/* Ajuste de padding uniforme */}
+                    <div className="flex items-center justify-between px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button {...listeners} {...attributes} className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-200 rounded-md">
                           <Bars4Icon className="h-4 w-4 text-gray-500" />
                         </button>
 
-                        {editingCategoryId === category.id ? (
-                          <input
-                            type="text"
-                            value={editedCategoryName}
-                            onChange={(e) => setEditedCategoryName(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSaveCategoryName(category.id)}
-                            autoFocus
-                            className="border px-2 py-1 rounded-md text-sm"
-                          />
-                        ) : (
-                          <h3 className="text-md font-medium text-gray-800">{category.name}</h3>
-                        )}
-
-                        {/* Botón Editar */}
-                        <button
-                          onClick={() => handleStartEditingCategory(category.id, category.name)}
-                          className="p-1 hover:bg-gray-200 rounded-md"
-                        >
-                          <PencilIcon className="h-4 w-4 text-gray-400 hover:text-blue-600" />
-                        </button>
-
-                        {/* Botón Eliminar */}
-                        <button
-                          onClick={() => handleDeleteCategory(category.id)}
-                          className="p-1 hover:bg-gray-200 rounded-md"
-                        >
-                          <TrashIcon className="h-4 w-4 text-gray-400 hover:text-red-600" />
-                        </button>
+                        <h3 className="text-md font-medium text-gray-800">{category.name}</h3>
                       </div>
 
-                      {/* Botón Expandir */}
                       <button onClick={() => toggleCategory(category.id)} className="p-1 hover:bg-gray-200 rounded-md">
                         {expandedCategories.includes(category.id) ? (
                           <ChevronDownIcon className="h-4 w-4 text-gray-500" />
@@ -184,25 +152,25 @@ const MenuList = ({ categories, setCategories }: MenuListProps) => {
                       </button>
                     </div>
 
-                    {/* ✅ Productos dentro de la categoría */}
+                    {/* ✅ Ajuste de padding en productos */}
                     {expandedCategories.includes(category.id) && (
                       <SortableContext items={category.products.map((product) => product.id)} strategy={verticalListSortingStrategy}>
-                        <div className="pl-6 pr-6 py-2 space-y-2">
-                          {category.products.length > 0 ? (
-                            category.products.map((product) => (
-                              <ProductCard
-                                key={product.id}
-                                id={product.id}
-                                name={product.name}
-                                visible={product.visible}
-                                onEdit={() => handleEditProduct(product)}
-                                onToggleVisibility={() => {}}
-                                onDelete={() => {}}
-                              />
-                            ))
-                          ) : (
-                            <p className="text-sm text-gray-400 italic">No hay productos en esta categoría.</p>
-                          )}
+                        <div className="px-6 py-4 space-y-4">
+                          {category.products.map((product) => (
+                            <ProductCard
+                              key={product.id}
+                              id={product.id}
+                              name={product.name}
+                              description={product.description}
+                              price={product.price}
+                              image={product.image}
+                              currency={product.currency}
+                              visible={product.visible}
+                              onEdit={() => handleEditProduct(product)}
+                              onToggleVisibility={() => handleToggleVisibility(product.id)}
+                              onDelete={() => handleDeleteProduct(product.id)}
+                            />
+                          ))}
                         </div>
                       </SortableContext>
                     )}
