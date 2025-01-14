@@ -4,46 +4,49 @@ import PreviewPanel from '../components/PreviewPanel';
 import { useState } from 'react';
 import ModalForm from '../components/ModalForm';
 import ModalCategoryForm from '../components/ModalCategoryForm';
-import { Bars3Icon, EyeIcon, PlusIcon } from '@heroicons/react/24/outline';
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  categoryId: string;
-  image: string;
-  featured: boolean;
-  currency: string;
-  visible: boolean;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  products: Product[];
-}
+import { Bars3Icon, EyeIcon, PlusIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { Product, Category } from '../components/types';
 
 const Dashboard = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  // ✅ Manejar creación de productos
+  // ✅ Generador de ID único
+  const generateId = () => {
+    return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
+  };
+
+  // ✅ Crear productos
   const handleCreateProduct = (product: Product) => {
     setCategories((prevCategories) =>
       prevCategories.map((category) =>
         category.id === product.categoryId
-          ? { ...category, products: [...category.products, product] }
+          ? { ...category, products: [...category.products, { ...product, id: generateId() }] }
           : category
       )
     );
   };
 
-  // ✅ Manejar creación de categorías
+  // ✅ Crear categorías con validación
   const handleCreateCategory = (categoryName: string) => {
+    if (!categoryName.trim()) {
+      alert("El nombre de la categoría no puede estar vacío.");
+      return;
+    }
+
+    const alreadyExists = categories.some(
+      (category) => category.name.toLowerCase() === categoryName.toLowerCase()
+    );
+
+    if (alreadyExists) {
+      alert("Ya existe una categoría con ese nombre.");
+      return;
+    }
+
     const newCategory: Category = {
-      id: Date.now().toString(),
+      id: generateId(),
       name: categoryName,
       products: [],
     };
@@ -52,6 +55,7 @@ const Dashboard = () => {
     setIsCategoryFormOpen(false);
   };
 
+  // ✅ Vista previa del menú
   const handlePreviewMenu = () => {
     window.open('/preview', '_blank');
   };
@@ -69,6 +73,7 @@ const Dashboard = () => {
           </h1>
 
           <div className="flex flex-col md:flex-row gap-4 mb-6">
+            {/* ✅ Botón Crear Categoría */}
             <div className="relative w-full md:w-auto">
               <button
                 onClick={() => setIsCategoryFormOpen(!isCategoryFormOpen)}
@@ -88,15 +93,27 @@ const Dashboard = () => {
               )}
             </div>
 
+            {/* ✅ Botón Crear Nuevo Plato */}
             <button
               onClick={() => setIsModalOpen(true)}
               className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all text-base flex items-center gap-2 justify-center"
             >
               <PlusIcon className="h-5 w-5 text-white" /> Crear Nuevo Plato
             </button>
+
+            {/* ✅ Botón Activar/Desactivar Edición */}
+            <button
+              onClick={() => setIsEditMode(!isEditMode)}
+              className={`w-full md:w-auto px-6 py-3 ${
+                isEditMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-600 hover:bg-gray-700'
+              } text-white rounded-md transition-all text-base flex items-center gap-2 justify-center`}
+            >
+              <PencilSquareIcon className="h-5 w-5 text-white" />
+              {isEditMode ? 'Terminar Edición de Categorías' : 'Editar Categorías'}
+            </button>
           </div>
 
-          {/* ✅ Empty State o Lista de Categorías */}
+          {/* ✅ Lista de Categorías */}
           {categories.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-gray-300 rounded-lg bg-white">
               <p className="text-gray-500 text-base mb-4">No tienes categorías creadas aún.</p>
@@ -108,17 +125,21 @@ const Dashboard = () => {
               </button>
             </div>
           ) : (
-            <MenuList categories={categories} setCategories={setCategories} />
+            <MenuList
+              categories={categories}
+              setCategories={setCategories}
+              isEditMode={isEditMode}
+            />
           )}
         </section>
 
-        {/* ✅ Ocultar vista previa en Mobile */}
+        {/* ✅ Vista previa */}
         <aside className="hidden md:block w-1/3 border-l border-gray-300 bg-gray-50">
           <PreviewPanel />
         </aside>
       </main>
 
-      {/* ✅ Botón flotante para vista previa en Mobile */}
+      {/* ✅ Botón flotante para vista previa */}
       <button
         onClick={handlePreviewMenu}
         className="fixed bottom-5 right-5 md:hidden bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all"
@@ -126,6 +147,7 @@ const Dashboard = () => {
         <EyeIcon className="h-6 w-6" />
       </button>
 
+      {/* ✅ Modal para productos */}
       <ModalForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
