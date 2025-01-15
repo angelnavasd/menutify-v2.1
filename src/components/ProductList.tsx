@@ -11,7 +11,8 @@ const ProductList = ({ products, onEditProduct, onToggleVisibility, onDeleteProd
           <ProductCard
             key={product.id}
             {...product}
-            onEdit={() => onEditProduct(product.id)}
+            // ✅ Se agregan ambos argumentos: productId y un objeto vacío para update
+            onEdit={() => onEditProduct(product.id, {})} 
             onToggleVisibility={() => onToggleVisibility(product.id)}
             onDelete={() => onDeleteProduct(product.id)}
           />

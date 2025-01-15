@@ -82,11 +82,23 @@ const ModalForm = ({ isOpen, onClose, onSubmit, categories, productToEdit }: Mod
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!title || !description || !price || !categoryId) {
       alert('Todos los campos son obligatorios');
       return;
     }
+  
+    const updatedOrNewProduct: Product = {
+      id: productToEdit ? productToEdit.id : Date.now().toString(),  // ✅ Mantiene el ID si es edición
+      name: title,
+      description,
+      price: parseFloat(price),
+      categoryId,
+      image: image ? URL.createObjectURL(image) : (productToEdit?.image || ''),  // ✅ Mantiene imagen si no se cambia
+      featured: highlight,
+      currency,
+      visible,
+    };
 
     const newProduct: Product = {
       id: productToEdit ? productToEdit.id : Date.now().toString(),

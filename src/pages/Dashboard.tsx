@@ -12,21 +12,31 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryFormOpen, setIsCategoryFormOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
 
   // ✅ Generador de ID único
   const generateId = () => {
     return crypto.randomUUID ? crypto.randomUUID() : Date.now().toString();
   };
 
-  // ✅ Crear productos
+  // ✅ Crear o Actualizar Producto
   const handleCreateProduct = (product: Product) => {
     setCategories((prevCategories) =>
       prevCategories.map((category) =>
         category.id === product.categoryId
-          ? { ...category, products: [...category.products, { ...product, id: generateId() }] }
+          ? {
+              ...category,
+              products: productToEdit
+                ? category.products.map((p) =>
+                    p.id === productToEdit.id ? { ...product, id: productToEdit.id } : p
+                  )
+                : [...category.products, { ...product, id: generateId() }],
+            }
           : category
       )
     );
+    setProductToEdit(null);  // 🔄 Resetear producto editado
+    setIsModalOpen(false);   // ✅ Cerrar el Modal al guardar
   };
 
   // ✅ Crear categorías con validación
@@ -53,6 +63,44 @@ const Dashboard = () => {
 
     setCategories((prevCategories) => [...prevCategories, newCategory]);
     setIsCategoryFormOpen(false);
+  };
+
+  // ✅ Editar producto (Abre el drawer con los datos del producto)
+  const handleEditProduct = (productId: string) => {
+    const productToEdit = categories
+      .flatMap((category) => category.products)
+      .find((product) => product.id === productId);
+
+    if (productToEdit) {
+      setProductToEdit(productToEdit);
+      setIsModalOpen(true);  // ✅ Abrir el ModalForm al editar
+    }
+  };
+
+  // ✅ Alternar visibilidad de producto
+  const handleToggleProductVisibility = (productId: string) => {
+    setCategories((prevCategories) =>
+      prevCategories.map((category) => ({
+        ...category,
+        products: category.products.map((product) =>
+          product.id === productId
+            ? { ...product, visible: !product.visible }
+            : product
+        ),
+      }))
+    );
+  };
+
+  // ✅ Eliminar producto
+  const handleDeleteProduct = (productId: string) => {
+    if (confirm('¿Estás seguro de eliminar este producto?')) {
+      setCategories((prevCategories) =>
+        prevCategories.map((category) => ({
+          ...category,
+          products: category.products.filter((product) => product.id !== productId),
+        }))
+      );
+    }
   };
 
   // ✅ Vista previa del menú
@@ -95,7 +143,10 @@ const Dashboard = () => {
 
             {/* ✅ Botón Crear Nuevo Plato */}
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => {
+                setProductToEdit(null);
+                setIsModalOpen(true);
+              }}
               className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all text-base flex items-center gap-2 justify-center"
             >
               <PlusIcon className="h-5 w-5 text-white" /> Crear Nuevo Plato
@@ -129,6 +180,9 @@ const Dashboard = () => {
               categories={categories}
               setCategories={setCategories}
               isEditMode={isEditMode}
+              onEditProduct={handleEditProduct}
+              onToggleProductVisibility={handleToggleProductVisibility}
+              onDeleteProduct={handleDeleteProduct}
             />
           )}
         </section>
@@ -139,20 +193,13 @@ const Dashboard = () => {
         </aside>
       </main>
 
-      {/* ✅ Botón flotante para vista previa */}
-      <button
-        onClick={handlePreviewMenu}
-        className="fixed bottom-5 right-5 md:hidden bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all"
-      >
-        <EyeIcon className="h-6 w-6" />
-      </button>
-
       {/* ✅ Modal para productos */}
       <ModalForm
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleCreateProduct}
         categories={categories}
+        productToEdit={productToEdit}
       />
     </div>
   );

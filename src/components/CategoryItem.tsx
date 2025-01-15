@@ -11,6 +11,7 @@ import { CategoryItemProps } from './types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
+import DragAndDropWrapper from './DragAndDropWrapper';
 
 const CategoryItem = ({
   id,
@@ -21,7 +22,10 @@ const CategoryItem = ({
   onToggleExpand,
   onEditName,
   onDelete,
-  onEditProduct
+  onEditProduct,
+  onToggleVisibility,
+  onDeleteProduct,
+  onDragEndProducts
 }: CategoryItemProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
@@ -133,14 +137,22 @@ const CategoryItem = ({
         </div>
       </div>
 
+      {/* ✅ Drag & Drop de Productos */}
       {isExpanded && (
         <div className="mt-1 transition-all duration-300 ease-in-out">
-          <ProductList
-            products={products}
-            onEditProduct={onEditProduct}
-            onToggleVisibility={() => console.log('Toggle visibility')}
-            onDeleteProduct={() => console.log('Delete product')}
-          />
+          <DragAndDropWrapper
+            items={products}
+            onDragEnd={(event) => onDragEndProducts(event, id)}
+            isEditMode={true}
+          >
+            <ProductList
+              products={products}
+              onEditProduct={onEditProduct}               // ✅ Editar producto
+              onToggleVisibility={onToggleVisibility}     // ✅ Alternar visibilidad
+              onDeleteProduct={onDeleteProduct}           // ✅ Eliminar producto
+              onDragEndProducts={onDragEndProducts}
+            />
+          </DragAndDropWrapper>
         </div>
       )}
     </div>
@@ -148,3 +160,4 @@ const CategoryItem = ({
 };
 
 export default CategoryItem;
+
