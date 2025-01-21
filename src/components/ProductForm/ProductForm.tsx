@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
-import { CSSTransition } from 'react-transition-group';
+import { useState, useEffect } from 'react';
 import { XMarkIcon, PhotoIcon, CurrencyDollarIcon, InformationCircleIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { Switch } from '@headlessui/react';
 import { useDropzone } from 'react-dropzone';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { Product } from '../types';
+import { FADE_VARIANTS, TRANSITION_EASE } from '../../constants/animations';
 
 interface Category {
   id: string;
@@ -21,45 +21,69 @@ interface ProductFormProps {
   onSuccess?: (categoryId: string) => void;
 }
 
-const styles = `
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(2px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+interface FormSectionProps {
+  title: string;
+  children: React.ReactNode;
+}
 
-  .animate-fadeIn {
-    animation: fadeIn 0.2s ease-out;
-  }
-`;
+function FormSection({ title, children }: FormSectionProps) {
+  return (
+    <div className="space-y-3">
+      <h3 className="text-sm font-medium text-gray-700 border-b border-gray-100 pb-1">{title}</h3>
+      {children}
+    </div>
+  );
+}
 
-const InfoTooltip = ({ content }: { content: string }) => (
-  <Tooltip.Provider delayDuration={100}>
-    <Tooltip.Root defaultOpen={false}>
-      <Tooltip.Trigger asChild>
-        <button className="ml-1 text-gray-400 hover:text-gray-500 focus:outline-none">
-          <InformationCircleIcon className="h-3.5 w-3.5" />
-        </button>
-      </Tooltip.Trigger>
-      <Tooltip.Portal>
-        <Tooltip.Content
-          className="px-2 py-1 text-xs text-white bg-gray-900/90 rounded-md shadow-lg max-w-xs animate-fadeIn z-[100]"
-          sideOffset={2}
-          side="top"
-          align="center"
-        >
-          {content}
-          <Tooltip.Arrow className="fill-gray-900/90" width={8} height={4} />
-        </Tooltip.Content>
-      </Tooltip.Portal>
-    </Tooltip.Root>
-  </Tooltip.Provider>
-);
+const InfoTooltip = ({ content }: { content: string }) => {
+  // Estilos para la animación del tooltip
+  useEffect(() => {
+    const styleSheet = document.createElement("style");
+    styleSheet.innerText = `
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(2px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fadeIn {
+        animation: fadeIn 0.2s ease-out;
+      }
+    `;
+    document.head.appendChild(styleSheet);
+    return () => {
+      document.head.removeChild(styleSheet);
+    };
+  }, []);
+
+  return (
+    <Tooltip.Provider delayDuration={100}>
+      <Tooltip.Root defaultOpen={false}>
+        <Tooltip.Trigger asChild>
+          <button className="ml-1 text-gray-400 hover:text-gray-500 focus:outline-none">
+            <InformationCircleIcon className="h-3.5 w-3.5" />
+          </button>
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Content
+            className="px-2 py-1 text-xs text-white bg-gray-900/90 rounded-md shadow-lg max-w-xs animate-fadeIn z-[100]"
+            sideOffset={2}
+            side="top"
+            align="center"
+          >
+            {content}
+            <Tooltip.Arrow className="fill-gray-900/90" width={8} height={4} />
+          </Tooltip.Content>
+        </Tooltip.Portal>
+      </Tooltip.Root>
+    </Tooltip.Provider>
+  );
+};
 
 const ProductFormHeader = ({ isEditing, onClose }: { isEditing: boolean; onClose: () => void }) => {
   return (
@@ -78,13 +102,6 @@ const ProductFormHeader = ({ isEditing, onClose }: { isEditing: boolean; onClose
     </div>
   );
 };
-
-const FormSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="space-y-3">
-    <h3 className="text-sm font-medium text-gray-700 border-b border-gray-100 pb-1">{title}</h3>
-    {children}
-  </div>
-);
 
 const TitleField = ({ title, setTitle }: { title: string; setTitle: (value: string) => void }) => {
   return (
@@ -208,9 +225,11 @@ const ImageUploadField = ({
           {imagePreview && (
             <motion.div 
               className="w-1/2 relative"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+              variants={FADE_VARIANTS}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={TRANSITION_EASE}
             >
               <img src={imagePreview} alt="Vista previa" className="w-full h-24 object-cover rounded-lg" />
               <button 
@@ -288,14 +307,14 @@ const CurrencyPriceField = ({
         </select>
         
         <div className="relative flex-1">
-          <input
+          <input 
             type="text"
             inputMode="numeric"
             value={formatPrice(price)}
             onChange={handlePriceChange}
             placeholder="0,00"
             className="w-full pl-3 pr-10 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors text-right"
-            required
+            required 
           />
           <CurrencyDollarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
@@ -304,58 +323,56 @@ const CurrencyPriceField = ({
   );
 };
 
-const ToggleFields = ({ 
-  visible, 
-  setVisible, 
-  featured, 
-  setFeatured 
-}: { 
-  visible: boolean; 
-  setVisible: (value: boolean) => void; 
-  featured: boolean; 
-  setFeatured: (value: boolean) => void; 
-}) => {
+const VisibilityToggle = ({ isVisible, setIsVisible }: { isVisible: boolean; setIsVisible: (value: boolean) => void }) => {
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <label className="text-sm font-medium text-gray-700">Visible en menú</label>
-          <InfoTooltip content="Activa esta opción para que el platillo sea visible en el menú público" />
-        </div>
-        <Switch
-          checked={visible}
-          onChange={setVisible}
-          className={`${
-            visible ? 'bg-orange-400' : 'bg-gray-200'
-          } relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2`}
-        >
-          <span
+    <div className="flex-1">
+      <Switch.Group>
+        <div className="flex items-center justify-between">
+          <Switch.Label className="mr-3">
+            <span className="text-sm font-medium text-gray-700">Visible en el menú</span>
+          </Switch.Label>
+          <Switch
+            checked={isVisible}
+            onChange={setIsVisible}
             className={`${
-              visible ? 'translate-x-5' : 'translate-x-0.5'
-            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-          />
-        </Switch>
-      </div>
+              isVisible ? 'bg-orange-400' : 'bg-gray-200'
+            } relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2`}
+          >
+            <span
+              className={`${
+                isVisible ? 'translate-x-5' : 'translate-x-1'
+              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+            />
+          </Switch>
+        </div>
+      </Switch.Group>
+    </div>
+  );
+};
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center">
-          <label className="text-sm font-medium text-gray-700">Destacado</label>
-          <InfoTooltip content="Los platillos destacados aparecerán en la sección principal del menú" />
-        </div>
-        <Switch
-          checked={featured}
-          onChange={setFeatured}
-          className={`${
-            featured ? 'bg-orange-400' : 'bg-gray-200'
-          } relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2`}
-        >
-          <span
+const AvailabilityToggle = ({ isAvailable, setIsAvailable }: { isAvailable: boolean; setIsAvailable: (value: boolean) => void }) => {
+  return (
+    <div className="flex-1">
+      <Switch.Group>
+        <div className="flex items-center justify-between">
+          <Switch.Label className="mr-3">
+            <span className="text-sm font-medium text-gray-700">Destacar producto</span>
+          </Switch.Label>
+          <Switch
+            checked={isAvailable}
+            onChange={setIsAvailable}
             className={`${
-              featured ? 'translate-x-5' : 'translate-x-0.5'
-            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-          />
-        </Switch>
-      </div>
+              isAvailable ? 'bg-orange-400' : 'bg-gray-200'
+            } relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2`}
+          >
+            <span
+              className={`${
+                isAvailable ? 'translate-x-5' : 'translate-x-1'
+              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+            />
+          </Switch>
+        </div>
+      </Switch.Group>
     </div>
   );
 };
@@ -370,7 +387,7 @@ const SubmitButton = ({
   isEditing: boolean;
 }) => {
   return (
-    <button 
+    <button
       type="submit"
       disabled={isLoading || isSuccess}
       className={`
@@ -381,236 +398,199 @@ const SubmitButton = ({
         }
       `}
     >
-      <div className="relative">
+      <motion.div 
+        className="relative"
+        variants={FADE_VARIANTS}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        transition={TRANSITION_EASE}
+      >
         {/* Estado de carga */}
-        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
-          isLoading ? 'opacity-100' : 'opacity-0'
-        }`}>
+        <motion.div 
+          className="absolute inset-0 flex items-center justify-center"
+          variants={FADE_VARIANTS}
+          initial="initial"
+          animate={isLoading ? "animate" : "initial"}
+          transition={TRANSITION_EASE}
+        >
           <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        </div>
+        </motion.div>
 
         {/* Estado de éxito */}
-        <div className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
-          isSuccess ? 'opacity-100' : 'opacity-0'
-        }`}>
+        <motion.div 
+          className="absolute inset-0 flex items-center justify-center"
+          variants={FADE_VARIANTS}
+          initial="initial"
+          animate={isSuccess ? "animate" : "initial"}
+          transition={TRANSITION_EASE}
+        >
           <CheckIcon className="h-5 w-5 text-white" />
-        </div>
+        </motion.div>
 
         {/* Texto del botón */}
-        <span className={`text-white font-medium transition-opacity duration-200 ${
-          isLoading || isSuccess ? 'opacity-0' : 'opacity-100'
-        }`}>
+        <motion.span 
+          className="text-white font-medium"
+          variants={FADE_VARIANTS}
+          initial="initial"
+          animate={!isLoading && !isSuccess ? "animate" : "initial"}
+          transition={TRANSITION_EASE}
+        >
           {isEditing ? 'Guardar cambios' : 'Agregar nuevo platillo'}
-        </span>
-      </div>
+        </motion.span>
+      </motion.div>
     </button>
   );
 };
 
-const ProductForm: React.FC<ProductFormProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
+const ProductForm = ({ 
+  isOpen, 
+  onClose, 
+  onSubmit, 
   categories,
   productToEdit,
   onSuccess
-}) => {
-  const nodeRef = useRef<HTMLDivElement>(null);
-
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [price, setPrice] = useState('');
-  const [currency, setCurrency] = useState('ARS');
-  const [visible, setVisible] = useState(true);
-  const [featured, setFeatured] = useState(false);
+}: ProductFormProps) => {
+  const [title, setTitle] = useState(productToEdit?.name || '');
+  const [description, setDescription] = useState(productToEdit?.description || '');
+  const [price, setPrice] = useState(() => {
+    if (productToEdit?.price) {
+      return Math.round(productToEdit.price * 100).toString();
+    }
+    return '';
+  });
+  const [currency, setCurrency] = useState(productToEdit?.currency || 'ARS');
+  const [categoryId, setCategoryId] = useState(productToEdit?.categoryId || '');
+  const [imagePreview, setImagePreview] = useState<string | null>(productToEdit?.image || null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-
-  useEffect(() => {
-    if (productToEdit) {
-      setTitle(productToEdit.name || '');
-      setDescription(productToEdit.description || '');
-      setPrice(((productToEdit.price || 0) * 100).toString());
-      setCurrency(productToEdit.currency || 'ARS');
-      setCategoryId(productToEdit.categoryId || '');
-      setImagePreview(productToEdit.image || null);
-      setVisible(productToEdit.visible ?? true);
-      setFeatured(productToEdit.featured ?? false);
-    } else {
-      setTitle('');
-      setDescription('');
-      setPrice('');
-      setCurrency('ARS');
-      setCategoryId('');
-      setImagePreview(null);
-      setVisible(true);
-      setFeatured(false);
-    }
-    // Reiniciar estados del botón
-    setIsSuccess(false);
-    setIsLoading(false);
-  }, [productToEdit, isOpen]);
-
-  useEffect(() => {
-    const styleSheet = document.createElement("style");
-    styleSheet.innerText = styles;
-    document.head.appendChild(styleSheet);
-    return () => {
-      document.head.removeChild(styleSheet);
-    };
-  }, []);
+  const [isVisible, setIsVisible] = useState(productToEdit?.visible ?? true);
+  const [isAvailable, setIsAvailable] = useState(productToEdit?.featured ?? false);
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    
-    // Validación de campos obligatorios
-    if (!title.trim()) {
-      alert('Por favor, ingresa un título para el producto');
-      return;
-    }
+    if (!categoryId) return;
 
-    if (!description.trim()) {
-      alert('Por favor, ingresa una descripción para el producto');
-      return;
-    }
-
-    if (!price || isNaN(parseFloat(price)) || parseFloat(price) <= 0) {
-      alert('Por favor, ingresa un precio válido');
-      return;
-    }
-
-    if (!categoryId) {
-      alert('Por favor, selecciona una categoría');
-      return;
-    }
+    setIsLoading(true);
+    setIsSuccess(false);
 
     try {
-      setIsLoading(true);
-      setIsSuccess(false);
-
-      const productData: Product = {
+      await onSubmit({
         id: productToEdit?.id || '',
         name: title.trim(),
         description: description.trim(),
-        price: parseFloat(price) / 100,
-        image: imagePreview || '',
-        categoryId,
-        visible: true,
-        featured,
+        price: parseInt(price) / 100,
         currency,
-        order: productToEdit?.order ?? 0
-      };
+        categoryId,
+        image: imagePreview,
+        visible: isVisible,
+        featured: isAvailable
+      }, categoryId);
 
-      console.log('Enviando producto:', productData);
-      await onSubmit(productData, categoryId);
-      
       setIsSuccess(true);
-      console.log('Producto guardado exitosamente');
+      onSuccess?.(categoryId);
 
-      // Esperar a que se complete la animación de éxito y la animación de salida
-      if (onSuccess) {
-        onSuccess(categoryId);
-      }
-      
-      // Retrasar el cierre para que se vea la animación de éxito
+      // Esperar a que termine la animación de éxito
       setTimeout(() => {
         onClose();
-      }, 1500);
+        // Resetear el formulario
+        setTitle('');
+        setDescription('');
+        setPrice('');
+        setCurrency('ARS');
+        setCategoryId('');
+        setImagePreview(null);
+        setIsVisible(true);
+        setIsAvailable(false);
+      }, 1000);
+
     } catch (error) {
-      console.error('Error al guardar:', error);
-      alert('Hubo un error al guardar el producto. Por favor, intenta de nuevo.');
-      setIsSuccess(false);
+      console.error('Error al guardar el producto:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Cerrar el modal con Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !isLoading && !isSuccess) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onClose, isLoading, isSuccess]);
+
+  if (!isOpen) return null;
+
   return (
     <>
-      {isOpen && (
-        <div 
-          onClick={(e) => {
-            if (!isLoading && !isSuccess) {
-              e.stopPropagation();
-              onClose();
-            }
-          }} 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
-        />
-      )}
+      <div 
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
+        onClick={() => {
+          if (!isLoading && !isSuccess) {
+            onClose();
+          }
+        }}
+      />
 
       <AnimatePresence mode="wait">
-        {isOpen && (
-          <motion.div 
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'tween', duration: 0.3, ease: 'easeInOut' }}
-            className="fixed top-0 right-0 w-full max-w-md h-full bg-gray-50 shadow-lg z-50"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <form onSubmit={handleFormSubmit} className="h-full flex flex-col">
-              <ProductFormHeader 
-                isEditing={!!productToEdit} 
-                onClose={() => {
-                  if (!isLoading && !isSuccess) {
-                    onClose();
-                  }
-                }}
-              />
+        <motion.div
+          className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-50 shadow-xl z-50 flex flex-col"
+          initial={{ x: '100%' }}
+          animate={{ x: 0 }}
+          exit={{ x: '100%' }}
+          transition={TRANSITION_EASE}
+        >
+          <form onSubmit={handleFormSubmit} className="h-full flex flex-col">
+            <ProductFormHeader 
+              isEditing={!!productToEdit} 
+              onClose={() => {
+                if (!isLoading && !isSuccess) {
+                  onClose();
+                }
+              }} 
+            />
 
-              <div className="flex-1 p-5 space-y-6 overflow-y-auto">
-                <div className="space-y-4">
-                  <TitleField title={title} setTitle={setTitle} />
-                  <CategoryField
-                    categoryId={categoryId}
-                    setCategoryId={setCategoryId}
-                    categories={categories}
-                  />
-                </div>
-
-                <ImageUploadField
-                  imagePreview={imagePreview}
-                  setImagePreview={setImagePreview}
-                />
-
-                <DescriptionField 
-                  description={description} 
-                  setDescription={setDescription} 
-                />
-
-                <CurrencyPriceField
-                  price={price}
-                  setPrice={setPrice}
-                  currency={currency}
-                  setCurrency={setCurrency}
-                />
-
-                <FormSection title="Configuración">
-                  <ToggleFields
-                    visible={visible}
-                    setVisible={setVisible}
-                    featured={featured}
-                    setFeatured={setFeatured}
-                  />
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-5 py-4 space-y-6">
+                <FormSection title="Información básica">
+                  <div className="space-y-4">
+                    <TitleField title={title} setTitle={setTitle} />
+                    <CategoryField categoryId={categoryId} setCategoryId={setCategoryId} categories={categories} />
+                  </div>
                 </FormSection>
-              </div>
 
-              <div 
-                className="sticky bottom-0 px-5 py-3 border-t border-gray-200 bg-white"
-              >
-                <SubmitButton 
-                  isLoading={isLoading}
-                  isSuccess={isSuccess}
-                  isEditing={!!productToEdit}
-                />
+                <ImageUploadField imagePreview={imagePreview} setImagePreview={setImagePreview} />
+
+                <DescriptionField description={description} setDescription={setDescription} />
+
+                <div className="space-y-4">
+                  <CurrencyPriceField
+                    price={price}
+                    setPrice={setPrice}
+                    currency={currency}
+                    setCurrency={setCurrency}
+                  />
+                  <div className="flex gap-4">
+                    <VisibilityToggle isVisible={isVisible} setIsVisible={setIsVisible} />
+                    <AvailabilityToggle isAvailable={isAvailable} setIsAvailable={setIsAvailable} />
+                  </div>
+                </div>
               </div>
-            </form>
-          </motion.div>
-        )}
+            </div>
+
+            <div className="sticky bottom-0 px-5 py-3 border-t border-gray-200 bg-white">
+              <SubmitButton 
+                isLoading={isLoading}
+                isSuccess={isSuccess}
+                isEditing={!!productToEdit}
+              />
+            </div>
+          </form>
+        </motion.div>
       </AnimatePresence>
     </>
   );
