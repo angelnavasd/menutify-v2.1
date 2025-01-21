@@ -16,14 +16,21 @@
     "@headlessui/react": "^2.2.0",
     "@hello-pangea/dnd": "^17.0.0",
     "@heroicons/react": "^2.2.0",
+    "@radix-ui/react-tooltip": "^1.1.6",
+    "firebase": "^11.2.0",
+    "firebase-tools": "^13.29.1",
+    "framer-motion": "^11.18.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.1.1"
+    "react-dropzone": "^14.3.5",
+    "react-router-dom": "^7.1.1",
+    "react-transition-group": "^4.4.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/react-transition-group": "^4.4.12",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.17.0",

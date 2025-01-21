@@ -3,18 +3,17 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
-  DragEndEvent
+  DragEndEvent,
+  defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import {
   SortableContext,
-  verticalListSortingStrategy
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  restrictToVerticalAxis,
-  restrictToParentElement
-} from '@dnd-kit/modifiers';
+import { restrictToParentElement } from '@dnd-kit/modifiers';
 import { Category, Product } from './types';
 
 type DraggableItem = Category | Product;
@@ -23,32 +22,35 @@ interface DragAndDropWrapperProps {
   items: DraggableItem[];
   onDragEnd: (event: DragEndEvent) => void;
   children: ReactNode;
-  isEditMode?: boolean;  // ✅ Opcional, porque productos siempre tendrán drag & drop
+  isEditMode?: boolean;
 }
 
 const DragAndDropWrapper = ({ items, onDragEnd, children, isEditMode }: DragAndDropWrapperProps) => {
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 5,
+      },
+    })
   );
-
-  // ✅ Verificamos los IDs de los ítems
-  const itemIds = items.map(item => item.id);
-
-  // ✅ Detectar si los ítems son productos o categorías
-  const isCategoryList = items[0] && 'products' in items[0];  // Si tiene 'products', es categoría
 
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      onDragEnd={
-        isCategoryList
-          ? (isEditMode ? onDragEnd : () => {})  // ✅ Drag solo si está en modo edición
-          : onDragEnd  // ✅ Drag siempre activo para productos
-      }
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      onDragEnd={isEditMode ? onDragEnd : undefined}
+      modifiers={[restrictToParentElement]}
     >
-      <SortableContext items={itemIds} strategy={verticalListSortingStrategy}>
+      <SortableContext 
+        items={items.map(item => item.id)} 
+        strategy={verticalListSortingStrategy}
+      >
         {children}
       </SortableContext>
     </DndContext>

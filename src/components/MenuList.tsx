@@ -1,96 +1,92 @@
 import CategoryItem from './CategoryItem';
 import DragAndDropWrapper from './DragAndDropWrapper';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Category, MenuListProps, Product } from './types';  // ✅ Importar Product
-import { useState } from 'react';
+import { Category, Product } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
 
-const MenuList = ({ categories, setCategories, isEditMode }: MenuListProps) => {
-  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+interface MenuListProps {
+  categories: Category[];
+  setCategories: (categories: Category[]) => void;
+  isEditMode: boolean;
+  onEditProduct: (productId: string, product: Product) => void;
+  onToggleProductVisibility: (productId: string) => void;
+  onDeleteProduct: (productId: string) => void;
+  expandedCategories: string[];
+  setExpandedCategories: (categories: string[]) => void;
+}
 
-  // ✅ Expandir o colapsar categorías
+const MenuList = ({
+  categories,
+  setCategories,
+  isEditMode,
+  onEditProduct,
+  onToggleProductVisibility,
+  onDeleteProduct,
+  expandedCategories,
+  setExpandedCategories
+}: MenuListProps) => {
   const handleToggleExpand = (categoryId: string) => {
-    setExpandedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
+    const newExpandedCategories = expandedCategories.includes(categoryId)
+      ? expandedCategories.filter(id => id !== categoryId)
+      : [...expandedCategories, categoryId];
+    setExpandedCategories(newExpandedCategories);
   };
 
-  // ✅ Drag & Drop para Categorías
   const handleDragEndCategories = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return;
 
-    if (active.id !== over.id) {
-      setCategories((prevCategories) => {
-        const oldIndex = prevCategories.findIndex((cat) => cat.id === active.id);
-        const newIndex = prevCategories.findIndex((cat) => cat.id === over.id);
-        return arrayMove(prevCategories, oldIndex, newIndex);
-      });
-    }
-  };
-
-  // ✅ Drag & Drop para Productos dentro de una categoría
-  const handleDragEndProducts = (categoryId: string, event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    if (active.id !== over.id) {
-      setCategories((prevCategories) =>
-        prevCategories.map((category) => {
-          if (category.id !== categoryId) return category;
-
-          const oldIndex = category.products.findIndex((prod) => prod.id === active.id);
-          const newIndex = category.products.findIndex((prod) => prod.id === over.id);
-
-          return {
-            ...category,
-            products: arrayMove(category.products, oldIndex, newIndex),
-          };
+    if (over && active.id !== over.id) {
+      const oldIndex = categories.findIndex(item => item.id === active.id);
+      const newIndex = categories.findIndex(item => item.id === over.id);
+      
+      const newCategories = arrayMove(categories, oldIndex, newIndex).map(
+        (category, index) => ({
+          ...category,
+          order: index
         })
       );
+      setCategories(newCategories);
     }
   };
 
-  // ✅ Editar Producto (Corregido para aceptar 2 argumentos)
-  const handleEditProduct = (productId: string, updatedProductData: Partial<Product>) => {
-    setCategories((prevCategories) =>
-      prevCategories.map((category) => ({
-        ...category,
-        products: category.products.map((product) =>
-          product.id === productId ? { ...product, ...updatedProductData } : product
-        ),
-      }))
-    );
-  };
+  const handleDragEndProducts = (event: DragEndEvent, categoryId: string) => {
+    const { active, over } = event;
 
-  // ✅ Alternar Visibilidad de Producto
-  const handleToggleVisibility = (productId: string) => {
-    setCategories((prevCategories) =>
-      prevCategories.map((category) => ({
-        ...category,
-        products: category.products.map((product) =>
-          product.id === productId ? { ...product, visible: !product.visible } : product
-        ),
-      }))
-    );
-  };
+    if (over && active.id !== over.id) {
+      const categoryToUpdate = categories.find(c => c.id === categoryId);
+      if (!categoryToUpdate) return;
 
-  // ✅ Eliminar Producto
-  const handleDeleteProduct = (productId: string) => {
-    if (confirm('¿Estás seguro de eliminar este producto?')) {
-      setCategories((prevCategories) =>
-        prevCategories.map((category) => ({
-          ...category,
-          products: category.products.filter((product) => product.id !== productId),
-        }))
+      const oldIndex = categoryToUpdate.products.findIndex(product => product.id === active.id);
+      const newIndex = categoryToUpdate.products.findIndex(product => product.id === over.id);
+      
+      const updatedProducts = arrayMove(categoryToUpdate.products, oldIndex, newIndex);
+
+      const newCategories = categories.map(category => 
+        category.id === categoryId 
+          ? { ...category, products: updatedProducts }
+          : category
       );
+      
+      setCategories(newCategories);
     }
+  };
+
+  const handleEditCategoryName = (categoryId: string, newName: string) => {
+    const newCategories = categories.map(category =>
+      category.id === categoryId
+        ? { ...category, name: newName }
+        : category
+    );
+    setCategories(newCategories);
+  };
+
+  const handleDeleteCategory = (categoryId: string) => {
+    const newCategories = categories.filter(category => category.id !== categoryId);
+    setCategories(newCategories);
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-4 md:p-6 max-h-[calc(100vh-180px)] overflow-y-auto">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 max-h-[calc(100vh-180px)] overflow-y-auto [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-[10px] [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
       <DragAndDropWrapper
         items={categories}
         onDragEnd={handleDragEndCategories}
@@ -100,26 +96,18 @@ const MenuList = ({ categories, setCategories, isEditMode }: MenuListProps) => {
           {categories.map((category) => (
             <CategoryItem
               key={category.id}
-              {...category}
+              id={category.id}
+              name={category.name}
+              products={category.products}
               isExpanded={expandedCategories.includes(category.id)}
               isEditMode={isEditMode}
               onToggleExpand={handleToggleExpand}
-              onEditName={(id, newName) => {
-                setCategories((prevCategories) =>
-                  prevCategories.map((cat) =>
-                    cat.id === id ? { ...cat, name: newName } : cat
-                  )
-                );
-              }}
-              onDelete={(id) => {
-                setCategories((prevCategories) =>
-                  prevCategories.filter((cat) => cat.id !== id)
-                );
-              }}
-              onEditProduct={handleEditProduct}  // ✅ Editar producto (2 parámetros)
-              onToggleVisibility={handleToggleVisibility}  // ✅ Alternar visibilidad
-              onDeleteProduct={handleDeleteProduct}  // ✅ Eliminar producto
-              onDragEndProducts={(event) => handleDragEndProducts(category.id, event)}  // ✅ Drag & Drop productos
+              onEditName={handleEditCategoryName}
+              onDelete={handleDeleteCategory}
+              onEditProduct={onEditProduct}
+              onToggleVisibility={onToggleProductVisibility}
+              onDeleteProduct={onDeleteProduct}
+              onDragEndProducts={handleDragEndProducts}
             />
           ))}
         </div>

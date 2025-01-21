@@ -1,104 +1,57 @@
 import { DragEndEvent } from '@dnd-kit/core';
 
-/////////////////////////////
-// ✅ Interface para Productos
-/////////////////////////////
-
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
-  categoryId: string;
-  image: string;
-  featured: boolean;
-  visible: boolean;
-  currency: string;
+  image?: string;
+  visible?: boolean;
+  featured?: boolean;
+  categoryId?: string;
+  currency?: string;
+  order?: number;
 }
-
-/////////////////////////////
-// ✅ Interface para Categorías
-/////////////////////////////
 
 export interface Category {
   id: string;
   name: string;
   products: Product[];
+  order?: number;
 }
 
-///////////////////////////////////////////////
-// ✅ Props para el componente ProductCard
-///////////////////////////////////////////////
+export interface CategoryItemProps extends Category {
+  isExpanded: boolean;
+  isEditMode: boolean;
+  onToggleExpand: (id: string) => void;
+  onEditName: (id: string, newName: string) => void;
+  onDelete: (id: string) => void;
+  onEditProduct: (productId: string, product: Product) => void;
+  onToggleVisibility: (productId: string) => void;
+  onDeleteProduct: (productId: string) => void;
+  onDragEndProducts: (event: DragEndEvent, categoryId: string) => void;
+}
 
-export interface ProductCardProps {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  currency: string;
-  visible: boolean;
-
-  // ✅ Funciones para editar, alternar visibilidad y eliminar productos
-  onEdit: (productId: string, updatedProductData: Partial<Product>) => void;
+export interface ProductCardProps extends Product {
+  onEdit: (productId: string, product: Product) => void;
   onToggleVisibility: (productId: string) => void;
   onDelete: (productId: string) => void;
 }
-
-///////////////////////////////////////////
-// ✅ Props para el componente MenuList
-///////////////////////////////////////////
 
 export interface MenuListProps {
   categories: Category[];
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
   isEditMode: boolean;
-
-  // ✅ Editar producto
-  onEditProduct: (productId: string, updatedProductData: Partial<Product>) => void;
-
-  // ✅ Alternar visibilidad de producto
+  onEditProduct: (productId: string, product: Product) => void;
   onToggleProductVisibility: (productId: string) => void;
-
-  // ✅ Eliminar producto
   onDeleteProduct: (productId: string) => void;
+  expandedCategories: string[];
+  setExpandedCategories: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-//////////////////////////////////////////////////
-// ✅ Props para el componente CategoryItem
-//////////////////////////////////////////////////
-
-export interface CategoryItemProps {
-  id: string;
-  name: string;
-  products: Product[];
-  isExpanded: boolean;
+export interface DragAndDropWrapperProps {
+  items: any[];
+  onDragEnd: (event: DragEndEvent) => void;
   isEditMode: boolean;
-  onToggleExpand: (categoryId: string) => void;
-  onEditName: (categoryId: string, newName: string) => void;
-  onDelete: (categoryId: string) => void;
-
-  // ✅ Editar producto
-  onEditProduct: (productId: string, updatedProductData: Partial<Product>) => void;
-
-  // ✅ Alternar visibilidad de producto
-  onToggleVisibility: (productId: string) => void;
-
-  // ✅ Eliminar producto
-  onDeleteProduct: (productId: string) => void;
-
-  // ✅ Drag & Drop de productos
-  onDragEndProducts: (event: DragEndEvent, categoryId: string) => void;
-}
-
-////////////////////////////////////////////////
-// ✅ Props para el componente ProductList
-////////////////////////////////////////////////
-
-export interface ProductListProps {
-  products: Product[];
-  onEditProduct: (productId: string, updatedProductData: Partial<Product>) => void;
-  onToggleVisibility: (productId: string) => void;
-  onDeleteProduct: (productId: string) => void;
-  onDragEndProducts: (event: DragEndEvent, categoryId: string) => void;
+  children: React.ReactNode;
 }

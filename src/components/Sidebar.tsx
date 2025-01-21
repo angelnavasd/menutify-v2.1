@@ -1,66 +1,93 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
+  Bars3Icon,
+  XMarkIcon,
+  DocumentPlusIcon,
+  BuildingStorefrontIcon,
   UserIcon,
   Cog6ToothIcon,
-  ArrowRightOnRectangleIcon,
-  SparklesIcon,
+  ArrowRightIcon,
   ChevronDownIcon,
-  Bars3Icon,
-  XMarkIcon
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
-import { useNavigate } from 'react-router-dom';
+
+const menuItems = [
+  { name: 'Restaurante', icon: BuildingStorefrontIcon, path: '/restaurant' },
+  { name: 'Cuenta', icon: UserIcon, path: '/account' }
+];
 
 const Sidebar = () => {
-  const [active, setActive] = useState('Creador de Menú');
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
-
-  const menuItems = [
-    { name: 'Cuenta', icon: UserIcon, path: '/account' },
-    { name: 'Ajustes', icon: Cog6ToothIcon, path: '/settings' },
-  ];
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [active, setActive] = useState('Creador de Menú');
 
   return (
     <>
-      {/* 🔥 Header para Mobile */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-900 text-white px-4 py-3 shadow-md">
-        <div className="bg-white text-gray-900 font-bold h-9 w-9 flex items-center justify-center rounded-md">
+      {/* Header Mobile */}
+      <header className="md:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-950 px-2 py-2 border-b border-gray-800/50">
+        <div className="bg-gradient-to-r from-orange-400 to-amber-400 font-bold h-9 w-9 flex items-center justify-center rounded-lg shadow-lg shadow-orange-400/20">
           M
         </div>
-        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+        <button 
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="text-gray-400 hover:text-white transition-colors"
+        >
           {isSidebarOpen ? (
-            <XMarkIcon className="h-8 w-8 text-white" />
+            <XMarkIcon className="h-7 w-7" />
           ) : (
-            <Bars3Icon className="h-8 w-8 text-white" />
+            <Bars3Icon className="h-7 w-7" />
           )}
         </button>
       </header>
 
-      {/* 🚀 Sidebar (Desktop y Mobile Drawer) */}
-      <div className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white shadow-lg transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 md:translate-x-0 md:static z-30 flex flex-col justify-between`}>
+      {/* Backdrop */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-20"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <motion.aside 
+        className={`fixed md:sticky top-0 left-0 h-[100dvh] w-[280px] bg-gray-950 text-white shadow-xl md:shadow-2xl md:shadow-gray-950/50 z-30 flex flex-col justify-between ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        } transition-transform duration-300`}
+      >
         <div>
-          {/* ✅ Header con Menutify (Desktop y Mobile) */}
-          <div className="px-6 py-4 border-b border-gray-800 flex flex-col">
-            <h1 className="text-2xl font-bold text-white">Menutify</h1>
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-800/50">
+            <h1 className="text-2xl font-bold text-white">
+              Menutify
+            </h1>
             <p className="text-sm text-gray-400 mt-1">Gestor de menús</p>
           </div>
 
-          <div className="px-4 py-5">
+          {/* Menu Creator Button */}
+          <div className="px-4 py-4">
             <button
               onClick={() => {
                 setActive('Creador de Menú');
                 navigate('/');
                 setIsSidebarOpen(false);
               }}
-              className="w-full flex items-center justify-between px-5 py-3 rounded-lg bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white text-base shadow-md hover:opacity-90 transition-all"
+              className="w-full group relative flex items-center justify-between px-4 py-2.5 rounded-lg animate-gradient text-white shadow-lg shadow-orange-400/20 hover:shadow-orange-400/30 transition-all duration-300"
             >
-              <span>Creador de Menú</span>
-              <SparklesIcon className="h-6 w-6 text-white" />
+              <span className="text-sm font-medium">Creador de Menú</span>
+              <DocumentPlusIcon className="h-5 w-5 text-orange-50 transition-all duration-300 group-hover:rotate-12" />
             </button>
           </div>
 
-          <nav className="flex-1 px-4 space-y-4">
+          {/* Navigation */}
+          <nav role="navigation" className="flex-1 px-4 space-y-1">
             {menuItems.map((item) => (
               <button
                 key={item.name}
@@ -69,56 +96,100 @@ const Sidebar = () => {
                   navigate(item.path);
                   setIsSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-4 px-5 py-3 rounded-lg transition-all text-base ${
+                className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all text-sm font-medium group ${
                   active === item.name
-                    ? 'bg-gray-800 text-white'
-                    : 'hover:bg-gray-800 hover:text-gray-100'
+                    ? 'bg-gray-800/50 text-orange-300'
+                    : 'text-gray-400 hover:bg-gray-800/30 hover:text-gray-100'
                 }`}
               >
-                {item.icon && <item.icon className="h-6 w-6" />}
-                <span>{item.name}</span>
+                <div className="flex items-center gap-3">
+                  <item.icon className="h-5 w-5" />
+                  <span>{item.name}</span>
+                </div>
+                <ArrowRightIcon className={`h-4 w-4 transition-all duration-300 ${
+                  active === item.name 
+                    ? 'opacity-100 translate-x-0 text-orange-300' 
+                    : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'
+                }`} />
               </button>
             ))}
           </nav>
         </div>
 
-        <div className="px-4 py-4 border-t border-gray-800">
+        {/* User Profile */}
+        <div className="relative px-4 py-3 border-t border-gray-800/50">
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="w-full flex items-center justify-between px-5 py-3 rounded-lg hover:bg-gray-800 transition-all"
+            aria-label="Menu de usuario"
+            aria-expanded={isDropdownOpen}
+            aria-haspopup="true"
+            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-800/30 transition-all"
           >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2.5">
               <img
                 src="https://i.pravatar.cc/300"
                 alt="Avatar"
-                className="h-10 w-10 rounded-md object-cover"
+                className="h-8 w-8 rounded-lg object-cover ring-2 ring-gray-800"
               />
-              <div className="text-left">
-                <p className="text-base font-medium">Ángel Navas</p>
-                <div className="flex items-center gap-1">
-                  <span className="h-2 w-2 bg-green-500 rounded-full"></span>
-                  <span className="text-sm text-green-400">Menutify Pro</span>
+              <div className="flex-1 text-left">
+                <p className="text-sm font-medium text-gray-200">Restaurant Demo</p>
+                <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 bg-orange-400/10 rounded-md mt-0.5">
+                  <span className="w-1 h-1 rounded-full bg-orange-400"></span>
+                  <span className="text-[10px] font-medium text-orange-400">Menutify Pro</span>
                 </div>
               </div>
             </div>
-            <ChevronDownIcon className={`h-6 w-6 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            <motion.div
+              animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="ml-1.5"
+            >
+              <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+            </motion.div>
           </button>
 
-          {isDropdownOpen && (
-            <div className="absolute bottom-20 left-4 w-56 bg-gray-800 text-white rounded-md shadow-lg py-2 space-y-2">
-              <button className="w-full flex items-center gap-3 px-5 py-3 text-base hover:bg-gray-700 rounded-md">
-                <UserIcon className="h-6 w-6" /> Ver perfil
-              </button>
-              <button className="w-full flex items-center gap-3 px-5 py-3 text-base hover:bg-gray-700 rounded-md">
-                <Cog6ToothIcon className="h-6 w-6" /> Configuración
-              </button>
-              <button className="w-full flex items-center gap-3 px-5 py-3 text-base text-red-500 hover:bg-red-600 rounded-md">
-                <ArrowRightOnRectangleIcon className="h-6 w-6" /> Cerrar sesión
-              </button>
-            </div>
-          )}
+          <AnimatePresence>
+            {isDropdownOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.2 }}
+                className="absolute bottom-full left-4 right-4 mb-2 bg-gray-900/80 backdrop-blur-sm rounded-lg shadow-xl border border-gray-800/50 py-1.5 space-y-1"
+              >
+                <button 
+                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <UserIcon className="h-5 w-5" /> 
+                    <span>Ver perfil</span>
+                  </div>
+                  <ArrowRightIcon className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </button>
+                <button 
+                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Cog6ToothIcon className="h-5 w-5" /> 
+                    <span>Ajustes</span>
+                  </div>
+                  <ArrowRightIcon className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </button>
+                <div className="h-px bg-gray-800/50 mx-3 my-1" />
+                <button 
+                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-950/30 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <ArrowRightOnRectangleIcon className="h-5 w-5" /> 
+                    <span>Cerrar sesión</span>
+                  </div>
+                  <ArrowRightIcon className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.aside>
     </>
   );
 };
