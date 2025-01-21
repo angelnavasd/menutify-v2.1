@@ -1,15 +1,16 @@
 import { DragEndEvent } from '@dnd-kit/core';
+import { Variants } from 'framer-motion';
 
 export interface Product {
   id: string;
   name: string;
-  description?: string;
+  description: string;
   price: number;
-  image?: string;
-  visible?: boolean;
-  featured?: boolean;
-  categoryId?: string;
-  currency?: string;
+  image: string | null;
+  visible: boolean;
+  featured: boolean;
+  categoryId: string;
+  currency: string;
   order?: number;
 }
 
@@ -30,6 +31,8 @@ export interface CategoryItemProps extends Category {
   onToggleVisibility: (productId: string) => void;
   onDeleteProduct: (productId: string) => void;
   onDragEndProducts: (event: DragEndEvent, categoryId: string) => void;
+  expandVariants?: Variants;
+  hoverVariants?: Variants;
 }
 
 export interface ProductCardProps extends Product {
@@ -54,4 +57,5 @@ export interface DragAndDropWrapperProps {
   onDragEnd: (event: DragEndEvent) => void;
   isEditMode: boolean;
   children: React.ReactNode;
+  dragVariants?: Variants;
 }

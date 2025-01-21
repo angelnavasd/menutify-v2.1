@@ -14,18 +14,18 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { Category, Product } from './types';
+import { Category, Product, DragAndDropWrapperProps } from './types';
+import { motion } from 'framer-motion';
 
 type DraggableItem = Category | Product;
 
-interface DragAndDropWrapperProps {
-  items: DraggableItem[];
-  onDragEnd: (event: DragEndEvent) => void;
-  children: ReactNode;
-  isEditMode?: boolean;
-}
-
-const DragAndDropWrapper = ({ items, onDragEnd, children, isEditMode }: DragAndDropWrapperProps) => {
+const DragAndDropWrapper = ({ 
+  items, 
+  onDragEnd, 
+  children, 
+  isEditMode,
+  dragVariants 
+}: DragAndDropWrapperProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -51,7 +51,14 @@ const DragAndDropWrapper = ({ items, onDragEnd, children, isEditMode }: DragAndD
         items={items.map(item => item.id)} 
         strategy={verticalListSortingStrategy}
       >
-        {children}
+        <motion.div
+          variants={dragVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
+          {children}
+        </motion.div>
       </SortableContext>
     </DndContext>
   );

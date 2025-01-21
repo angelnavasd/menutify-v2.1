@@ -12,6 +12,8 @@ import {
   ChevronDownIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
+import { SIDEBAR_BACKDROP_VARIANTS, SIDEBAR_DROPDOWN_VARIANTS, SIDEBAR_CHEVRON_VARIANTS, SIDEBAR_ARROW_VARIANTS, TRANSITION_SPRING } from '../constants/animations';
+import { THEME_COLORS } from '../constants/colors';
 
 const menuItems = [
   { name: 'Restaurante', icon: BuildingStorefrontIcon, path: '/restaurant' },
@@ -47,9 +49,10 @@ const Sidebar = () => {
       <AnimatePresence>
         {isSidebarOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            variants={SIDEBAR_BACKDROP_VARIANTS}
+            initial="initial"
+            animate="animate"
+            exit="exit"
             onClick={() => setIsSidebarOpen(false)}
             className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-20"
           />
@@ -106,11 +109,18 @@ const Sidebar = () => {
                   <item.icon className="h-5 w-5" />
                   <span>{item.name}</span>
                 </div>
-                <ArrowRightIcon className={`h-4 w-4 transition-all duration-300 ${
-                  active === item.name 
-                    ? 'opacity-100 translate-x-0 text-orange-300' 
-                    : 'opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0'
-                }`} />
+                <motion.div
+                  variants={SIDEBAR_ARROW_VARIANTS}
+                  initial="initial"
+                  animate={active === item.name ? "hover" : "initial"}
+                  className="h-4 w-4"
+                >
+                  <ArrowRightIcon className={`h-4 w-4 ${
+                    active === item.name 
+                      ? 'text-orange-300' 
+                      : 'text-gray-400'
+                  }`} />
+                </motion.div>
               </button>
             ))}
           </nav>
@@ -140,8 +150,9 @@ const Sidebar = () => {
               </div>
             </div>
             <motion.div
-              animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
+              variants={SIDEBAR_CHEVRON_VARIANTS}
+              initial="initial"
+              animate={isDropdownOpen ? "animate" : "initial"}
               className="ml-1.5"
             >
               <ChevronDownIcon className="h-4 w-4 text-gray-400" />
@@ -151,10 +162,11 @@ const Sidebar = () => {
           <AnimatePresence>
             {isDropdownOpen && (
               <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={{ duration: 0.2 }}
+                variants={SIDEBAR_DROPDOWN_VARIANTS}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={TRANSITION_SPRING}
                 className="absolute bottom-full left-4 right-4 mb-2 bg-gray-900/80 backdrop-blur-sm rounded-lg shadow-xl border border-gray-800/50 py-1.5 space-y-1"
               >
                 <button 
@@ -164,7 +176,14 @@ const Sidebar = () => {
                     <UserIcon className="h-5 w-5" /> 
                     <span>Ver perfil</span>
                   </div>
-                  <ArrowRightIcon className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <motion.div
+                    variants={SIDEBAR_ARROW_VARIANTS}
+                    initial="initial"
+                    whileHover="hover"
+                    className="h-4 w-4"
+                  >
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </motion.div>
                 </button>
                 <button 
                   className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors group"
@@ -173,7 +192,14 @@ const Sidebar = () => {
                     <Cog6ToothIcon className="h-5 w-5" /> 
                     <span>Ajustes</span>
                   </div>
-                  <ArrowRightIcon className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <motion.div
+                    variants={SIDEBAR_ARROW_VARIANTS}
+                    initial="initial"
+                    whileHover="hover"
+                    className="h-4 w-4"
+                  >
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </motion.div>
                 </button>
                 <div className="h-px bg-gray-800/50 mx-3 my-1" />
                 <button 
@@ -183,7 +209,14 @@ const Sidebar = () => {
                     <ArrowRightOnRectangleIcon className="h-5 w-5" /> 
                     <span>Cerrar sesión</span>
                   </div>
-                  <ArrowRightIcon className="h-4 w-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                  <motion.div
+                    variants={SIDEBAR_ARROW_VARIANTS}
+                    initial="initial"
+                    whileHover="hover"
+                    className="h-4 w-4"
+                  >
+                    <ArrowRightIcon className="h-4 w-4" />
+                  </motion.div>
                 </button>
               </motion.div>
             )}

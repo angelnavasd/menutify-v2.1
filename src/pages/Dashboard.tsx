@@ -428,7 +428,7 @@ const Dashboard = () => {
       <main className="flex-1 flex bg-gray-50 min-w-0">
         {/* Lista de Categorías */}
         <section className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 px-2 md:p-6 pt-16 md:pt-6 overflow-y-auto">
+          <div className="flex-1 px-2 md:p-6 pt-16 md:pt-6 overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
             {/* Mensajes de estado */}
             <div className="fixed top-4 right-4 z-50 space-y-2">
               {isLoading && (
