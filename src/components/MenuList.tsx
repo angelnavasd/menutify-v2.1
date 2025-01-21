@@ -3,6 +3,9 @@ import DragAndDropWrapper from './DragAndDropWrapper';
 import { arrayMove } from '@dnd-kit/sortable';
 import { Category, Product } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
+import { MENU_LIST_DRAG_VARIANTS, MENU_LIST_EXPAND_VARIANTS, MENU_LIST_ITEM_HOVER_VARIANTS } from '../constants/animations';
+import { MENU_LIST_STYLES, CONTAINER_STYLES } from '../constants/layout';
+import { THEME_COLORS } from '../constants/colors';
 
 interface MenuListProps {
   categories: Category[];
@@ -86,13 +89,20 @@ const MenuList = ({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 max-h-[calc(100vh-180px)] overflow-y-auto [scrollbar-gutter:stable] [&::-webkit-scrollbar]:w-[10px] [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:bg-transparent hover:[&::-webkit-scrollbar-thumb]:bg-gray-400">
+    <div 
+      className={`bg-white ${MENU_LIST_STYLES.borders.container} rounded-lg`}
+      style={{
+        padding: MENU_LIST_STYLES.spacing.containerPadding,
+        borderRadius: CONTAINER_STYLES.rounded.lg
+      }}
+    >
       <DragAndDropWrapper
         items={categories}
         onDragEnd={handleDragEndCategories}
         isEditMode={isEditMode}
+        dragVariants={MENU_LIST_DRAG_VARIANTS}
       >
-        <div className="space-y-4">
+        <div className={`${MENU_LIST_STYLES.spacing.sectionGap}`}>
           {categories.map((category) => (
             <CategoryItem
               key={category.id}
@@ -108,6 +118,8 @@ const MenuList = ({
               onToggleVisibility={onToggleProductVisibility}
               onDeleteProduct={onDeleteProduct}
               onDragEndProducts={handleDragEndProducts}
+              expandVariants={MENU_LIST_EXPAND_VARIANTS}
+              hoverVariants={MENU_LIST_ITEM_HOVER_VARIANTS}
             />
           ))}
         </div>

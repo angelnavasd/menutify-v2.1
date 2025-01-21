@@ -7,6 +7,8 @@ import ProductCard from './ProductCard';
 import { DragEndEvent } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { TRANSITION_EASE, EXPAND_VARIANTS } from '../constants/animations';
+import { MENU_LIST_STYLES } from '../constants/layout';
 
 const CategoryItem = ({
   id,
@@ -44,7 +46,6 @@ const CategoryItem = ({
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    touchAction: isEditMode ? 'none' : 'auto'
   };
 
   const handleDragEndProducts = (event: DragEndEvent) => {
@@ -71,18 +72,21 @@ const CategoryItem = ({
     <div 
       ref={setNodeRef}
       style={style}
-      className="bg-white rounded-lg border border-gray-200 overflow-hidden"
+      className={`bg-white ${MENU_LIST_STYLES.borders.container} rounded-lg overflow-hidden`}
     >
       <div className="relative">
         <div
-          className={`relative w-full px-4 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors ${
-            isEditMode ? 'cursor-grab active:cursor-grabbing touch-none' : 'cursor-pointer'
+          className={`relative w-full ${MENU_LIST_STYLES.spacing.categoryPadding} flex items-center justify-between text-left ${MENU_LIST_STYLES.hover.item} ${MENU_LIST_STYLES.transitions.colors} ${
+            !isEditMode && 'cursor-pointer'
           }`}
           onClick={!isEditMode ? handleCategoryClick : undefined}
-          {...(isEditMode ? { ...attributes, ...listeners } : {})}
         >
           {isEditMode && (
-            <div className="absolute left-2 top-1/2 -translate-y-1/2">
+            <div 
+              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing"
+              {...attributes}
+              {...listeners}
+            >
               <Bars4Icon className="h-4 w-4 text-gray-400" />
             </div>
           )}
@@ -100,7 +104,7 @@ const CategoryItem = ({
                 />
               </form>
             ) : (
-              <div className="flex flex-col gap-0">
+              <div className={`flex flex-col ${MENU_LIST_STYLES.spacing.contentGap}`}>
                 <h3 className="text-base font-medium text-gray-900">
                   {name}
                 </h3>
@@ -111,7 +115,7 @@ const CategoryItem = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className={`flex items-center ${MENU_LIST_STYLES.spacing.iconGap}`}>
             {isEditMode && !isEditing && (
               <>
                 <button
@@ -119,7 +123,7 @@ const CategoryItem = ({
                     e.stopPropagation();
                     setIsEditing(true);
                   }}
-                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} text-gray-400 ${MENU_LIST_STYLES.hover.editButton} ${MENU_LIST_STYLES.transitions.colors}`}
                 >
                   <PencilSquareIcon className="h-4 w-4" />
                 </button>
@@ -130,17 +134,15 @@ const CategoryItem = ({
                       onDelete(id);
                     }
                   }}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} text-gray-400 ${MENU_LIST_STYLES.hover.deleteButton} ${MENU_LIST_STYLES.transitions.colors}`}
                 >
                   <TrashIcon className="h-4 w-4" />
                 </button>
               </>
             )}
             <motion.div
-              animate={{ 
-                rotate: isExpanded ? 180 : 0
-              }}
-              transition={{ duration: 0.2 }}
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={TRANSITION_EASE}
             >
               <ChevronDownIcon className="h-4 w-4 text-gray-400" />
             </motion.div>
@@ -149,13 +151,14 @@ const CategoryItem = ({
       </div>
 
       {/* Contenido expandible */}
-      <div 
-        className={`overflow-hidden transition-all duration-200 ease-out ${
-          isExpanded ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
+      <motion.div 
+        variants={EXPAND_VARIANTS}
+        initial="initial"
+        animate={isExpanded ? "animate" : "initial"}
+        className="overflow-hidden"
       >
-        <div className="px-4 pb-3 space-y-2">
-          <div className="pt-1 border-t border-gray-100" />
+        <div className={`${MENU_LIST_STYLES.spacing.contentPadding} ${MENU_LIST_STYLES.spacing.sectionGap}`}>
+          <div className={`pt-1 ${MENU_LIST_STYLES.borders.divider}`} />
           {products.length === 0 ? (
             <p className="text-sm text-gray-500">0 platillos</p>
           ) : (
@@ -164,7 +167,7 @@ const CategoryItem = ({
               onDragEnd={handleDragEndProducts}
               isEditMode={isExpanded}
             >
-              <div className="space-y-2">
+              <div className={MENU_LIST_STYLES.spacing.sectionGap}>
                 {products.map(product => (
                   <ProductCard
                     key={product.id}
@@ -179,7 +182,7 @@ const CategoryItem = ({
             </DragAndDropWrapper>
           )}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
