@@ -6,7 +6,7 @@ import { Category, Product } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
 import { MENU_LIST_DRAG_VARIANTS } from '../constants/animations';
 import { MENU_LIST_STYLES } from '../constants/layout';
-import { updateCategory, getCategories } from '../firebase/services';
+import { updateCategory, getCategories, deleteCategory } from '../firebase/services';
 
 interface MenuListProps {
   categories: Category[];
@@ -117,8 +117,16 @@ const MenuList = memo(({
     );
   };
 
-  const handleDeleteCategory = (categoryId: string) => {
-    setCategories(categories.filter(category => category.id !== categoryId));
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      await deleteCategory(categoryId);
+      setCategories(categories.filter(category => category.id !== categoryId));
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      // Si hay un error, recargar las categorías para mantener la consistencia
+      const reloadedCategories = await getCategories();
+      setCategories(reloadedCategories);
+    }
   };
 
   return (
