@@ -5,7 +5,6 @@ import { Category, Product } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
 import { MENU_LIST_DRAG_VARIANTS, MENU_LIST_EXPAND_VARIANTS, MENU_LIST_ITEM_HOVER_VARIANTS } from '../constants/animations';
 import { MENU_LIST_STYLES, CONTAINER_STYLES } from '../constants/layout';
-import { THEME_COLORS } from '../constants/colors';
 
 interface MenuListProps {
   categories: Category[];
