@@ -270,4 +270,81 @@ export const MENU_STYLES = {
       }
     }
   }
+} as const;
+
+export const PRODUCT_FORM_STYLES = {
+  overlay: 'fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity',
+  container: {
+    wrapper: 'fixed inset-y-0 right-0 w-full max-w-md bg-gray-50 shadow-xl z-50 flex flex-col',
+    content: 'flex-1 overflow-y-auto',
+    section: 'px-5 py-4 space-y-6'
+  },
+  header: {
+    wrapper: 'px-5 py-3 border-b border-gray-200 flex items-center justify-between bg-white',
+    title: 'text-xl font-semibold text-gray-800',
+    subtitle: 'text-xs text-gray-500',
+    closeButton: 'text-gray-500 hover:text-gray-700 transition-colors'
+  },
+  formSection: {
+    wrapper: 'space-y-3',
+    title: 'text-sm font-medium text-gray-700 border-b border-gray-100 pb-1'
+  },
+  field: {
+    wrapper: 'space-y-2',
+    label: {
+      wrapper: 'flex items-center',
+      text: 'block text-sm font-medium text-gray-700'
+    },
+    input: 'w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors',
+    textarea: 'w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none h-20',
+    select: 'w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white'
+  },
+  imageUpload: {
+    wrapper: 'flex gap-4 h-24',
+    dropzone: {
+      base: 'w-1/2 border-2 border-dashed rounded-lg flex items-center justify-center bg-gray-50',
+      active: 'border-blue-500 bg-blue-50',
+      inactive: 'border-gray-300',
+      content: 'text-center text-gray-500 text-sm p-2'
+    },
+    preview: {
+      wrapper: 'w-1/2 relative',
+      image: 'w-full h-24 object-cover rounded-lg',
+      removeButton: 'absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors'
+    }
+  },
+  currencyField: {
+    wrapper: 'flex items-center gap-2',
+    select: 'px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white w-28',
+    inputWrapper: 'relative flex-1',
+    input: 'w-full pl-3 pr-10 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors text-right',
+    icon: 'absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400'
+  },
+  toggle: {
+    wrapper: 'flex-1',
+    container: 'flex items-center justify-between',
+    label: 'mr-3',
+    labelText: 'text-sm font-medium text-gray-700',
+    switch: {
+      base: 'relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2',
+      active: 'bg-orange-400',
+      inactive: 'bg-gray-200',
+      handle: {
+        base: 'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+        active: 'translate-x-5',
+        inactive: 'translate-x-1'
+      }
+    }
+  },
+  submitButton: {
+    wrapper: 'sticky bottom-0 px-5 py-3 border-t border-gray-200 bg-white',
+    button: {
+      base: 'w-full py-3 rounded-lg transition-colors relative',
+      success: 'bg-green-500 hover:bg-green-600',
+      default: 'bg-orange-400 hover:bg-orange-500'
+    },
+    content: 'relative',
+    spinner: 'h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin',
+    text: 'text-white font-medium'
+  }
 } as const; 

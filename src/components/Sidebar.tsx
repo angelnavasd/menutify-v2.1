@@ -15,36 +15,12 @@ import {
   MoonIcon
 } from '@heroicons/react/24/outline';
 import { SIDEBAR_BACKDROP_VARIANTS, SIDEBAR_DROPDOWN_VARIANTS, SIDEBAR_CHEVRON_VARIANTS, SIDEBAR_ARROW_VARIANTS, TRANSITION_SPRING } from '../constants/animations';
-import { THEME_COLORS } from '../constants/colors';
+import { THEME_COLORS, SIDEBAR_COLORS } from '../constants/colors';
 
 const menuItems = [
   { name: 'Restaurante', icon: BuildingStorefrontIcon, path: '/restaurant' },
   { name: 'Cuenta', icon: UserIcon, path: '/account' }
 ];
-
-// Colores para el modo oscuro del sidebar
-const SIDEBAR_DARK_COLORS = {
-  background: 'bg-gray-950',
-  text: {
-    primary: 'text-white',
-    secondary: 'text-gray-400'
-  },
-  border: 'border-gray-800/50',
-  hover: 'hover:bg-gray-800/30',
-  active: 'bg-gray-800/50'
-};
-
-// Colores para el modo claro del sidebar
-const SIDEBAR_LIGHT_COLORS = {
-  background: 'bg-white',
-  text: {
-    primary: 'text-gray-900',
-    secondary: 'text-gray-500'
-  },
-  border: 'border-gray-200',
-  hover: 'hover:bg-gray-100',
-  active: 'bg-gray-100'
-};
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -53,7 +29,7 @@ const Sidebar = () => {
   const [active, setActive] = useState('Creador de Menú');
   const [isDarkMode, setIsDarkMode] = useState(true);
 
-  const colors = isDarkMode ? SIDEBAR_DARK_COLORS : SIDEBAR_LIGHT_COLORS;
+  const colors = isDarkMode ? SIDEBAR_COLORS.dark : SIDEBAR_COLORS.light;
 
   return (
     <>
@@ -196,10 +172,10 @@ const Sidebar = () => {
                 animate="animate"
                 exit="exit"
                 transition={TRANSITION_SPRING}
-                className={`absolute bottom-full left-4 right-4 mb-2 ${colors.background}/80 backdrop-blur-sm rounded-lg shadow-xl border ${colors.border} py-1.5 space-y-1`}
+                className={`absolute bottom-full left-4 right-4 mb-2 ${colors.background} backdrop-blur-sm rounded-lg shadow-xl border ${colors.border} py-1.5 space-y-1`}
               >
                 <button 
-                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')} transition-colors group`}
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     <UserIcon className="h-5 w-5" /> 
@@ -215,7 +191,7 @@ const Sidebar = () => {
                   </motion.div>
                 </button>
                 <button 
-                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')} transition-colors group`}
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     <Cog6ToothIcon className="h-5 w-5" /> 
@@ -233,7 +209,7 @@ const Sidebar = () => {
                 {/* Theme Switch */}
                 <button 
                   onClick={() => setIsDarkMode(!isDarkMode)}
-                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')} transition-colors group`}
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     {isDarkMode ? (
@@ -253,7 +229,7 @@ const Sidebar = () => {
                 </button>
                 <div className={`h-px ${colors.border} mx-3 my-1`} />
                 <button 
-                  className={`w-full flex items-center justify-between px-4 py-2 text-sm text-${THEME_COLORS.status.error.text} hover:text-${THEME_COLORS.status.error.text} hover:bg-${THEME_COLORS.status.error.bg} transition-colors group`}
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm text-red-500 ${colors.hover} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     <ArrowRightOnRectangleIcon className="h-5 w-5" /> 

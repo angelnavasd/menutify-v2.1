@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { Product } from '../types';
 import { FADE_VARIANTS, TRANSITION_EASE } from '../../constants/animations';
+import { PRODUCT_FORM_STYLES } from '../../constants/layout';
 
 interface Category {
   id: string;
@@ -28,8 +29,8 @@ interface FormSectionProps {
 
 function FormSection({ title, children }: FormSectionProps) {
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-gray-700 border-b border-gray-100 pb-1">{title}</h3>
+    <div className={PRODUCT_FORM_STYLES.formSection.wrapper}>
+      <h3 className={PRODUCT_FORM_STYLES.formSection.title}>{title}</h3>
       {children}
     </div>
   );
@@ -87,16 +88,16 @@ const InfoTooltip = ({ content }: { content: string }) => {
 
 const ProductFormHeader = ({ isEditing, onClose }: { isEditing: boolean; onClose: () => void }) => {
   return (
-    <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between bg-white">
+    <div className={PRODUCT_FORM_STYLES.header.wrapper}>
       <div>
-        <h2 className="text-xl font-semibold text-gray-800">
+        <h2 className={PRODUCT_FORM_STYLES.header.title}>
           {isEditing ? 'Editar platillo' : 'Crear nuevo platillo'}
         </h2>
-        <p className="text-xs text-gray-500">
+        <p className={PRODUCT_FORM_STYLES.header.subtitle}>
           {isEditing ? 'Edita los detalles del platillo.' : 'Agrega un nuevo platillo a tu menú.'}
         </p>
       </div>
-      <button onClick={onClose} className="text-gray-500 hover:text-gray-700 transition-colors">
+      <button onClick={onClose} className={PRODUCT_FORM_STYLES.header.closeButton}>
         <XMarkIcon className="h-5 w-5" />
       </button>
     </div>
@@ -105,9 +106,9 @@ const ProductFormHeader = ({ isEditing, onClose }: { isEditing: boolean; onClose
 
 const TitleField = ({ title, setTitle }: { title: string; setTitle: (value: string) => void }) => {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center">
-        <label className="block text-sm font-medium text-gray-700">
+    <div className={PRODUCT_FORM_STYLES.field.wrapper}>
+      <div className={PRODUCT_FORM_STYLES.field.label.wrapper}>
+        <label className={PRODUCT_FORM_STYLES.field.label.text}>
           Título del plato
         </label>
         <InfoTooltip content="El nombre que verán tus clientes en el menú" />
@@ -117,7 +118,7 @@ const TitleField = ({ title, setTitle }: { title: string; setTitle: (value: stri
         value={title} 
         onChange={(e) => setTitle(e.target.value)} 
         placeholder="Ejemplo: Pizza Muzzarella" 
-        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+        className={PRODUCT_FORM_STYLES.field.input}
         required 
       />
     </div>
@@ -126,9 +127,9 @@ const TitleField = ({ title, setTitle }: { title: string; setTitle: (value: stri
 
 const DescriptionField = ({ description, setDescription }: { description: string; setDescription: (value: string) => void }) => {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center">
-        <label className="block text-sm font-medium text-gray-700">
+    <div className={PRODUCT_FORM_STYLES.field.wrapper}>
+      <div className={PRODUCT_FORM_STYLES.field.label.wrapper}>
+        <label className={PRODUCT_FORM_STYLES.field.label.text}>
           Descripción
         </label>
         <InfoTooltip content="Describe los ingredientes principales y características especiales del platillo" />
@@ -137,7 +138,7 @@ const DescriptionField = ({ description, setDescription }: { description: string
         value={description} 
         onChange={(e) => setDescription(e.target.value)} 
         placeholder="Descripción del platillo" 
-        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none h-20" 
+        className={PRODUCT_FORM_STYLES.field.textarea}
         required 
       />
     </div>
@@ -154,9 +155,9 @@ const CategoryField = ({
   categories: Category[]; 
 }) => {
   return (
-    <div className="space-y-2">
-      <div className="flex items-center">
-        <label className="block text-sm font-medium text-gray-700">
+    <div className={PRODUCT_FORM_STYLES.field.wrapper}>
+      <div className={PRODUCT_FORM_STYLES.field.label.wrapper}>
+        <label className={PRODUCT_FORM_STYLES.field.label.text}>
           Categoría
         </label>
         <InfoTooltip content="Selecciona la sección del menú donde aparecerá tu producto" />
@@ -164,7 +165,7 @@ const CategoryField = ({
       <select 
         value={categoryId} 
         onChange={(e) => setCategoryId(e.target.value)} 
-        className="w-full px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+        className={PRODUCT_FORM_STYLES.field.select}
       >
         <option value="">Selecciona una categoría</option>
         {categories.map((category) => (
@@ -202,20 +203,21 @@ const ImageUploadField = ({
   });
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center">
-        <label className="block text-sm font-medium text-gray-700">
+    <div className={PRODUCT_FORM_STYLES.field.wrapper}>
+      <div className={PRODUCT_FORM_STYLES.field.label.wrapper}>
+        <label className={PRODUCT_FORM_STYLES.field.label.text}>
           Foto del platillo
         </label>
         <InfoTooltip content="Sube una imagen atractiva de tu platillo. Recomendamos usar fotos bien iluminadas y en formato cuadrado" />
       </div>
-      <div className="flex gap-4 h-24">
+      <div className={PRODUCT_FORM_STYLES.imageUpload.wrapper}>
         <div {...getRootProps()}
-          className={`w-1/2 border-2 border-dashed rounded-lg flex items-center justify-center bg-gray-50
-            ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+          className={`${PRODUCT_FORM_STYLES.imageUpload.dropzone.base} ${
+            isDragActive ? PRODUCT_FORM_STYLES.imageUpload.dropzone.active : PRODUCT_FORM_STYLES.imageUpload.dropzone.inactive
+          }`}
         >
           <input {...getInputProps()} />
-          <div className="text-center text-gray-500 text-sm p-2">
+          <div className={PRODUCT_FORM_STYLES.imageUpload.dropzone.content}>
             <PhotoIcon className="h-6 w-6 mx-auto mb-1" />
             <span className="block">{isDragActive ? 'Suelta la imagen' : 'Arrastra o selecciona'}</span>
           </div>
@@ -224,18 +226,18 @@ const ImageUploadField = ({
         <AnimatePresence>
           {imagePreview && (
             <motion.div 
-              className="w-1/2 relative"
+              className={PRODUCT_FORM_STYLES.imageUpload.preview.wrapper}
               variants={FADE_VARIANTS}
               initial="initial"
               animate="animate"
               exit="exit"
               transition={TRANSITION_EASE}
             >
-              <img src={imagePreview} alt="Vista previa" className="w-full h-24 object-cover rounded-lg" />
+              <img src={imagePreview} alt="Vista previa" className={PRODUCT_FORM_STYLES.imageUpload.preview.image} />
               <button 
                 onClick={() => { setImagePreview(null); }}
                 type="button" 
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                className={PRODUCT_FORM_STYLES.imageUpload.preview.removeButton}
               >
                 <XMarkIcon className="h-4 w-4" />
               </button>
@@ -288,16 +290,16 @@ const CurrencyPriceField = ({
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center">
-        <label className="block text-sm font-medium text-gray-700">Precio</label>
+    <div className={PRODUCT_FORM_STYLES.field.wrapper}>
+      <div className={PRODUCT_FORM_STYLES.field.label.wrapper}>
+        <label className={PRODUCT_FORM_STYLES.field.label.text}>Precio</label>
         <InfoTooltip content="Ingresa el precio sin puntos ni comas. Los últimos dos dígitos serán los centavos" />
       </div>
-      <div className="flex items-center gap-2">
+      <div className={PRODUCT_FORM_STYLES.currencyField.wrapper}>
         <select
           value={currency}
           onChange={(e) => setCurrency(e.target.value)}
-          className="px-3 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white w-28"
+          className={PRODUCT_FORM_STYLES.currencyField.select}
         >
           {CURRENCIES.map(({ code, label, flag }) => (
             <option key={code} value={code}>
@@ -306,17 +308,17 @@ const CurrencyPriceField = ({
           ))}
         </select>
         
-        <div className="relative flex-1">
+        <div className={PRODUCT_FORM_STYLES.currencyField.inputWrapper}>
           <input 
             type="text"
             inputMode="numeric"
             value={formatPrice(price)}
             onChange={handlePriceChange}
             placeholder="0,00"
-            className="w-full pl-3 pr-10 py-1.5 border border-gray-300 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors text-right"
+            className={PRODUCT_FORM_STYLES.currencyField.input}
             required 
           />
-          <CurrencyDollarIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <CurrencyDollarIcon className={PRODUCT_FORM_STYLES.currencyField.icon} />
         </div>
       </div>
     </div>
@@ -325,23 +327,23 @@ const CurrencyPriceField = ({
 
 const VisibilityToggle = ({ isVisible, setIsVisible }: { isVisible: boolean; setIsVisible: (value: boolean) => void }) => {
   return (
-    <div className="flex-1">
+    <div className={PRODUCT_FORM_STYLES.toggle.wrapper}>
       <Switch.Group>
-        <div className="flex items-center justify-between">
-          <Switch.Label className="mr-3">
-            <span className="text-sm font-medium text-gray-700">Visible en el menú</span>
+        <div className={PRODUCT_FORM_STYLES.toggle.container}>
+          <Switch.Label className={PRODUCT_FORM_STYLES.toggle.label}>
+            <span className={PRODUCT_FORM_STYLES.toggle.labelText}>Visible en el menú</span>
           </Switch.Label>
           <Switch
             checked={isVisible}
             onChange={setIsVisible}
-            className={`${
-              isVisible ? 'bg-orange-400' : 'bg-gray-200'
-            } relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2`}
+            className={`${PRODUCT_FORM_STYLES.toggle.switch.base} ${
+              isVisible ? PRODUCT_FORM_STYLES.toggle.switch.active : PRODUCT_FORM_STYLES.toggle.switch.inactive
+            }`}
           >
             <span
-              className={`${
-                isVisible ? 'translate-x-5' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              className={`${PRODUCT_FORM_STYLES.toggle.switch.handle.base} ${
+                isVisible ? PRODUCT_FORM_STYLES.toggle.switch.handle.active : PRODUCT_FORM_STYLES.toggle.switch.handle.inactive
+              }`}
             />
           </Switch>
         </div>
@@ -352,23 +354,23 @@ const VisibilityToggle = ({ isVisible, setIsVisible }: { isVisible: boolean; set
 
 const AvailabilityToggle = ({ isAvailable, setIsAvailable }: { isAvailable: boolean; setIsAvailable: (value: boolean) => void }) => {
   return (
-    <div className="flex-1">
+    <div className={PRODUCT_FORM_STYLES.toggle.wrapper}>
       <Switch.Group>
-        <div className="flex items-center justify-between">
-          <Switch.Label className="mr-3">
-            <span className="text-sm font-medium text-gray-700">Destacar producto</span>
+        <div className={PRODUCT_FORM_STYLES.toggle.container}>
+          <Switch.Label className={PRODUCT_FORM_STYLES.toggle.label}>
+            <span className={PRODUCT_FORM_STYLES.toggle.labelText}>Destacar producto</span>
           </Switch.Label>
           <Switch
             checked={isAvailable}
             onChange={setIsAvailable}
-            className={`${
-              isAvailable ? 'bg-orange-400' : 'bg-gray-200'
-            } relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2`}
+            className={`${PRODUCT_FORM_STYLES.toggle.switch.base} ${
+              isAvailable ? PRODUCT_FORM_STYLES.toggle.switch.active : PRODUCT_FORM_STYLES.toggle.switch.inactive
+            }`}
           >
             <span
-              className={`${
-                isAvailable ? 'translate-x-5' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+              className={`${PRODUCT_FORM_STYLES.toggle.switch.handle.base} ${
+                isAvailable ? PRODUCT_FORM_STYLES.toggle.switch.handle.active : PRODUCT_FORM_STYLES.toggle.switch.handle.inactive
+              }`}
             />
           </Switch>
         </div>
@@ -390,16 +392,12 @@ const SubmitButton = ({
     <button
       type="submit"
       disabled={isLoading || isSuccess}
-      className={`
-        w-full py-3 rounded-lg transition-colors relative
-        ${isSuccess 
-          ? 'bg-green-500 hover:bg-green-600' 
-          : 'bg-orange-400 hover:bg-orange-500'
-        }
-      `}
+      className={`${PRODUCT_FORM_STYLES.submitButton.button.base} ${
+        isSuccess ? PRODUCT_FORM_STYLES.submitButton.button.success : PRODUCT_FORM_STYLES.submitButton.button.default
+      }`}
     >
       <motion.div 
-        className="relative"
+        className={PRODUCT_FORM_STYLES.submitButton.content}
         variants={FADE_VARIANTS}
         initial="initial"
         animate="animate"
@@ -414,7 +412,7 @@ const SubmitButton = ({
           animate={isLoading ? "animate" : "initial"}
           transition={TRANSITION_EASE}
         >
-          <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          <div className={PRODUCT_FORM_STYLES.submitButton.spinner} />
         </motion.div>
 
         {/* Estado de éxito */}
@@ -430,7 +428,7 @@ const SubmitButton = ({
 
         {/* Texto del botón */}
         <motion.span 
-          className="text-white font-medium"
+          className={PRODUCT_FORM_STYLES.submitButton.text}
           variants={FADE_VARIANTS}
           initial="initial"
           animate={!isLoading && !isSuccess ? "animate" : "initial"}
@@ -528,7 +526,7 @@ const ProductForm = ({
   return (
     <>
       <div 
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity"
+        className={PRODUCT_FORM_STYLES.overlay}
         onClick={() => {
           if (!isLoading && !isSuccess) {
             onClose();
@@ -538,7 +536,7 @@ const ProductForm = ({
 
       <AnimatePresence mode="wait">
         <motion.div
-          className="fixed inset-y-0 right-0 w-full max-w-md bg-gray-50 shadow-xl z-50 flex flex-col"
+          className={PRODUCT_FORM_STYLES.container.wrapper}
           initial={{ x: '100%' }}
           animate={{ x: 0 }}
           exit={{ x: '100%' }}
@@ -554,8 +552,8 @@ const ProductForm = ({
               }} 
             />
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="px-5 py-4 space-y-6">
+            <div className={PRODUCT_FORM_STYLES.container.content}>
+              <div className={PRODUCT_FORM_STYLES.container.section}>
                 <FormSection title="Información básica">
                   <div className="space-y-4">
                     <TitleField title={title} setTitle={setTitle} />
@@ -582,7 +580,7 @@ const ProductForm = ({
               </div>
             </div>
 
-            <div className="sticky bottom-0 px-5 py-3 border-t border-gray-200 bg-white">
+            <div className={PRODUCT_FORM_STYLES.submitButton.wrapper}>
               <SubmitButton 
                 isLoading={isLoading}
                 isSuccess={isSuccess}

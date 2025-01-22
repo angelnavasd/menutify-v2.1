@@ -176,4 +176,27 @@ export const MENU_COLORS = {
       text: 'text-green-400'
     }
   }
+} as const;
+
+export const SIDEBAR_COLORS = {
+  light: {
+    background: 'bg-white',
+    text: {
+      primary: 'text-gray-900',
+      secondary: 'text-gray-500'
+    },
+    border: 'border-gray-200',
+    hover: 'hover:bg-gray-100',
+    active: 'bg-gray-100'
+  },
+  dark: {
+    background: 'bg-gray-950',
+    text: {
+      primary: 'text-white',
+      secondary: 'text-gray-400'
+    },
+    border: 'border-gray-800/50',
+    hover: 'hover:bg-gray-800/30',
+    active: 'bg-gray-800/50'
+  }
 } as const; 
