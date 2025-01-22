@@ -185,4 +185,24 @@ export const CATEGORY_ITEM_ANIMATION_VARIANTS = {
       }
     }
   }
+} as const;
+
+export const MODAL_CATEGORY_FORM_VARIANTS = {
+  container: {
+    hidden: { 
+      opacity: 0,
+      y: -5,
+      scale: 0.95
+    },
+    visible: { 
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        duration: 0.2,
+        bounce: 0.2
+      }
+    }
+  }
 } as const; 

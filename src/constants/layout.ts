@@ -56,17 +56,17 @@ export const CONTAINER_STYLES = {
 };
 
 export const MENU_LIST_STYLES = {
-  maxHeight: 'calc(100vh - 180px)',
-  scrollbar: {
-    width: '10px',
-    thumb: {
-      default: 'bg-gray-300',
-      hover: 'bg-gray-400'
-    },
-    track: 'bg-transparent'
+  container: {
+    base: 'bg-white rounded-lg',
+    padding: '0.75rem',
+    borderRadius: '0.75rem',
+    wrapper: 'space-y-2'
+  },
+  borders: {
+    container: 'border border-gray-200',
+    divider: 'border-t border-gray-100'
   },
   spacing: {
-    itemGap: '1rem',
     containerPadding: '0.75rem',
     categoryPadding: 'px-4 py-2.5',
     buttonPadding: 'p-1',
@@ -83,12 +83,8 @@ export const MENU_LIST_STYLES = {
   transitions: {
     all: 'transition-all',
     colors: 'transition-colors'
-  },
-  borders: {
-    container: 'border border-gray-200',
-    divider: 'border-t border-gray-100'
   }
-};
+} as const;
 
 export const PRODUCT_CARD_STYLES = {
   container: 'flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200/80 hover:border-gray-300/80 transition-colors',
@@ -346,5 +342,43 @@ export const PRODUCT_FORM_STYLES = {
     content: 'relative',
     spinner: 'h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin',
     text: 'text-white font-medium'
+  }
+} as const;
+
+export const DRAG_AND_DROP_STYLES = {
+  container: {
+    base: 'w-full',
+    dragging: 'cursor-grabbing',
+    notDragging: 'cursor-grab'
+  },
+  sensors: {
+    pointer: {
+      activationDistance: 8
+    },
+    touch: {
+      activationDelay: 100,
+      tolerance: 5
+    }
+  }
+} as const;
+
+export const MODAL_CATEGORY_FORM_STYLES = {
+  container: {
+    wrapper: 'absolute mt-2 z-50',
+    content: 'w-80 bg-white rounded-lg shadow-lg border border-gray-200/80 overflow-hidden'
+  },
+  form: {
+    wrapper: 'p-4 space-y-4',
+    input: {
+      container: 'space-y-1.5',
+      label: 'block text-sm font-medium text-gray-700',
+      field: 'w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-300 focus:border-transparent transition-colors'
+    },
+    error: 'text-red-500 text-xs',
+    buttons: {
+      container: 'flex gap-2 pt-2',
+      create: 'flex-1 py-2 bg-orange-400 text-white text-sm font-medium rounded-lg hover:bg-orange-500 transition-colors',
+      cancel: 'flex-1 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors'
+    }
   }
 } as const; 

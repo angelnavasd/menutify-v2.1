@@ -1,10 +1,11 @@
+import { memo } from 'react';
 import CategoryItem from './CategoryItem';
 import DragAndDropWrapper from './DragAndDropWrapper';
 import { arrayMove } from '@dnd-kit/sortable';
 import { Category, Product } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
-import { MENU_LIST_DRAG_VARIANTS, MENU_LIST_EXPAND_VARIANTS, MENU_LIST_ITEM_HOVER_VARIANTS } from '../constants/animations';
-import { MENU_LIST_STYLES, CONTAINER_STYLES } from '../constants/layout';
+import { MENU_LIST_DRAG_VARIANTS } from '../constants/animations';
+import { MENU_LIST_STYLES } from '../constants/layout';
 
 interface MenuListProps {
   categories: Category[];
@@ -17,7 +18,7 @@ interface MenuListProps {
   setExpandedCategories: (categories: string[]) => void;
 }
 
-const MenuList = ({
+const MenuList = memo(({
   categories,
   setCategories,
   isEditMode,
@@ -28,10 +29,13 @@ const MenuList = ({
   setExpandedCategories
 }: MenuListProps) => {
   const handleToggleExpand = (categoryId: string) => {
-    const newExpandedCategories = expandedCategories.includes(categoryId)
-      ? expandedCategories.filter(id => id !== categoryId)
-      : [...expandedCategories, categoryId];
-    setExpandedCategories(newExpandedCategories);
+    if (isEditMode) return; // Prevent expanding when in edit mode
+    
+    setExpandedCategories(
+      expandedCategories.includes(categoryId)
+        ? expandedCategories.filter(id => id !== categoryId)
+        : [...expandedCategories, categoryId]
+    );
   };
 
   const handleDragEndCategories = (event: DragEndEvent) => {
@@ -41,13 +45,12 @@ const MenuList = ({
       const oldIndex = categories.findIndex(item => item.id === active.id);
       const newIndex = categories.findIndex(item => item.id === over.id);
       
-      const newCategories = arrayMove(categories, oldIndex, newIndex).map(
-        (category, index) => ({
+      setCategories(
+        arrayMove(categories, oldIndex, newIndex).map((category, index) => ({
           ...category,
           order: index
-        })
+        }))
       );
-      setCategories(newCategories);
     }
   };
 
@@ -63,45 +66,39 @@ const MenuList = ({
       
       const updatedProducts = arrayMove(categoryToUpdate.products, oldIndex, newIndex);
 
-      const newCategories = categories.map(category => 
-        category.id === categoryId 
-          ? { ...category, products: updatedProducts }
-          : category
+      setCategories(
+        categories.map(category => 
+          category.id === categoryId 
+            ? { ...category, products: updatedProducts }
+            : category
+        )
       );
-      
-      setCategories(newCategories);
     }
   };
 
   const handleEditCategoryName = (categoryId: string, newName: string) => {
-    const newCategories = categories.map(category =>
-      category.id === categoryId
-        ? { ...category, name: newName }
-        : category
+    setCategories(
+      categories.map(category =>
+        category.id === categoryId
+          ? { ...category, name: newName }
+          : category
+      )
     );
-    setCategories(newCategories);
   };
 
   const handleDeleteCategory = (categoryId: string) => {
-    const newCategories = categories.filter(category => category.id !== categoryId);
-    setCategories(newCategories);
+    setCategories(categories.filter(category => category.id !== categoryId));
   };
 
   return (
-    <div 
-      className={`bg-white ${MENU_LIST_STYLES.borders.container} rounded-lg`}
-      style={{
-        padding: MENU_LIST_STYLES.spacing.containerPadding,
-        borderRadius: CONTAINER_STYLES.rounded.lg
-      }}
-    >
+    <div className={`${MENU_LIST_STYLES.container.base} ${MENU_LIST_STYLES.borders.container}`}>
       <DragAndDropWrapper
         items={categories}
         onDragEnd={handleDragEndCategories}
         isEditMode={isEditMode}
         dragVariants={MENU_LIST_DRAG_VARIANTS}
       >
-        <div className={`${MENU_LIST_STYLES.spacing.sectionGap}`}>
+        <div className={MENU_LIST_STYLES.container.wrapper}>
           {categories.map((category) => (
             <CategoryItem
               key={category.id}
@@ -117,14 +114,15 @@ const MenuList = ({
               onToggleVisibility={onToggleProductVisibility}
               onDeleteProduct={onDeleteProduct}
               onDragEndProducts={handleDragEndProducts}
-              expandVariants={MENU_LIST_EXPAND_VARIANTS}
-              hoverVariants={MENU_LIST_ITEM_HOVER_VARIANTS}
+              showExpandIcon={!isEditMode}
             />
           ))}
         </div>
       </DragAndDropWrapper>
     </div>
   );
-};
+});
+
+MenuList.displayName = 'MenuList';
 
 export default MenuList;

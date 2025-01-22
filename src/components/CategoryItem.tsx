@@ -23,6 +23,7 @@ const CategoryItem = ({
   onToggleVisibility,
   onDeleteProduct,
   onDragEndProducts,
+  showExpandIcon = true
 }: CategoryItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(name);
@@ -140,13 +141,15 @@ const CategoryItem = ({
                 </button>
               </>
             )}
-            <motion.div
-              animate={isExpanded ? "expanded" : "collapsed"}
-              variants={CATEGORY_ITEM_ANIMATION_VARIANTS.chevron}
-              transition={TRANSITION_EASE}
-            >
-              <ChevronDownIcon className={CATEGORY_ITEM_STYLES.icons.base} />
-            </motion.div>
+            {showExpandIcon && (
+              <motion.div
+                animate={isExpanded ? "expanded" : "collapsed"}
+                variants={CATEGORY_ITEM_ANIMATION_VARIANTS.chevron}
+                transition={TRANSITION_EASE}
+              >
+                <ChevronDownIcon className={CATEGORY_ITEM_STYLES.icons.base} />
+              </motion.div>
+            )}
           </div>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const MenuPage = () => {
   const location = useLocation();
-  const [isDarkMode, setIsDarkMode] = useLocalStorage('menuDarkMode', false);
+  const [isDarkMode] = useLocalStorage('menuDarkMode', false);
   const [categories, setCategories] = useLocalStorage<Category[]>('categories', []);
 
   // Actualizar cuando cambie el estado de navegación

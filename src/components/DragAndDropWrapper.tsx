@@ -7,35 +7,45 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
-  defaultDropAnimationSideEffects,
 } from '@dnd-kit/core';
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToParentElement } from '@dnd-kit/modifiers';
-import { Category, Product, DragAndDropWrapperProps } from './types';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
+import { DRAG_AND_DROP_STYLES } from '../constants/layout';
 
-type DraggableItem = Category | Product;
+interface DraggableItem {
+  id: string;
+  [key: string]: any;
+}
 
-const DragAndDropWrapper = ({ 
+interface DragAndDropWrapperProps<T extends DraggableItem> {
+  items: T[];
+  onDragEnd: (event: DragEndEvent) => void;
+  children: ReactNode;
+  isEditMode: boolean;
+  dragVariants?: Variants;
+}
+
+const DragAndDropWrapper = <T extends DraggableItem>({ 
   items, 
   onDragEnd, 
   children, 
   isEditMode,
   dragVariants 
-}: DragAndDropWrapperProps) => {
+}: DragAndDropWrapperProps<T>) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: DRAG_AND_DROP_STYLES.sensors.pointer.activationDistance,
       },
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 100,
-        tolerance: 5,
+        delay: DRAG_AND_DROP_STYLES.sensors.touch.activationDelay,
+        tolerance: DRAG_AND_DROP_STYLES.sensors.touch.tolerance,
       },
     })
   );
@@ -56,6 +66,7 @@ const DragAndDropWrapper = ({
           initial="initial"
           animate="animate"
           exit="exit"
+          className={DRAG_AND_DROP_STYLES.container.base}
         >
           {children}
         </motion.div>

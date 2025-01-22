@@ -8,8 +8,6 @@ import {
   deleteDoc, 
   getDoc, 
   setDoc,
-  DocumentData,
-  QueryDocumentSnapshot,
   writeBatch
 } from 'firebase/firestore';
 import { Category } from '../components/types';

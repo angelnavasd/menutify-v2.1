@@ -32,8 +32,7 @@ export interface CategoryItemProps extends Category {
   onToggleVisibility: (productId: string) => void;
   onDeleteProduct: (productId: string) => void;
   onDragEndProducts: (event: DragEndEvent, categoryId: string) => void;
-  expandVariants?: Variants;
-  hoverVariants?: Variants;
+  showExpandIcon?: boolean;
 }
 
 export interface ProductCardProps extends Product {
