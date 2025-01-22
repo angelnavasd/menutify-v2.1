@@ -16,6 +16,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
   const [isScrolled, setIsScrolled] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   const colors = isDarkMode ? MENU_COLORS.dark : MENU_COLORS.light;
 
@@ -31,6 +32,63 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
   const featuredProducts = categories
     .flatMap(category => category.products)
     .filter(product => product.visible !== false && product.featured);
+
+  // Scroll the active category button into view
+  const scrollActiveButtonIntoView = (categoryId: string) => {
+    if (!navRef.current) return;
+    
+    const button = navRef.current.querySelector(`[data-category-id="${categoryId}"]`) as HTMLElement;
+    if (!button) return;
+
+    const nav = navRef.current;
+    const buttonRect = button.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+    
+    // Calculate the scroll position to center the button
+    const scrollLeft = button.offsetLeft - (navRect.width / 2) + (buttonRect.width / 2);
+    
+    nav.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    });
+  };
+
+  // Initialize Intersection Observer
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const options = {
+      root: contentRef.current,
+      rootMargin: '-20% 0px -60% 0px', // Adjust these values to change when categories become active
+      threshold: 0
+    };
+
+    const callback: IntersectionObserverCallback = (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const categoryId = entry.target.id;
+          setActiveCategory(categoryId);
+          scrollActiveButtonIntoView(categoryId);
+        }
+      });
+    };
+
+    observerRef.current = new IntersectionObserver(callback, options);
+
+    // Observe all category sections
+    visibleCategories.forEach(category => {
+      const element = document.getElementById(category.id);
+      if (element) {
+        observerRef.current?.observe(element);
+      }
+    });
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [visibleCategories]);
 
   useEffect(() => {
     if (visibleCategories.length > 0 && !activeCategory) {
@@ -51,14 +109,14 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
     return () => content.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Scroll to category
+  // Scroll to category with offset calculation
   const scrollToCategory = (categoryId: string) => {
     const element = document.getElementById(categoryId);
     if (!element || !contentRef.current) return;
 
     const container = contentRef.current;
     const elementTop = element.offsetTop;
-    const headerHeight = 120; // Approximate header height
+    const headerHeight = isScrolled ? 60 : 120; // Adjust based on header state
     
     container.scrollTo({
       top: elementTop - headerHeight,
@@ -66,6 +124,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
     });
 
     setActiveCategory(categoryId);
+    scrollActiveButtonIntoView(categoryId);
   };
 
   return (
@@ -79,7 +138,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
           <div className={`${MENU_STYLES.container.header.content.base} ${
             isScrolled ? MENU_STYLES.container.header.content.collapsed : MENU_STYLES.container.header.content.expanded
           }`}>
-            <div className={`overflow-hidden transition-all duration-200 ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100'}`}>
+            <div className="overflow-hidden transition-all duration-200 ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100'}">
               <div className="flex flex-col items-start">
                 <div className={`${MENU_STYLES.container.header.logo.container} ${colors.logo.background} ${colors.logo.text}`}>
                   LP
@@ -109,6 +168,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
                 {visibleCategories.map((category) => (
                   <button
                     key={category.id}
+                    data-category-id={category.id}
                     onClick={() => scrollToCategory(category.id)}
                     className={`${MENU_STYLES.container.navigation.item.base} ${
                       activeCategory === category.id
