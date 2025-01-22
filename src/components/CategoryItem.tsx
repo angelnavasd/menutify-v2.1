@@ -7,8 +7,9 @@ import ProductCard from './ProductCard';
 import { DragEndEvent } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TRANSITION_EASE, EXPAND_VARIANTS } from '../constants/animations';
-import { MENU_LIST_STYLES } from '../constants/layout';
+import { TRANSITION_EASE, CATEGORY_ITEM_ANIMATION_VARIANTS } from '../constants/animations';
+import { MENU_LIST_STYLES, CATEGORY_ITEM_STYLES } from '../constants/layout';
+import { CATEGORY_ITEM_COLORS } from '../constants/colors';
 
 const CategoryItem = ({
   id,
@@ -72,43 +73,43 @@ const CategoryItem = ({
     <div 
       ref={setNodeRef}
       style={style}
-      className={`bg-white ${MENU_LIST_STYLES.borders.container} rounded-lg overflow-hidden`}
+      className={`${CATEGORY_ITEM_STYLES.container.base} ${MENU_LIST_STYLES.borders.container}`}
     >
       <div className="relative">
         <div
-          className={`relative w-full ${MENU_LIST_STYLES.spacing.categoryPadding} flex items-center justify-between text-left ${MENU_LIST_STYLES.hover.item} ${MENU_LIST_STYLES.transitions.colors} ${
+          className={`${CATEGORY_ITEM_STYLES.header.base} ${MENU_LIST_STYLES.spacing.categoryPadding} ${MENU_LIST_STYLES.hover.item} ${MENU_LIST_STYLES.transitions.colors} ${
             !isEditMode && 'cursor-pointer'
           }`}
           onClick={!isEditMode ? handleCategoryClick : undefined}
         >
           {isEditMode && (
             <div 
-              className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing"
+              className={CATEGORY_ITEM_STYLES.header.dragHandle}
               {...attributes}
               {...listeners}
             >
-              <Bars4Icon className="h-4 w-4 text-gray-400" />
+              <Bars4Icon className={CATEGORY_ITEM_STYLES.icons.base} />
             </div>
           )}
           
-          <div className={`flex-1 ${isEditMode ? 'ml-6' : ''}`}>
+          <div className={`flex-1 ${isEditMode ? CATEGORY_ITEM_STYLES.header.editMode : ''}`}>
             {isEditing ? (
               <form onSubmit={handleSubmit} className="flex items-center" onClick={e => e.stopPropagation()}>
                 <input
                   type="text"
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
-                  className="px-2 py-0.5 border border-gray-200 rounded text-sm text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent"
+                  className={`${CATEGORY_ITEM_STYLES.input.base} ${CATEGORY_ITEM_STYLES.input.focus}`}
                   autoFocus
                   onBlur={handleSubmit}
                 />
               </form>
             ) : (
               <div className={`flex flex-col ${MENU_LIST_STYLES.spacing.contentGap}`}>
-                <h3 className="text-base font-medium text-gray-900">
+                <h3 className={CATEGORY_ITEM_STYLES.title.base}>
                   {name}
                 </h3>
-                <p className="text-xs text-gray-500">
+                <p className={CATEGORY_ITEM_STYLES.title.count}>
                   {products.length} {products.length === 1 ? 'platillo' : 'platillos'}
                 </p>
               </div>
@@ -123,9 +124,9 @@ const CategoryItem = ({
                     e.stopPropagation();
                     setIsEditing(true);
                   }}
-                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} text-gray-400 ${MENU_LIST_STYLES.hover.editButton} ${MENU_LIST_STYLES.transitions.colors}`}
+                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} ${CATEGORY_ITEM_COLORS.text.icon} ${MENU_LIST_STYLES.hover.editButton} ${MENU_LIST_STYLES.transitions.colors}`}
                 >
-                  <PencilSquareIcon className="h-4 w-4" />
+                  <PencilSquareIcon className={CATEGORY_ITEM_STYLES.icons.base} />
                 </button>
                 <button
                   onClick={(e) => {
@@ -134,17 +135,18 @@ const CategoryItem = ({
                       onDelete(id);
                     }
                   }}
-                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} text-gray-400 ${MENU_LIST_STYLES.hover.deleteButton} ${MENU_LIST_STYLES.transitions.colors}`}
+                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} ${CATEGORY_ITEM_COLORS.text.icon} ${MENU_LIST_STYLES.hover.deleteButton} ${MENU_LIST_STYLES.transitions.colors}`}
                 >
-                  <TrashIcon className="h-4 w-4" />
+                  <TrashIcon className={CATEGORY_ITEM_STYLES.icons.base} />
                 </button>
               </>
             )}
             <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
+              animate={isExpanded ? "expanded" : "collapsed"}
+              variants={CATEGORY_ITEM_ANIMATION_VARIANTS.chevron}
               transition={TRANSITION_EASE}
             >
-              <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+              <ChevronDownIcon className={CATEGORY_ITEM_STYLES.icons.base} />
             </motion.div>
           </div>
         </div>
@@ -152,15 +154,15 @@ const CategoryItem = ({
 
       {/* Contenido expandible */}
       <motion.div 
-        variants={EXPAND_VARIANTS}
-        initial="initial"
-        animate={isExpanded ? "animate" : "initial"}
+        variants={CATEGORY_ITEM_ANIMATION_VARIANTS.content}
+        initial="collapsed"
+        animate={isExpanded ? "expanded" : "collapsed"}
         className="overflow-hidden"
       >
         <div className={`${MENU_LIST_STYLES.spacing.contentPadding} ${MENU_LIST_STYLES.spacing.sectionGap}`}>
           <div className={`pt-1 ${MENU_LIST_STYLES.borders.divider}`} />
           {products.length === 0 ? (
-            <p className="text-sm text-gray-500">0 platillos</p>
+            <p className={CATEGORY_ITEM_COLORS.text.subtitle}>0 platillos</p>
           ) : (
             <DragAndDropWrapper
               items={products}

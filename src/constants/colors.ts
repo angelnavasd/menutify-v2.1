@@ -72,4 +72,18 @@ export const STATUS_COLORS = {
   inactive: 'bg-gray-400/10 text-gray-400',
   warning: 'bg-yellow-400/10 text-yellow-400',
   error: 'bg-red-400/10 text-red-400'
+} as const;
+
+export const CATEGORY_ITEM_COLORS = {
+  text: {
+    title: 'text-gray-900',
+    subtitle: 'text-gray-500',
+    icon: 'text-gray-400'
+  },
+  border: 'border-gray-200',
+  ring: 'ring-orange-300',
+  background: {
+    base: 'bg-white',
+    hover: 'hover:bg-gray-50'
+  }
 } as const; 

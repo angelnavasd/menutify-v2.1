@@ -160,4 +160,29 @@ export const PRODUCT_CARD_ANIMATION_VARIANTS = {
     loading: { opacity: 0 },
     loaded: { opacity: 1 }
   }
+} as const;
+
+export const CATEGORY_ITEM_ANIMATION_VARIANTS = {
+  chevron: {
+    expanded: { rotate: 180 },
+    collapsed: { rotate: 0 }
+  },
+  content: {
+    expanded: { 
+      height: "auto",
+      opacity: 1,
+      transition: {
+        height: { type: "spring", stiffness: 500, damping: 40 },
+        opacity: { duration: 0.2 }
+      }
+    },
+    collapsed: {
+      height: 0,
+      opacity: 0,
+      transition: {
+        height: { type: "spring", stiffness: 500, damping: 40 },
+        opacity: { duration: 0.2 }
+      }
+    }
+  }
 } as const; 

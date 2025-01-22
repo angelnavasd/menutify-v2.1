@@ -111,4 +111,27 @@ export const PRODUCT_CARD_STYLES = {
     },
     delete: 'text-gray-500 hover:text-red-400 hover:bg-red-50'
   }
+} as const;
+
+export const CATEGORY_ITEM_STYLES = {
+  container: {
+    base: 'bg-white rounded-lg overflow-hidden',
+    dragging: 'opacity-50'
+  },
+  header: {
+    base: 'relative w-full flex items-center justify-between text-left',
+    editMode: 'ml-6',
+    dragHandle: 'absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing'
+  },
+  input: {
+    base: 'px-2 py-0.5 border border-gray-200 rounded text-sm text-gray-900 bg-white',
+    focus: 'focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-transparent'
+  },
+  title: {
+    base: 'text-base font-medium text-gray-900',
+    count: 'text-xs text-gray-500'
+  },
+  icons: {
+    base: 'h-4 w-4 text-gray-400'
+  }
 } as const; 
