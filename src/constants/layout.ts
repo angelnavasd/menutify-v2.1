@@ -87,9 +87,9 @@ export const MENU_LIST_STYLES = {
 } as const;
 
 export const PRODUCT_CARD_STYLES = {
-  container: 'flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200/80 hover:border-gray-300/80 transition-colors',
+  container: 'flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-200/80 hover:border-gray-300/80 transition-colors',
   imageContainer: {
-    wrapper: 'relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden',
+    wrapper: 'relative flex-shrink-0 w-20 h-20 bg-gray-100 rounded-md overflow-hidden',
     placeholder: {
       container: 'absolute inset-0 flex items-center justify-center bg-gray-50',
       icon: 'w-8 h-8 text-gray-300'
@@ -99,10 +99,12 @@ export const PRODUCT_CARD_STYLES = {
   headerContainer: 'flex flex-col min-w-0',
   title: 'font-medium text-gray-900 truncate',
   description: 'text-sm text-gray-500 line-clamp-2',
-  actionsContainer: 'flex items-center gap-2 ml-auto',
-  priceBadge: 'inline-flex px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md text-right',
+  actionsContainer: 'flex flex-col justify-between h-full gap-2 ml-auto',
+  priceContainer: 'flex items-center justify-end gap-2',
+  priceBadge: 'inline-flex px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md',
   featuredBadge: 'w-7 h-[26px] flex items-center justify-center bg-amber-50 rounded-md text-amber-600',
   featuredPlaceholder: 'w-7',
+  buttonsContainer: 'flex items-center gap-2',
   actionButton: {
     base: 'p-1 rounded transition-colors',
     edit: 'text-gray-400 hover:text-orange-500 hover:bg-orange-50',
@@ -124,7 +126,7 @@ export const CATEGORY_ITEM_STYLES = {
   header: {
     base: 'relative w-full flex items-center justify-between text-left',
     editMode: 'ml-6',
-    dragHandle: 'absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing'
+    dragHandle: 'absolute left-2 top-1/2 -translate-y-1/2 cursor-grab active:cursor-grabbing touch-none z-20'
   },
   input: {
     base: 'px-2 py-0.5 border border-gray-200 rounded text-sm text-gray-900 bg-white',
@@ -363,8 +365,8 @@ export const DRAG_AND_DROP_STYLES = {
       activationDistance: 8
     },
     touch: {
-      activationDelay: 100,
-      tolerance: 5
+      activationDelay: 0,
+      tolerance: 1
     }
   }
 } as const;

@@ -6,6 +6,7 @@ import { Category, Product } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
 import { MENU_LIST_DRAG_VARIANTS } from '../constants/animations';
 import { MENU_LIST_STYLES } from '../constants/layout';
+import { updateCategory, getCategories } from '../firebase/services';
 
 interface MenuListProps {
   categories: Category[];
@@ -38,23 +39,35 @@ const MenuList = memo(({
     );
   };
 
-  const handleDragEndCategories = (event: DragEndEvent) => {
+  const handleDragEndCategories = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
       const oldIndex = categories.findIndex(item => item.id === active.id);
       const newIndex = categories.findIndex(item => item.id === over.id);
       
-      setCategories(
-        arrayMove(categories, oldIndex, newIndex).map((category, index) => ({
-          ...category,
-          order: index
-        }))
-      );
+      const updatedCategories = arrayMove(categories, oldIndex, newIndex).map((category, index) => ({
+        ...category,
+        order: index
+      }));
+
+      setCategories(updatedCategories);
+
+      // Persistir los cambios en Firebase
+      try {
+        await Promise.all(
+          updatedCategories.map(category => updateCategory(category.id, category))
+        );
+      } catch (error) {
+        console.error('Error updating categories order:', error);
+        // Si hay un error, recargar las categorías para mantener la consistencia
+        const reloadedCategories = await getCategories();
+        setCategories(reloadedCategories);
+      }
     }
   };
 
-  const handleDragEndProducts = (event: DragEndEvent, categoryId: string) => {
+  const handleDragEndProducts = async (event: DragEndEvent, categoryId: string) => {
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -64,15 +77,33 @@ const MenuList = memo(({
       const oldIndex = categoryToUpdate.products.findIndex(product => product.id === active.id);
       const newIndex = categoryToUpdate.products.findIndex(product => product.id === over.id);
       
-      const updatedProducts = arrayMove(categoryToUpdate.products, oldIndex, newIndex);
+      const updatedProducts = arrayMove(categoryToUpdate.products, oldIndex, newIndex).map((product, index) => ({
+        ...product,
+        order: index
+      }));
+
+      const updatedCategory = {
+        ...categoryToUpdate,
+        products: updatedProducts
+      };
 
       setCategories(
         categories.map(category => 
           category.id === categoryId 
-            ? { ...category, products: updatedProducts }
+            ? updatedCategory
             : category
         )
       );
+
+      // Persistir los cambios en Firebase
+      try {
+        await updateCategory(categoryId, updatedCategory);
+      } catch (error) {
+        console.error('Error updating products order:', error);
+        // Si hay un error, recargar las categorías para mantener la consistencia
+        const reloadedCategories = await getCategories();
+        setCategories(reloadedCategories);
+      }
     }
   };
 

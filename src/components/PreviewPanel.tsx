@@ -20,7 +20,7 @@ const PreviewPanel = memo(({ categories, isDarkMode }: PreviewPanelProps) => {
     <aside className={`${PREVIEW_PANEL_STYLES.container.base} ${colors.background}`}>
       <div className={PREVIEW_PANEL_STYLES.container.content}>
         {/* iPhone Frame */}
-        <div className={`${PREVIEW_PANEL_STYLES.iphone.frame.container} ${colors.border}`}>
+        <div className={PREVIEW_PANEL_STYLES.iphone.frame.container}>
           {/* Status Bar */}
           <div className={`${PREVIEW_PANEL_STYLES.iphone.statusBar.container} ${statusBarColors.background}`}>
             <div className={`${PREVIEW_PANEL_STYLES.iphone.statusBar.content} ${statusBarColors.text}`}>

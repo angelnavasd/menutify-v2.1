@@ -16,6 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { SIDEBAR_BACKDROP_VARIANTS, SIDEBAR_DROPDOWN_VARIANTS, SIDEBAR_CHEVRON_VARIANTS, SIDEBAR_ARROW_VARIANTS, TRANSITION_SPRING } from '../constants/animations';
 import { THEME_COLORS, SIDEBAR_COLORS } from '../constants/colors';
+import { updateThemeConfig } from '../firebase/services';
 
 const menuItems = [
   { name: 'Restaurante', icon: BuildingStorefrontIcon, path: '/restaurant' },
@@ -30,6 +31,18 @@ const Sidebar = () => {
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   const colors = isDarkMode ? SIDEBAR_COLORS.dark : SIDEBAR_COLORS.light;
+
+  const handleThemeToggle = async () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    try {
+      await updateThemeConfig(newTheme);
+    } catch (error) {
+      console.error('Error updating theme:', error);
+      // Revert if failed
+      setIsDarkMode(!newTheme);
+    }
+  };
 
   return (
     <>
@@ -208,7 +221,7 @@ const Sidebar = () => {
                 </button>
                 {/* Theme Switch */}
                 <button 
-                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  onClick={handleThemeToggle}
                   className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">

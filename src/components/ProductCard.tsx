@@ -69,51 +69,50 @@ const ProductCard = memo(({
 
       {isEditMode && (
         <div className={PRODUCT_CARD_STYLES.actionsContainer}>
-          <span className={PRODUCT_CARD_STYLES.priceBadge}>
-            ${product.price.toLocaleString('es-AR')}
-          </span>
-
-          {product.featured ? (
-            <span className={PRODUCT_CARD_STYLES.featuredBadge}>
-              <StarIcon className="w-4 h-4" />
+          <div className={PRODUCT_CARD_STYLES.priceContainer}>
+            <span className={PRODUCT_CARD_STYLES.priceBadge}>
+              ${product.price.toLocaleString('es-AR')}
             </span>
-          ) : (
-            <span className={PRODUCT_CARD_STYLES.featuredPlaceholder} />
-          )}
-
-          <button
-            onClick={() => onEdit?.(product)}
-            className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.edit}`}
-          >
-            <PencilSquareIcon className="w-4 h-4" />
-          </button>
-
-          <button
-            onClick={onToggleVisibility}
-            className={`${PRODUCT_CARD_STYLES.actionButton.base} ${
-              product.visible 
-                ? PRODUCT_CARD_STYLES.actionButton.visibility.visible
-                : PRODUCT_CARD_STYLES.actionButton.visibility.hidden
-            }`}
-          >
-            {product.visible ? (
-              <EyeIcon className="w-4 h-4" />
+            {product.featured ? (
+              <span className={PRODUCT_CARD_STYLES.featuredBadge}>
+                <StarIcon className="w-4 h-4" />
+              </span>
             ) : (
-              <EyeSlashIcon className="w-4 h-4" />
+              <span className={PRODUCT_CARD_STYLES.featuredPlaceholder} />
             )}
-          </button>
+          </div>
 
-          <button
-            onClick={onDelete}
-            className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.delete}`}
-          >
-            <TrashIcon className="w-4 h-4" />
-          </button>
-
-          <div className={PRODUCT_CARD_STYLES.divider} />
-
-          <div className={PRODUCT_CARD_STYLES.dragHandle} {...attributes} {...listeners}>
-            <Bars3Icon className="w-4 h-4" />
+          <div className={PRODUCT_CARD_STYLES.buttonsContainer}>
+            <button
+              onClick={() => onEdit?.(product)}
+              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.edit}`}
+            >
+              <PencilSquareIcon className="w-4 h-4" />
+            </button>
+            <button
+              onClick={onToggleVisibility}
+              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${
+                product.visible 
+                  ? PRODUCT_CARD_STYLES.actionButton.visibility.visible
+                  : PRODUCT_CARD_STYLES.actionButton.visibility.hidden
+              }`}
+            >
+              {product.visible ? (
+                <EyeIcon className="w-4 h-4" />
+              ) : (
+                <EyeSlashIcon className="w-4 h-4" />
+              )}
+            </button>
+            <button
+              onClick={onDelete}
+              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.delete}`}
+            >
+              <TrashIcon className="w-4 h-4" />
+            </button>
+            <div className={PRODUCT_CARD_STYLES.divider} />
+            <div className={PRODUCT_CARD_STYLES.dragHandle} {...attributes} {...listeners}>
+              <Bars3Icon className="w-4 h-4" />
+            </div>
           </div>
         </div>
       )}

@@ -83,13 +83,14 @@ const CategoryItem = ({
           onClick={!isEditMode ? handleCategoryClick : undefined}
         >
           {isEditMode && (
-            <div 
+            <button 
+              type="button"
               className={CATEGORY_ITEM_STYLES.header.dragHandle}
               {...attributes}
               {...listeners}
             >
               <Bars4Icon className={CATEGORY_ITEM_STYLES.icons.base} />
-            </div>
+            </button>
           )}
           
           <div className={`flex-1 ${isEditMode ? CATEGORY_ITEM_STYLES.header.editMode : ''}`}>

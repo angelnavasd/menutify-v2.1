@@ -134,6 +134,19 @@ const Dashboard = () => {
     loadInitialData();
   }, [showSuccessMessage, showErrorMessage, setLoading]);
 
+  useEffect(() => {
+    const loadThemeConfig = async () => {
+      try {
+        const savedTheme = await getThemeConfig();
+        setIsDarkMode(savedTheme);
+      } catch (error) {
+        console.error('Error loading theme:', error);
+      }
+    };
+
+    loadThemeConfig();
+  }, []);
+
   // Persistir categorías en localStorage
   useEffect(() => {
     localStorage.setItem('categories', JSON.stringify(categories));

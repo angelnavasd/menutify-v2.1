@@ -44,8 +44,9 @@ const DragAndDropWrapper = <T extends DraggableItem>({
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: DRAG_AND_DROP_STYLES.sensors.touch.activationDelay,
-        tolerance: DRAG_AND_DROP_STYLES.sensors.touch.tolerance,
+        delay: 200,
+        tolerance: 8,
+        distance: 8
       },
     })
   );
