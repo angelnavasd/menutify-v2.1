@@ -1,12 +1,8 @@
-import { useState } from 'react';
-import { PencilIcon, TrashIcon, EyeIcon, EyeSlashIcon, Bars4Icon, PhotoIcon } from '@heroicons/react/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
+import { PencilSquareIcon, TrashIcon, EyeIcon, EyeSlashIcon, Bars4Icon } from '@heroicons/react/24/outline';
+import { Product } from './types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Product } from './types';
 import { PRODUCT_CARD_STYLES } from '../constants/layout';
-import { PRODUCT_CARD_ANIMATION_VARIANTS } from '../constants/animations';
-import { motion } from 'framer-motion';
 
 interface ProductCardProps {
   product: Product;
@@ -16,23 +12,7 @@ interface ProductCardProps {
   isEditMode: boolean;
 }
 
-const formatPrice = (price: number) => {
-  const priceString = Math.round(price * 100).toString().padStart(3, '0');
-  const integerPart = priceString.slice(0, -2);
-  const decimalPart = priceString.slice(-2);
-  
-  return `${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${decimalPart}`;
-};
-
-const ProductCard = ({
-  product,
-  onEdit,
-  onToggleVisibility,
-  onDelete,
-  isEditMode
-}: ProductCardProps) => {
-  const [imageLoading, setImageLoading] = useState(true);
-
+const ProductCard = ({ product, onEdit, onToggleVisibility, onDelete, isEditMode }: ProductCardProps) => {
   const {
     attributes,
     listeners,
@@ -42,120 +22,102 @@ const ProductCard = ({
     isDragging
   } = useSortable({
     id: product.id,
-    disabled: !isEditMode
+    disabled: !isEditMode,
+    data: {
+      type: 'product'
+    }
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition
+    transition,
+    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <motion.div
+    <div
       ref={setNodeRef}
       style={style}
-      variants={PRODUCT_CARD_ANIMATION_VARIANTS.drag}
-      animate={isDragging ? 'dragging' : 'initial'}
-      className={`${PRODUCT_CARD_STYLES.container} ${!product.visible ? 'opacity-50' : ''}`}
+      className={`flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors rounded-lg border-b border-gray-200/30 last:border-b-0 ${!product.visible ? 'opacity-50' : ''}`}
     >
       {isEditMode && (
         <div
-          className={PRODUCT_CARD_STYLES.dragHandle}
+          className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
           {...attributes}
           {...listeners}
         >
-          <Bars4Icon className="h-4 w-4 text-gray-400" />
+          <Bars4Icon className="w-4 h-4 text-gray-400" />
         </div>
       )}
 
-      <div className={PRODUCT_CARD_STYLES.imageContainer}>
-        {product.image && imageLoading && (
-          <motion.div 
-            className={PRODUCT_CARD_STYLES.imagePlaceholder}
-            variants={PRODUCT_CARD_ANIMATION_VARIANTS.image}
-            initial="loading"
-            animate="loaded"
-          />
-        )}
+      <div className="relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden">
         {product.image ? (
           <img
             src={product.image}
             alt={product.name}
             className="w-full h-full object-cover"
-            onLoad={() => setImageLoading(false)}
           />
         ) : (
-          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-            <PhotoIcon className="w-6 h-6 text-gray-400" />
-          </div>
+          <div className="absolute inset-0 animate-pulse bg-gray-200" />
         )}
       </div>
 
-      <div className={PRODUCT_CARD_STYLES.contentContainer}>
-        <div className={PRODUCT_CARD_STYLES.headerContainer}>
-          <h3 className={`${PRODUCT_CARD_STYLES.title} ${!product.visible ? 'line-through' : ''}`}>
-            {product.name}
-          </h3>
-          <div className={PRODUCT_CARD_STYLES.actionsContainer}>
+      <div className="flex-grow min-w-0 flex flex-col gap-2">
+        <div className="flex justify-between items-start">
+          <div className="min-w-0">
+            <h3 className="font-medium text-gray-900 truncate">
+              {product.name}
+            </h3>
             {product.featured && (
-              <span className={PRODUCT_CARD_STYLES.featuredBadge}>
-                <StarIconSolid className="h-3.5 w-3.5 text-amber-400" />
+              <span className="px-2 py-0.5 text-xs text-amber-600 bg-amber-50 rounded-md inline-flex items-center">
+                Destacado
               </span>
             )}
-            <span className={PRODUCT_CARD_STYLES.priceBadge}>
-              ${formatPrice(product.price)}
-            </span>
           </div>
+          <span className="px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md">
+            ${product.price.toLocaleString('es-AR')}
+          </span>
         </div>
-
-        <div className={PRODUCT_CARD_STYLES.headerContainer}>
-          {product.description && (
-            <p className={`${PRODUCT_CARD_STYLES.description} ${!product.visible ? 'line-through' : ''}`}>
-              {product.description}
-            </p>
-          )}
-          <div className={PRODUCT_CARD_STYLES.actionsContainer}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.edit}`}
-            >
-              <PencilIcon className="h-3.5 w-3.5" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleVisibility();
-              }}
-              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${
-                product.visible 
-                  ? PRODUCT_CARD_STYLES.actionButton.visibility.visible
-                  : PRODUCT_CARD_STYLES.actionButton.visibility.hidden
-              }`}
-            >
-              {product.visible ? (
-                <EyeIcon className="h-3.5 w-3.5" />
-              ) : (
-                <EyeSlashIcon className="h-3.5 w-3.5" />
-              )}
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (confirm('¿Estás seguro de eliminar este producto?')) {
-                  onDelete();
-                }
-              }}
-              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.delete}`}
-            >
-              <TrashIcon className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
+        <p className="text-sm text-gray-500 line-clamp-2 flex-grow">
+          {product.description}
+        </p>
       </div>
-    </motion.div>
+
+      {isEditMode && (
+        <div className="flex items-center gap-1 ml-2">
+          <button
+            onClick={onEdit}
+            className="p-1 text-gray-500 hover:text-orange-400 hover:bg-orange-50 rounded transition-colors"
+          >
+            <PencilSquareIcon className="w-4 h-4" />
+          </button>
+          <button
+            onClick={onToggleVisibility}
+            className={`p-1 rounded transition-colors ${
+              !product.visible
+                ? 'text-orange-400 hover:text-orange-500 hover:bg-orange-50'
+                : 'text-gray-500 hover:text-orange-400 hover:bg-orange-50'
+            }`}
+          >
+            {product.visible ? (
+              <EyeIcon className="w-4 h-4" />
+            ) : (
+              <EyeSlashIcon className="w-4 h-4" />
+            )}
+          </button>
+          <button
+            onClick={() => {
+              if (confirm('¿Estás seguro de eliminar este producto?')) {
+                onDelete();
+              }
+            }}
+            className="p-1 text-gray-500 hover:text-red-400 hover:bg-red-50 rounded transition-colors"
+          >
+            <TrashIcon className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 
