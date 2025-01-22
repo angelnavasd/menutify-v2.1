@@ -20,6 +20,13 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
 
   const colors = isDarkMode ? MENU_COLORS.dark : MENU_COLORS.light;
 
+  // Ajustar el scroll margin para preview
+  useEffect(() => {
+    if (contentRef.current && isPreview) {
+      contentRef.current.style.scrollBehavior = 'smooth';
+    }
+  }, [isPreview]);
+
   // Filter visible products and categories
   const visibleCategories = categories
     .map(category => ({
@@ -35,7 +42,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
 
   // Scroll the active category button into view
   const scrollActiveButtonIntoView = (categoryId: string) => {
-    if (!navRef.current) return;
+    if (!navRef.current || !isPreview) return; // Solo auto-scroll en modo preview
     
     const button = navRef.current.querySelector(`[data-category-id="${categoryId}"]`) as HTMLElement;
     if (!button) return;
@@ -44,7 +51,6 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
     const buttonRect = button.getBoundingClientRect();
     const navRect = nav.getBoundingClientRect();
     
-    // Calculate the scroll position to center the button
     const scrollLeft = button.offsetLeft - (navRect.width / 2) + (buttonRect.width / 2);
     
     nav.scrollTo({
@@ -59,7 +65,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
 
     const options = {
       root: contentRef.current,
-      rootMargin: '-20% 0px -60% 0px', // Adjust these values to change when categories become active
+      rootMargin: isPreview ? '-20% 0px -60% 0px' : '-10% 0px -70% 0px', // Ajustar márgenes según el modo
       threshold: 0
     };
 
@@ -68,14 +74,15 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
         if (entry.isIntersecting) {
           const categoryId = entry.target.id;
           setActiveCategory(categoryId);
-          scrollActiveButtonIntoView(categoryId);
+          if (isPreview) {
+            scrollActiveButtonIntoView(categoryId);
+          }
         }
       });
     };
 
     observerRef.current = new IntersectionObserver(callback, options);
 
-    // Observe all category sections
     visibleCategories.forEach(category => {
       const element = document.getElementById(category.id);
       if (element) {
@@ -88,7 +95,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
         observerRef.current.disconnect();
       }
     };
-  }, [visibleCategories]);
+  }, [visibleCategories, isPreview]);
 
   useEffect(() => {
     if (visibleCategories.length > 0 && !activeCategory) {
@@ -102,12 +109,12 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
     if (!content) return;
 
     const handleScroll = () => {
-      setIsScrolled(content.scrollTop > 20);
+      setIsScrolled(content.scrollTop > (isPreview ? 20 : 50)); // Ajustar umbral según el modo
     };
 
     content.addEventListener('scroll', handleScroll);
     return () => content.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isPreview]);
 
   // Scroll to category with offset calculation
   const scrollToCategory = (categoryId: string) => {
@@ -116,7 +123,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
 
     const container = contentRef.current;
     const elementTop = element.offsetTop;
-    const headerHeight = isScrolled ? 60 : 120; // Adjust based on header state
+    const headerHeight = isScrolled ? (isPreview ? 60 : 80) : (isPreview ? 120 : 140); // Ajustar offsets según el modo
     
     container.scrollTo({
       top: elementTop - headerHeight,
@@ -124,13 +131,17 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
     });
 
     setActiveCategory(categoryId);
-    scrollActiveButtonIntoView(categoryId);
+    if (isPreview) {
+      scrollActiveButtonIntoView(categoryId);
+    }
   };
 
   return (
     <div 
       ref={contentRef}
-      className={`${MENU_STYLES.container.base} bg-gradient-to-b ${colors.background.gradient}`}
+      className={`${MENU_STYLES.container.base} bg-gradient-to-b ${colors.background.gradient} ${
+        isPreview ? 'preview-mode' : ''
+      }`}
     >
       {/* Header Section */}
       <div className={`${MENU_STYLES.container.header.wrapper} ${colors.background.primary}`}>
@@ -138,7 +149,7 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
           <div className={`${MENU_STYLES.container.header.content.base} ${
             isScrolled ? MENU_STYLES.container.header.content.collapsed : MENU_STYLES.container.header.content.expanded
           }`}>
-            <div className="overflow-hidden transition-all duration-200 ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100'}">
+            <div className={`overflow-hidden transition-all duration-200 ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100'}`}>
               <div className="flex flex-col items-start">
                 <div className={`${MENU_STYLES.container.header.logo.container} ${colors.logo.background} ${colors.logo.text}`}>
                   LP
