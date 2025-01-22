@@ -24,6 +24,7 @@ export interface Category {
 export interface CategoryItemProps extends Category {
   isExpanded: boolean;
   isEditMode: boolean;
+  isDarkMode?: boolean;
   onToggleExpand: (id: string) => void;
   onEditName: (id: string, newName: string) => void;
   onDelete: (id: string) => void;

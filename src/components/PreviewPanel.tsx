@@ -16,10 +16,10 @@ const PreviewPanel = ({ categories, isDarkMode }: PreviewPanelProps) => {
   const statusBarColors = isDarkMode ? PREVIEW_PANEL_COLORS.statusBar.dark : PREVIEW_PANEL_COLORS.statusBar.light;
 
   return (
-    <aside className={PREVIEW_PANEL_STYLES.container.base}>
+    <aside className={`${PREVIEW_PANEL_STYLES.container.base} ${colors.background}`}>
       <div className={PREVIEW_PANEL_STYLES.container.content}>
         {/* iPhone Frame */}
-        <div className={PREVIEW_PANEL_STYLES.iphone.frame.container}>
+        <div className={`${PREVIEW_PANEL_STYLES.iphone.frame.container} ${colors.border}`}>
           {/* Status Bar */}
           <div className={`${PREVIEW_PANEL_STYLES.iphone.statusBar.container} ${statusBarColors.background}`}>
             <div className={`${PREVIEW_PANEL_STYLES.iphone.statusBar.content} ${statusBarColors.text}`}>
@@ -61,7 +61,7 @@ const PreviewPanel = ({ categories, isDarkMode }: PreviewPanelProps) => {
         </div>
 
         {/* Scroll Indicator */}
-        <div className={PREVIEW_PANEL_STYLES.footer.container}>
+        <div className={`${PREVIEW_PANEL_STYLES.footer.container} ${colors.text.secondary}`}>
           <ChevronDownIcon className={PREVIEW_PANEL_STYLES.footer.icon} />
           <p className={PREVIEW_PANEL_STYLES.footer.text}>
             Así es como los clientes verán tu menú

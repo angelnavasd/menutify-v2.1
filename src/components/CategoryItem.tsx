@@ -9,7 +9,15 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TRANSITION_EASE, CATEGORY_ITEM_ANIMATION_VARIANTS } from '../constants/animations';
 import { MENU_LIST_STYLES, CATEGORY_ITEM_STYLES } from '../constants/layout';
-import { CATEGORY_ITEM_COLORS } from '../constants/colors';
+
+interface Colors {
+  readonly background: string;
+  readonly text: {
+    readonly primary: string;
+    readonly secondary: string;
+  };
+  readonly border: string;
+}
 
 const CategoryItem = ({
   id,
@@ -24,9 +32,19 @@ const CategoryItem = ({
   onToggleVisibility,
   onDeleteProduct,
   onDragEndProducts,
+  isDarkMode
 }: CategoryItemProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(name);
+
+  const colors: Colors = {
+    background: "bg-white",
+    text: {
+      primary: "text-gray-900",
+      secondary: "text-gray-500"
+    },
+    border: "border-gray-200"
+  };
 
   const {
     attributes,
@@ -73,7 +91,7 @@ const CategoryItem = ({
     <div 
       ref={setNodeRef}
       style={style}
-      className={`${CATEGORY_ITEM_STYLES.container.base} ${MENU_LIST_STYLES.borders.container}`}
+      className={`${CATEGORY_ITEM_STYLES.container.base} ${colors.background} ${colors.border}`}
     >
       <div className="relative">
         <div
@@ -99,17 +117,17 @@ const CategoryItem = ({
                   type="text"
                   value={editedName}
                   onChange={(e) => setEditedName(e.target.value)}
-                  className={`${CATEGORY_ITEM_STYLES.input.base} ${CATEGORY_ITEM_STYLES.input.focus}`}
+                  className={`${CATEGORY_ITEM_STYLES.input.base} ${colors.text.primary} ${colors.background} ${colors.border} ${CATEGORY_ITEM_STYLES.input.focus}`}
                   autoFocus
                   onBlur={handleSubmit}
                 />
               </form>
             ) : (
               <div className={`flex flex-col ${MENU_LIST_STYLES.spacing.contentGap}`}>
-                <h3 className={CATEGORY_ITEM_STYLES.title.base}>
+                <h3 className={`${CATEGORY_ITEM_STYLES.title.base} ${colors.text.primary}`}>
                   {name}
                 </h3>
-                <p className={CATEGORY_ITEM_STYLES.title.count}>
+                <p className={`${CATEGORY_ITEM_STYLES.title.count} ${colors.text.secondary}`}>
                   {products.length} {products.length === 1 ? 'platillo' : 'platillos'}
                 </p>
               </div>
@@ -124,7 +142,7 @@ const CategoryItem = ({
                     e.stopPropagation();
                     setIsEditing(true);
                   }}
-                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} ${CATEGORY_ITEM_COLORS.text.icon} ${MENU_LIST_STYLES.hover.editButton} ${MENU_LIST_STYLES.transitions.colors}`}
+                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} ${colors.text.secondary} ${MENU_LIST_STYLES.hover.editButton} ${MENU_LIST_STYLES.transitions.colors}`}
                 >
                   <PencilSquareIcon className={CATEGORY_ITEM_STYLES.icons.base} />
                 </button>
@@ -135,7 +153,7 @@ const CategoryItem = ({
                       onDelete(id);
                     }
                   }}
-                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} ${CATEGORY_ITEM_COLORS.text.icon} ${MENU_LIST_STYLES.hover.deleteButton} ${MENU_LIST_STYLES.transitions.colors}`}
+                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} ${colors.text.secondary} ${MENU_LIST_STYLES.hover.deleteButton} ${MENU_LIST_STYLES.transitions.colors}`}
                 >
                   <TrashIcon className={CATEGORY_ITEM_STYLES.icons.base} />
                 </button>
@@ -146,7 +164,7 @@ const CategoryItem = ({
               variants={CATEGORY_ITEM_ANIMATION_VARIANTS.chevron}
               transition={TRANSITION_EASE}
             >
-              <ChevronDownIcon className={CATEGORY_ITEM_STYLES.icons.base} />
+              <ChevronDownIcon className={`${CATEGORY_ITEM_STYLES.icons.base} ${colors.text.secondary}`} />
             </motion.div>
           </div>
         </div>
@@ -160,9 +178,9 @@ const CategoryItem = ({
         className="overflow-hidden"
       >
         <div className={`${MENU_LIST_STYLES.spacing.contentPadding} ${MENU_LIST_STYLES.spacing.sectionGap}`}>
-          <div className={`pt-1 ${MENU_LIST_STYLES.borders.divider}`} />
+          <div className={`pt-1 ${colors.border}`} />
           {products.length === 0 ? (
-            <p className={CATEGORY_ITEM_COLORS.text.subtitle}>0 platillos</p>
+            <p className={colors.text.secondary}>0 platillos</p>
           ) : (
             <DragAndDropWrapper
               items={products}
