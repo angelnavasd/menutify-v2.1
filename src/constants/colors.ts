@@ -115,4 +115,65 @@ export const PREVIEW_PANEL_COLORS = {
       text: 'text-gray-200'
     }
   }
+} as const;
+
+export const MENU_COLORS = {
+  light: {
+    background: {
+      primary: 'bg-white',
+      gradient: 'from-gray-50 to-white',
+      item: 'bg-white'
+    },
+    text: {
+      primary: 'text-gray-900',
+      secondary: 'text-gray-500',
+      tertiary: 'text-gray-400'
+    },
+    border: {
+      primary: 'border-gray-200',
+      secondary: 'border-gray-100'
+    },
+    navigation: {
+      active: 'text-orange-600',
+      inactive: 'text-gray-600 hover:text-gray-900',
+      indicator: 'bg-orange-600'
+    },
+    logo: {
+      background: 'bg-orange-50',
+      text: 'text-orange-600'
+    },
+    price: {
+      background: 'bg-green-50',
+      text: 'text-green-700'
+    }
+  },
+  dark: {
+    background: {
+      primary: 'bg-[#0a0c10]',
+      gradient: 'from-[#0a0c10] to-[#0f1218]',
+      item: 'bg-[#151820]'
+    },
+    text: {
+      primary: 'text-gray-100',
+      secondary: 'text-gray-400',
+      tertiary: 'text-gray-600'
+    },
+    border: {
+      primary: 'border-gray-800/50',
+      secondary: 'border-gray-700/50'
+    },
+    navigation: {
+      active: 'text-orange-400',
+      inactive: 'text-gray-500 hover:text-gray-400',
+      indicator: 'bg-orange-400'
+    },
+    logo: {
+      background: 'bg-orange-500/10',
+      text: 'text-orange-400'
+    },
+    price: {
+      background: 'bg-green-400/10',
+      text: 'text-green-400'
+    }
+  }
 } as const; 

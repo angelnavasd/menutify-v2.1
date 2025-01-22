@@ -167,4 +167,90 @@ export const PREVIEW_PANEL_STYLES = {
     icon: 'w-5 h-5 animate-bounce mb-2',
     text: 'text-sm'
   }
+} as const;
+
+export const MENU_STYLES = {
+  container: {
+    base: 'h-full overflow-y-auto scrollbar-none',
+    header: {
+      wrapper: 'sticky top-0 z-20',
+      content: {
+        base: 'px-3 transition-all duration-200',
+        expanded: 'py-4',
+        collapsed: 'pt-4 pb-1'
+      },
+      logo: {
+        container: 'w-12 h-12 rounded-md flex items-center justify-center text-xl font-medium mb-2',
+        text: 'text-2xl font-semibold'
+      },
+      info: {
+        container: 'flex items-center gap-1 mt-1',
+        icon: 'w-3.5 h-3.5',
+        text: 'text-xs'
+      }
+    },
+    navigation: {
+      wrapper: 'border-b',
+      content: 'overflow-x-auto scrollbar-none',
+      list: 'flex px-3 space-x-6 min-w-max py-3',
+      item: {
+        base: 'text-base font-medium whitespace-nowrap transition-all duration-300 relative px-1 py-0.5',
+        indicator: 'absolute bottom-0 left-0 right-0 h-0.5 rounded-full'
+      }
+    }
+  },
+  sections: {
+    wrapper: 'pb-20',
+    header: 'text-xl font-medium mb-3',
+    featured: {
+      container: 'px-3 pt-4 pb-6',
+      grid: {
+        wrapper: 'overflow-x-auto scrollbar-none -mx-3',
+        container: 'flex gap-3 px-3 min-w-max',
+        item: {
+          container: 'w-[85%] flex-shrink-0 rounded-md overflow-hidden border p-2.5',
+          image: {
+            wrapper: 'h-40 rounded-md overflow-hidden mb-2.5',
+            img: 'w-full h-full object-cover'
+          },
+          title: 'text-base font-medium leading-snug',
+          description: 'text-sm leading-snug mt-1',
+          price: 'inline-block mt-2 px-2 py-0.5 text-sm font-medium rounded'
+        }
+      }
+    },
+    category: {
+      container: 'px-3 pt-6 pb-8',
+      grid: {
+        wrapper: 'grid grid-cols-2 gap-2 mb-3',
+        item: {
+          container: 'rounded-md overflow-hidden border p-2.5',
+          image: {
+            wrapper: 'aspect-square rounded-md overflow-hidden mb-2.5',
+            img: 'w-full h-full object-cover'
+          },
+          title: 'text-base font-medium leading-snug',
+          description: 'text-sm leading-snug mt-1 line-clamp-2',
+          price: 'inline-block mt-2 px-2 py-0.5 text-sm font-medium rounded'
+        }
+      },
+      list: {
+        wrapper: 'space-y-2',
+        item: {
+          container: 'flex items-start gap-3 p-2.5 rounded-md border',
+          image: {
+            wrapper: 'w-20 h-20 flex-shrink-0 rounded-md overflow-hidden',
+            img: 'w-full h-full object-cover'
+          },
+          content: {
+            wrapper: 'flex-1 min-w-0',
+            header: 'flex justify-between items-start gap-2',
+            title: 'text-base font-medium leading-snug',
+            price: 'shrink-0 px-2 py-0.5 text-sm font-medium rounded',
+            description: 'text-sm leading-snug mt-1 line-clamp-2'
+          }
+        }
+      }
+    }
+  }
 } as const; 

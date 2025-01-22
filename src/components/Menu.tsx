@@ -1,6 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { MapPinIcon, StarIcon } from '@heroicons/react/24/outline';
+import { useState, useRef, useEffect } from 'react';
+import { MapPinIcon } from '@heroicons/react/24/outline';
 import { Category } from './types';
+import { MENU_STYLES } from '../constants/layout';
+import { MENU_COLORS } from '../constants/colors';
 
 interface MenuProps {
   isDarkMode?: boolean;
@@ -14,6 +16,8 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
   const [isScrolled, setIsScrolled] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
+
+  const colors = isDarkMode ? MENU_COLORS.dark : MENU_COLORS.light;
 
   // Filter visible products and categories
   const visibleCategories = categories
@@ -67,42 +71,30 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
   return (
     <div 
       ref={contentRef}
-      className={`h-full overflow-y-auto scrollbar-none bg-gradient-to-b ${
-        isDarkMode 
-          ? 'from-[#0a0c10] to-[#0f1218]'
-          : 'from-gray-50 to-white'
-      }`}
+      className={`${MENU_STYLES.container.base} bg-gradient-to-b ${colors.background.gradient}`}
     >
       {/* Header Section */}
-      <div className={`sticky top-0 z-20 ${
-        isDarkMode ? 'bg-[#0a0c10]' : 'bg-white'
-      }`}>
+      <div className={`${MENU_STYLES.container.header.wrapper} ${colors.background.primary}`}>
         {showHeader && (
-          <div className={`px-3 transition-all duration-200 ${isScrolled ? 'pt-4 pb-1' : 'py-4'}`}>
+          <div className={`${MENU_STYLES.container.header.content.base} ${
+            isScrolled ? MENU_STYLES.container.header.content.collapsed : MENU_STYLES.container.header.content.expanded
+          }`}>
             <div className={`overflow-hidden transition-all duration-200 ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100'}`}>
               <div className="flex flex-col items-start">
-                <div className={`w-12 h-12 rounded-md flex items-center justify-center text-xl font-medium ${
-                  isDarkMode 
-                    ? 'bg-orange-500/10 text-orange-400'
-                    : 'bg-orange-50 text-orange-600'
-                } mb-2`}>
+                <div className={`${MENU_STYLES.container.header.logo.container} ${colors.logo.background} ${colors.logo.text}`}>
                   LP
                 </div>
                 <div className="flex items-center gap-1">
-                  <h1 className={`text-2xl font-semibold ${
-                    isDarkMode ? 'text-gray-100' : 'text-gray-900'
-                  }`}>La Pizzería</h1>
+                  <h1 className={`${MENU_STYLES.container.header.logo.text} ${colors.text.primary}`}>
+                    La Pizzería
+                  </h1>
                 </div>
-                <p className={`text-sm ${
-                  isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                }`}>Pizza al paso • Comida Italiana</p>
-                <div className="flex items-center gap-1 mt-1">
-                  <MapPinIcon className={`w-3.5 h-3.5 ${
-                    isDarkMode ? 'text-gray-600' : 'text-gray-400'
-                  }`} />
-                  <span className={`text-xs ${
-                    isDarkMode ? 'text-gray-600' : 'text-gray-400'
-                  }`}>Av. Corrientes 3247, Buenos Aires</span>
+                <p className={`${colors.text.secondary}`}>Pizza al paso • Comida Italiana</p>
+                <div className={MENU_STYLES.container.header.info.container}>
+                  <MapPinIcon className={`${MENU_STYLES.container.header.info.icon} ${colors.text.tertiary}`} />
+                  <span className={`${MENU_STYLES.container.header.info.text} ${colors.text.tertiary}`}>
+                    Av. Corrientes 3247, Buenos Aires
+                  </span>
                 </div>
               </div>
             </div>
@@ -111,34 +103,22 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
 
         {/* Categories Navigation */}
         {visibleCategories.length > 0 && (
-          <div className={`border-b ${
-            isDarkMode 
-              ? 'bg-[#0a0c10] border-gray-800/50' 
-              : 'bg-white border-gray-200'
-          }`}>
-            <div className="overflow-x-auto scrollbar-none" ref={navRef}>
-              <div className="flex px-3 space-x-6 min-w-max py-3">
+          <div className={`${MENU_STYLES.container.navigation.wrapper} ${colors.background.primary} ${colors.border.primary}`}>
+            <div className={MENU_STYLES.container.navigation.content} ref={navRef}>
+              <div className={MENU_STYLES.container.navigation.list}>
                 {visibleCategories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => scrollToCategory(category.id)}
-                    className={`text-base font-medium whitespace-nowrap transition-all duration-300 relative px-1 py-0.5 ${
+                    className={`${MENU_STYLES.container.navigation.item.base} ${
                       activeCategory === category.id
-                        ? isDarkMode
-                          ? 'text-orange-400'
-                          : 'text-orange-600'
-                        : isDarkMode
-                        ? 'text-gray-500 hover:text-gray-400'
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? colors.navigation.active
+                        : colors.navigation.inactive
                     }`}
                   >
                     {category.name}
                     {activeCategory === category.id && (
-                      <div className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
-                        isDarkMode
-                          ? 'bg-orange-400'
-                          : 'bg-orange-600'
-                      }`} />
+                      <div className={`${MENU_STYLES.container.navigation.item.indicator} ${colors.navigation.indicator}`} />
                     )}
                   </button>
                 ))}
@@ -149,38 +129,36 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
       </div>
 
       {/* Content Sections */}
-      <div className="pb-20">
+      <div className={MENU_STYLES.sections.wrapper}>
         {/* Featured Section */}
         {featuredProducts.length > 0 && (
-          <div className="px-3 pt-4 pb-6">
-            <h2 className={`text-xl font-medium mb-3 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+          <div className={MENU_STYLES.sections.featured.container}>
+            <h2 className={`${MENU_STYLES.sections.header} ${colors.text.primary}`}>
               Destacados
             </h2>
-            <div className="overflow-x-auto scrollbar-none -mx-3">
-              <div className="flex gap-3 px-3 min-w-max">
+            <div className={MENU_STYLES.sections.featured.grid.wrapper}>
+              <div className={MENU_STYLES.sections.featured.grid.container}>
                 {featuredProducts.map((product) => (
                   <div 
                     key={product.id}
-                    className={`w-[85%] flex-shrink-0 rounded-md overflow-hidden ${
-                      isDarkMode ? 'bg-[#151820] border-gray-800/50' : 'bg-white border-gray-100'
-                    } border p-2.5`}
+                    className={`${MENU_STYLES.sections.featured.grid.item.container} ${colors.background.item} ${colors.border.primary}`}
                   >
-                    <div className="aspect-video rounded-md overflow-hidden mb-2.5">
+                    <div className={MENU_STYLES.sections.featured.grid.item.image.wrapper}>
                       <img
                         src={product.image || 'https://via.placeholder.com/300'} 
                         alt={product.name}
-                        className="w-full h-full object-cover"
+                        className={MENU_STYLES.sections.featured.grid.item.image.img}
                       />
                     </div>
-                    <h3 className={`text-base font-medium leading-snug ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                    <h3 className={`${MENU_STYLES.sections.featured.grid.item.title} ${colors.text.primary}`}>
                       {product.name}
                     </h3>
-                    <p className={`text-sm leading-snug text-gray-500 mt-1`}>
+                    <p className={`${MENU_STYLES.sections.featured.grid.item.description} ${colors.text.secondary}`}>
                       {product.description}
                     </p>
-                    <span className={`inline-block mt-2 px-2 py-0.5 text-sm font-medium rounded ${
-                      isDarkMode ? 'bg-green-400/10 text-green-400' : 'bg-green-50 text-green-700'
-                    }`}>${product.price.toLocaleString('es-AR')}</span>
+                    <span className={`${MENU_STYLES.sections.featured.grid.item.price} ${colors.price.background} ${colors.price.text}`}>
+                      ${product.price.toLocaleString('es-AR')}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -197,38 +175,36 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
             <div
               key={category.id}
               id={category.id}
-              className="px-3 pt-6 pb-8"
+              className={MENU_STYLES.sections.category.container}
             >
-              <h2 className={`text-xl font-medium mb-3 ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+              <h2 className={`${MENU_STYLES.sections.header} ${colors.text.primary}`}>
                 {category.name}
               </h2>
               
               {/* Grid Layout - First 2 products */}
               {gridProducts.length > 0 && (
-                <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className={MENU_STYLES.sections.category.grid.wrapper}>
                   {gridProducts.map((product) => (
                     <div 
                       key={product.id}
-                      className={`rounded-md overflow-hidden ${
-                        isDarkMode ? 'bg-[#151820] border-gray-800/50' : 'bg-white border-gray-100'
-                      } border p-2.5`}
+                      className={`${MENU_STYLES.sections.category.grid.item.container} ${colors.background.item} ${colors.border.primary}`}
                     >
-                      <div className="aspect-square rounded-md overflow-hidden mb-2.5">
+                      <div className={MENU_STYLES.sections.category.grid.item.image.wrapper}>
                         <img
                           src={product.image || 'https://via.placeholder.com/300'} 
                           alt={product.name}
-                          className="w-full h-full object-cover"
+                          className={MENU_STYLES.sections.category.grid.item.image.img}
                         />
                       </div>
-                      <h3 className={`text-base font-medium leading-snug ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                      <h3 className={`${MENU_STYLES.sections.category.grid.item.title} ${colors.text.primary}`}>
                         {product.name}
                       </h3>
-                      <p className={`text-sm leading-snug text-gray-500 mt-1 line-clamp-2`}>
+                      <p className={`${MENU_STYLES.sections.category.grid.item.description} ${colors.text.secondary}`}>
                         {product.description}
                       </p>
-                      <span className={`inline-block mt-2 px-2 py-0.5 text-sm font-medium rounded ${
-                        isDarkMode ? 'bg-green-400/10 text-green-400' : 'bg-green-50 text-green-700'
-                      }`}>${product.price.toLocaleString('es-AR')}</span>
+                      <span className={`${MENU_STYLES.sections.category.grid.item.price} ${colors.price.background} ${colors.price.text}`}>
+                        ${product.price.toLocaleString('es-AR')}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -236,31 +212,29 @@ export default function Menu({ isDarkMode = false, showHeader = true, categories
 
               {/* List Layout - Remaining products */}
               {listProducts.length > 0 && (
-                <div className="space-y-2">
+                <div className={MENU_STYLES.sections.category.list.wrapper}>
                   {listProducts.map((product) => (
                     <div 
                       key={product.id}
-                      className={`flex items-start gap-3 p-2.5 rounded-md ${
-                        isDarkMode ? 'bg-[#151820] border-gray-800/50' : 'bg-white border-gray-100'
-                      } border`}
+                      className={`${MENU_STYLES.sections.category.list.item.container} ${colors.background.item} ${colors.border.primary}`}
                     >
-                      <div className="w-20 h-20 flex-shrink-0 rounded-md overflow-hidden">
+                      <div className={MENU_STYLES.sections.category.list.item.image.wrapper}>
                         <img 
                           src={product.image || 'https://via.placeholder.com/300'} 
                           alt={product.name} 
-                          className="w-full h-full object-cover"
+                          className={MENU_STYLES.sections.category.list.item.image.img}
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between items-start gap-2">
-                          <h3 className={`text-base font-medium leading-snug ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                      <div className={MENU_STYLES.sections.category.list.item.content.wrapper}>
+                        <div className={MENU_STYLES.sections.category.list.item.content.header}>
+                          <h3 className={`${MENU_STYLES.sections.category.list.item.content.title} ${colors.text.primary}`}>
                             {product.name}
                           </h3>
-                          <span className={`shrink-0 px-2 py-0.5 text-sm font-medium rounded ${
-                            isDarkMode ? 'bg-green-400/10 text-green-400' : 'bg-green-50 text-green-700'
-                          }`}>${product.price.toLocaleString('es-AR')}</span>
+                          <span className={`${MENU_STYLES.sections.category.list.item.content.price} ${colors.price.background} ${colors.price.text}`}>
+                            ${product.price.toLocaleString('es-AR')}
+                          </span>
                         </div>
-                        <p className={`text-sm leading-snug text-gray-500 mt-1 line-clamp-2`}>
+                        <p className={`${MENU_STYLES.sections.category.list.item.content.description} ${colors.text.secondary}`}>
                           {product.description}
                         </p>
                       </div>
