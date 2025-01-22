@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Category } from './types';
 import { MENU_STYLES } from '../constants/layout';
 import { MENU_COLORS } from '../constants/colors';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 
 interface CategorySectionProps {
   category: Category;
@@ -31,11 +32,15 @@ const CategorySection = memo(({ category, isDarkMode }: CategorySectionProps) =>
               className={`${MENU_STYLES.sections.category.grid.item.container} ${colors.background.item} ${colors.border.primary}`}
             >
               <div className={MENU_STYLES.sections.category.grid.item.image.wrapper}>
-                <img
-                  src={product.image || 'https://via.placeholder.com/300'} 
-                  alt={product.name}
-                  className={MENU_STYLES.sections.category.grid.item.image.img}
-                />
+                {product.image ? (
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className={MENU_STYLES.sections.category.grid.item.image.img}
+                  />
+                ) : (
+                  <PhotoIcon className={MENU_STYLES.sections.category.grid.item.image.placeholder} />
+                )}
               </div>
               <h3 className={`${MENU_STYLES.sections.category.grid.item.title} ${colors.text.primary}`}>
                 {product.name}
@@ -60,11 +65,15 @@ const CategorySection = memo(({ category, isDarkMode }: CategorySectionProps) =>
               className={`${MENU_STYLES.sections.category.list.item.container} ${colors.background.item} ${colors.border.primary}`}
             >
               <div className={MENU_STYLES.sections.category.list.item.image.wrapper}>
-                <img 
-                  src={product.image || 'https://via.placeholder.com/300'} 
-                  alt={product.name} 
-                  className={MENU_STYLES.sections.category.list.item.image.img}
-                />
+                {product.image ? (
+                  <img 
+                    src={product.image}
+                    alt={product.name} 
+                    className={MENU_STYLES.sections.category.list.item.image.img}
+                  />
+                ) : (
+                  <PhotoIcon className={MENU_STYLES.sections.category.list.item.image.placeholder} />
+                )}
               </div>
               <div className={MENU_STYLES.sections.category.list.item.content.wrapper}>
                 <div className={MENU_STYLES.sections.category.list.item.content.header}>

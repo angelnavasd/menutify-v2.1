@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Product } from './types';
 import { MENU_STYLES } from '../constants/layout';
 import { MENU_COLORS } from '../constants/colors';
+import { PhotoIcon } from '@heroicons/react/24/outline';
 
 interface FeaturedProductsProps {
   products: Product[];
@@ -26,11 +27,15 @@ const FeaturedProducts = memo(({ products, isDarkMode }: FeaturedProductsProps) 
               className={`${MENU_STYLES.sections.featured.grid.item.container} ${colors.background.item} ${colors.border.primary}`}
             >
               <div className={MENU_STYLES.sections.featured.grid.item.image.wrapper}>
-                <img
-                  src={product.image || 'https://via.placeholder.com/300'} 
-                  alt={product.name}
-                  className={MENU_STYLES.sections.featured.grid.item.image.img}
-                />
+                {product.image ? (
+                  <img
+                    src={product.image} 
+                    alt={product.name}
+                    className={MENU_STYLES.sections.featured.grid.item.image.img}
+                  />
+                ) : (
+                  <PhotoIcon className={MENU_STYLES.sections.featured.grid.item.image.placeholder} />
+                )}
               </div>
               <h3 className={`${MENU_STYLES.sections.featured.grid.item.title} ${colors.text.primary}`}>
                 {product.name}

@@ -2,6 +2,7 @@ import { memo, forwardRef } from 'react';
 import { Category } from './types';
 import { MENU_STYLES } from '../constants/layout';
 import { MENU_COLORS } from '../constants/colors';
+import { motion } from 'framer-motion';
 
 interface CategoryNavigationProps {
   categories: Category[];
@@ -17,9 +18,13 @@ const CategoryNavigation = memo(forwardRef<HTMLDivElement, CategoryNavigationPro
     return (
       <div className={`${MENU_STYLES.container.navigation.wrapper} ${colors.background.primary} ${colors.border.primary}`}>
         <div className={MENU_STYLES.container.navigation.content} ref={ref}>
+          {/* Fade gradients */}
+          <div className={MENU_STYLES.container.navigation.fade.left} />
+          <div className={MENU_STYLES.container.navigation.fade.right} />
+          
           <div className={MENU_STYLES.container.navigation.list}>
             {categories.map((category) => (
-              <button
+              <motion.button
                 key={category.id}
                 data-category-id={category.id}
                 onClick={() => onCategoryClick(category.id)}
@@ -28,12 +33,22 @@ const CategoryNavigation = memo(forwardRef<HTMLDivElement, CategoryNavigationPro
                     ? colors.navigation.active
                     : colors.navigation.inactive
                 }`}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               >
                 {category.name}
                 {activeCategory === category.id && (
-                  <div className={`${MENU_STYLES.container.navigation.item.indicator} ${colors.navigation.indicator}`} />
+                  <motion.div
+                    className={`${MENU_STYLES.container.navigation.item.indicator} ${colors.navigation.indicator}`}
+                    layoutId="categoryIndicator"
+                    transition={{
+                      type: 'spring',
+                      stiffness: 500,
+                      damping: 30
+                    }}
+                  />
                 )}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>

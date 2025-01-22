@@ -30,7 +30,7 @@ const MenuPage = () => {
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col">
+    <div className="fixed inset-0 flex flex-col min-h-screen overflow-hidden">
       <Menu 
         categories={categories} 
         isDarkMode={isDarkMode}

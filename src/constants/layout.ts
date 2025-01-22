@@ -146,24 +146,24 @@ export const PREVIEW_PANEL_STYLES = {
   },
   iphone: {
     frame: {
-      container: 'relative mx-auto w-[320px] h-[650px] bg-black rounded-[60px] shadow-xl border-[10px] border-black overflow-hidden',
-      dynamicIsland: 'absolute top-2 left-1/2 -translate-x-1/2 w-[120px] h-[35px] bg-black rounded-[20px]'
+      container: 'relative mx-auto w-[360px] h-[680px] bg-[#111111] rounded-[48px] shadow-xl border-[12px] border-[#111111] overflow-hidden',
+      dynamicIsland: 'absolute top-2 left-1/2 -translate-x-1/2 w-[112px] h-[30px] bg-[#111111] rounded-[18px]'
     },
     statusBar: {
       container: 'sticky top-0 z-30 transition-colors duration-300',
-      content: 'h-7 px-7 pt-3 pb-1 flex items-center justify-between relative',
+      content: 'h-7 px-7 pt-2.5 pb-1 flex items-center justify-between relative',
       time: 'text-[14px] font-medium',
       icons: {
-        container: 'flex items-center gap-0.5',
+        container: 'flex items-center gap-1',
         signal: 'w-3.5 h-2.5',
         wifi: 'w-3.5 h-2.5',
         battery: {
           container: 'w-[20px] h-3 rounded-[3px] border border-current flex items-center px-0.5',
-          level: 'flex-1 h-[8px] bg-current rounded-sm'
+          level: 'flex-1 h-[7px] bg-current rounded-sm'
         }
       }
     },
-    content: 'h-[calc(100%-1rem)]'
+    content: 'h-[calc(100%-1.75rem)]'
   },
   footer: {
     container: 'flex flex-col items-center mt-6 text-gray-500',
@@ -178,9 +178,9 @@ export const MENU_STYLES = {
     header: {
       wrapper: 'sticky top-0 z-20',
       content: {
-        base: 'px-3 transition-all duration-200',
-        expanded: 'py-4',
-        collapsed: 'pt-4 pb-1'
+        base: 'px-4 transition-all duration-200',
+        expanded: 'py-5',
+        collapsed: 'pt-4 pb-2'
       },
       heights: {
         preview: {
@@ -193,74 +193,81 @@ export const MENU_STYLES = {
         }
       },
       logo: {
-        container: 'w-12 h-12 rounded-md flex items-center justify-center text-xl font-medium mb-2',
-        text: 'text-2xl font-semibold'
+        container: 'w-14 h-14 rounded-lg flex items-center justify-center text-2xl font-semibold mb-3',
+        text: 'text-3xl font-bold tracking-tight'
       },
       info: {
-        container: 'flex items-center gap-1 mt-1',
+        container: 'flex items-center gap-1.5 mt-2',
         icon: 'w-3.5 h-3.5',
-        text: 'text-xs'
+        text: 'text-xs font-medium'
       }
     },
     navigation: {
-      wrapper: 'border-b',
-      content: 'overflow-x-auto scrollbar-none',
-      list: 'flex px-3 space-x-6 min-w-max py-3',
+      wrapper: 'border-b relative',
+      content: 'overflow-x-auto scrollbar-none relative',
+      list: 'flex px-4 space-x-6 min-w-max py-3.5 pb-0 snap-x snap-mandatory',
       item: {
-        base: 'text-base font-medium whitespace-nowrap transition-all duration-300 relative px-1 py-0.5',
-        indicator: 'absolute bottom-0 left-0 right-0 h-0.5 rounded-full'
+        base: 'text-[17px] font-semibold whitespace-nowrap transition-all duration-300 relative px-1.5 pb-3.5 snap-center active:scale-[0.97] select-none break-keep',
+        indicator: 'absolute bottom-0 left-0 right-0 h-[2px] bg-orange-500'
+      },
+      fade: {
+        left: '',
+        right: ''
       }
     }
   },
   sections: {
     wrapper: 'pb-20',
-    header: 'text-xl font-medium mb-3',
+    header: 'text-2xl font-bold tracking-tight mb-4',
     featured: {
-      container: 'px-3 pt-4 pb-6',
+      container: 'px-4 pt-5 pb-7',
       grid: {
-        wrapper: 'overflow-x-auto scrollbar-none -mx-3',
-        container: 'flex gap-3 px-3 min-w-max',
+        wrapper: 'overflow-x-auto scrollbar-none -mx-4',
+        container: 'flex gap-4 px-4 min-w-max',
         item: {
-          container: 'w-[85%] flex-shrink-0 rounded-md overflow-hidden border p-2.5',
+          container: 'w-[250px] flex-shrink-0 rounded-lg overflow-hidden border p-3',
           image: {
-            wrapper: 'h-40 rounded-md overflow-hidden mb-2.5',
-            img: 'w-full h-full object-cover'
+            wrapper: 'h-40 rounded-lg overflow-hidden mb-3 bg-gray-100 flex items-center justify-center',
+            img: 'w-full h-full object-cover object-center',
+            placeholder: 'w-12 h-12 text-gray-300'
           },
-          title: 'text-base font-medium leading-snug',
-          description: 'text-sm leading-snug mt-1',
-          price: 'inline-block mt-2 px-2 py-0.5 text-sm font-medium rounded'
+          title: 'text-[15px] font-semibold leading-snug',
+          description: 'text-sm leading-snug mt-1.5',
+          price: 'inline-block mt-2.5 px-2.5 py-1 text-sm font-semibold rounded-md'
         }
       }
     },
     category: {
-      container: 'px-3 pt-6 pb-8',
+      container: 'px-4 pt-5 pb-6',
       grid: {
-        wrapper: 'grid grid-cols-2 gap-2 mb-3',
+        wrapper: 'grid grid-cols-2 gap-3 mb-4',
         item: {
-          container: 'rounded-md overflow-hidden border p-2.5',
+          container: 'rounded-lg overflow-hidden border p-3',
           image: {
-            wrapper: 'aspect-square rounded-md overflow-hidden mb-2.5',
-            img: 'w-full h-full object-cover'
+            wrapper: 'aspect-square rounded-lg overflow-hidden mb-3 bg-gray-100 flex items-center justify-center',
+            img: 'w-full h-full object-cover object-center',
+            placeholder: 'w-12 h-12 text-gray-300'
           },
-          title: 'text-base font-medium leading-snug',
-          description: 'text-sm leading-snug mt-1 line-clamp-2',
-          price: 'inline-block mt-2 px-2 py-0.5 text-sm font-medium rounded'
+          title: 'text-[15px] font-semibold leading-snug',
+          description: 'text-sm leading-snug mt-1.5 line-clamp-2',
+          price: 'inline-block mt-2.5 px-2.5 py-1 text-sm font-semibold rounded-md'
         }
       },
       list: {
-        wrapper: 'space-y-2',
+        wrapper: 'space-y-3',
         item: {
-          container: 'flex items-start gap-3 p-2.5 rounded-md border',
+          container: 'flex items-start gap-4 p-3 rounded-lg border',
           image: {
-            wrapper: 'w-20 h-20 flex-shrink-0 rounded-md overflow-hidden',
-            img: 'w-full h-full object-cover'
+            wrapper: 'w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center',
+            img: 'w-full h-full object-cover object-center',
+            placeholder: 'w-8 h-8 text-gray-300'
           },
           content: {
             wrapper: 'flex-1 min-w-0',
-            header: 'flex justify-between items-start gap-2',
-            title: 'text-base font-medium leading-snug',
-            price: 'shrink-0 px-2 py-0.5 text-sm font-medium rounded',
-            description: 'text-sm leading-snug mt-1 line-clamp-2'
+            header: 'flex justify-between items-start gap-3',
+            title: 'text-[15px] font-semibold leading-snug',
+            price: 'shrink-0 px-2.5 py-1 text-sm font-semibold rounded-md',
+            description: 'text-sm leading-snug mt-1.5 line-clamp-2'
           }
         }
       }

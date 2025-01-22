@@ -47,22 +47,20 @@ export default function Menu({
     if (!navRef.current) return;
     setActiveCategory(categoryId);
     
-    if (isPreview) {
-      const button = navRef.current.querySelector(`[data-category-id="${categoryId}"]`) as HTMLElement;
-      if (!button) return;
+    const button = navRef.current.querySelector(`[data-category-id="${categoryId}"]`) as HTMLElement;
+    if (!button) return;
 
-      const nav = navRef.current;
-      const buttonRect = button.getBoundingClientRect();
-      const navRect = nav.getBoundingClientRect();
-      
-      const scrollLeft = button.offsetLeft - (navRect.width / 2) + (buttonRect.width / 2);
-      
-      nav.scrollTo({
-        left: scrollLeft,
-        behavior: 'smooth'
-      });
-    }
-  }, [isPreview]);
+    const nav = navRef.current;
+    const buttonRect = button.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+    
+    const scrollLeft = button.offsetLeft - (navRect.width / 2) + (buttonRect.width / 2);
+    
+    nav.scrollTo({
+      left: scrollLeft,
+      behavior: 'smooth'
+    });
+  }, []);
 
   useScrollSpy(
     visibleCategories.map(c => c.id),

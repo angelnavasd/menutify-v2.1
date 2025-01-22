@@ -134,9 +134,9 @@ export const MENU_COLORS = {
       secondary: 'border-gray-100'
     },
     navigation: {
-      active: 'text-orange-600',
+      active: 'text-orange-500',
       inactive: 'text-gray-600 hover:text-gray-900',
-      indicator: 'bg-orange-600'
+      indicator: 'bg-orange-500'
     },
     logo: {
       background: 'bg-orange-50',
