@@ -179,6 +179,16 @@ export const MENU_STYLES = {
         expanded: 'py-4',
         collapsed: 'pt-4 pb-1'
       },
+      heights: {
+        preview: {
+          expanded: 120,
+          collapsed: 60
+        },
+        normal: {
+          expanded: 140,
+          collapsed: 80
+        }
+      },
       logo: {
         container: 'w-12 h-12 rounded-md flex items-center justify-center text-xl font-medium mb-2',
         text: 'text-2xl font-semibold'

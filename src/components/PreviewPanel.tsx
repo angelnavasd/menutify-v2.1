@@ -1,5 +1,6 @@
 // src/components/PreviewPanel.tsx
 
+import { memo } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Menu from './Menu';
 import { Category } from './types';
@@ -11,7 +12,7 @@ interface PreviewPanelProps {
   isDarkMode: boolean;
 }
 
-const PreviewPanel = ({ categories, isDarkMode }: PreviewPanelProps) => {
+const PreviewPanel = memo(({ categories, isDarkMode }: PreviewPanelProps) => {
   const colors = isDarkMode ? PREVIEW_PANEL_COLORS.dark : PREVIEW_PANEL_COLORS.light;
   const statusBarColors = isDarkMode ? PREVIEW_PANEL_COLORS.statusBar.dark : PREVIEW_PANEL_COLORS.statusBar.light;
 
@@ -70,6 +71,8 @@ const PreviewPanel = ({ categories, isDarkMode }: PreviewPanelProps) => {
       </div>
     </aside>
   );
-};
+});
+
+PreviewPanel.displayName = 'PreviewPanel';
 
 export default PreviewPanel;

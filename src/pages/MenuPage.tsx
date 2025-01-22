@@ -1,63 +1,33 @@
 import { useLocation } from 'react-router-dom';
 import Menu from '../components/Menu';
 import { Category } from '../components/types';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const MenuPage = () => {
   const location = useLocation();
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem('menuDarkMode');
-    return savedMode ? JSON.parse(savedMode) : false;
-  });
-
-  const [categories, setCategories] = useState<Category[]>(() => {
-    if (location.state?.categories) {
-      return location.state.categories;
-    }
-    const savedCategories = localStorage.getItem('categories');
-    return savedCategories ? JSON.parse(savedCategories) : [];
-  });
-
-  // Sincronizar y aplicar modo oscuro
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'menuDarkMode' && e.newValue !== null) {
-        const newDarkMode = JSON.parse(e.newValue);
-        setIsDarkMode(newDarkMode);
-        document.documentElement.classList.toggle('dark', newDarkMode);
-      }
-    };
-
-    // Aplicar el modo oscuro al cargar
-    const savedMode = localStorage.getItem('menuDarkMode');
-    if (savedMode !== null) {
-      const darkMode = JSON.parse(savedMode);
-      setIsDarkMode(darkMode);
-      document.documentElement.classList.toggle('dark', darkMode);
-    }
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Sincronizar categorías
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'categories' && e.newValue) {
-        setCategories(JSON.parse(e.newValue));
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  const [isDarkMode, setIsDarkMode] = useLocalStorage('menuDarkMode', false);
+  const [categories, setCategories] = useLocalStorage<Category[]>('categories', []);
 
   // Actualizar cuando cambie el estado de navegación
   useEffect(() => {
     if (location.state?.categories) {
       setCategories(location.state.categories);
     }
-  }, [location.state]);
+  }, [location.state, setCategories]);
+
+  // Aplicar el modo oscuro al DOM
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, [isDarkMode]);
+
+  if (!categories.length) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <p className="text-gray-500">No hay categorías disponibles</p>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 flex flex-col">
