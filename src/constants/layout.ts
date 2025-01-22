@@ -134,4 +134,37 @@ export const CATEGORY_ITEM_STYLES = {
   icons: {
     base: 'h-4 w-4 text-gray-400'
   }
+} as const;
+
+export const PREVIEW_PANEL_STYLES = {
+  container: {
+    base: 'hidden md:flex flex-col items-center justify-start w-[400px] bg-white border-l border-gray-200',
+    content: 'w-full h-full flex flex-col items-center justify-center px-4 pt-6'
+  },
+  iphone: {
+    frame: {
+      container: 'relative mx-auto w-[320px] h-[650px] bg-black rounded-[60px] shadow-xl border-[10px] border-black overflow-hidden',
+      dynamicIsland: 'absolute top-2 left-1/2 -translate-x-1/2 w-[120px] h-[35px] bg-black rounded-[20px]'
+    },
+    statusBar: {
+      container: 'sticky top-0 z-30 transition-colors duration-300',
+      content: 'h-7 px-7 pt-3 pb-1 flex items-center justify-between relative',
+      time: 'text-[14px] font-medium',
+      icons: {
+        container: 'flex items-center gap-0.5',
+        signal: 'w-3.5 h-2.5',
+        wifi: 'w-3.5 h-2.5',
+        battery: {
+          container: 'w-[20px] h-3 rounded-[3px] border border-current flex items-center px-0.5',
+          level: 'flex-1 h-[8px] bg-current rounded-sm'
+        }
+      }
+    },
+    content: 'h-[calc(100%-1rem)]'
+  },
+  footer: {
+    container: 'flex flex-col items-center mt-6 text-gray-500',
+    icon: 'w-5 h-5 animate-bounce mb-2',
+    text: 'text-sm'
+  }
 } as const; 

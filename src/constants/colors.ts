@@ -86,4 +86,33 @@ export const CATEGORY_ITEM_COLORS = {
     base: 'bg-white',
     hover: 'hover:bg-gray-50'
   }
+} as const;
+
+export const PREVIEW_PANEL_COLORS = {
+  light: {
+    background: 'bg-white',
+    text: {
+      primary: 'text-gray-900',
+      secondary: 'text-gray-500'
+    },
+    border: 'border-gray-200'
+  },
+  dark: {
+    background: 'bg-gray-900',
+    text: {
+      primary: 'text-gray-200',
+      secondary: 'text-gray-400'
+    },
+    border: 'border-gray-800'
+  },
+  statusBar: {
+    light: {
+      background: 'bg-white',
+      text: 'text-gray-900'
+    },
+    dark: {
+      background: 'bg-gray-900',
+      text: 'text-gray-200'
+    }
+  }
 } as const; 
