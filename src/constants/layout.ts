@@ -88,4 +88,27 @@ export const MENU_LIST_STYLES = {
     container: 'border border-gray-200',
     divider: 'border-t border-gray-100'
   }
-}; 
+};
+
+export const PRODUCT_CARD_STYLES = {
+  container: 'flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200',
+  imageContainer: 'relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden',
+  imagePlaceholder: 'absolute inset-0 animate-pulse bg-gray-200',
+  dragHandle: 'flex-shrink-0 cursor-grab active:cursor-grabbing touch-none',
+  contentContainer: 'flex-grow min-w-0 flex flex-col gap-2',
+  headerContainer: 'flex justify-between items-start',
+  title: 'font-medium text-gray-900 truncate',
+  featuredBadge: 'px-2 py-0.5 flex items-center bg-amber-50 rounded-md',
+  priceBadge: 'px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md',
+  description: 'text-sm text-gray-500 line-clamp-2 flex-grow',
+  actionsContainer: 'flex items-center gap-1 ml-2',
+  actionButton: {
+    base: 'p-1 rounded transition-colors',
+    edit: 'text-gray-500 hover:text-orange-400 hover:bg-orange-50',
+    visibility: {
+      visible: 'text-gray-500 hover:text-orange-400 hover:bg-orange-50',
+      hidden: 'text-orange-400 hover:text-orange-500 hover:bg-orange-50'
+    },
+    delete: 'text-gray-500 hover:text-red-400 hover:bg-red-50'
+  }
+} as const; 

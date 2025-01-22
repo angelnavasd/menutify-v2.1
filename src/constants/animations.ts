@@ -149,4 +149,15 @@ export const MENU_LIST_EXPAND_VARIANTS: Variants = {
 export const MENU_LIST_ITEM_HOVER_VARIANTS = {
   initial: { x: 0 },
   hover: { x: 4 }
-}; 
+};
+
+export const PRODUCT_CARD_ANIMATION_VARIANTS = {
+  drag: {
+    initial: { opacity: 1 },
+    dragging: { opacity: 0.5 }
+  },
+  image: {
+    loading: { opacity: 0 },
+    loaded: { opacity: 1 }
+  }
+} as const; 

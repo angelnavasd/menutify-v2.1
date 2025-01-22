@@ -10,7 +10,9 @@ import {
   Cog6ToothIcon,
   ArrowRightIcon,
   ChevronDownIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  SunIcon,
+  MoonIcon
 } from '@heroicons/react/24/outline';
 import { SIDEBAR_BACKDROP_VARIANTS, SIDEBAR_DROPDOWN_VARIANTS, SIDEBAR_CHEVRON_VARIANTS, SIDEBAR_ARROW_VARIANTS, TRANSITION_SPRING } from '../constants/animations';
 import { THEME_COLORS } from '../constants/colors';
@@ -20,22 +22,49 @@ const menuItems = [
   { name: 'Cuenta', icon: UserIcon, path: '/account' }
 ];
 
+// Colores para el modo oscuro del sidebar
+const SIDEBAR_DARK_COLORS = {
+  background: 'bg-gray-950',
+  text: {
+    primary: 'text-white',
+    secondary: 'text-gray-400'
+  },
+  border: 'border-gray-800/50',
+  hover: 'hover:bg-gray-800/30',
+  active: 'bg-gray-800/50'
+};
+
+// Colores para el modo claro del sidebar
+const SIDEBAR_LIGHT_COLORS = {
+  background: 'bg-white',
+  text: {
+    primary: 'text-gray-900',
+    secondary: 'text-gray-500'
+  },
+  border: 'border-gray-200',
+  hover: 'hover:bg-gray-100',
+  active: 'bg-gray-100'
+};
+
 const Sidebar = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [active, setActive] = useState('Creador de Menú');
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  const colors = isDarkMode ? SIDEBAR_DARK_COLORS : SIDEBAR_LIGHT_COLORS;
 
   return (
     <>
       {/* Header Mobile */}
-      <header className="md:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-950 px-2 py-2 border-b border-gray-800/50">
-        <div className="bg-gradient-to-r from-orange-400 to-amber-400 font-bold h-9 w-9 flex items-center justify-center rounded-lg shadow-lg shadow-orange-400/20">
+      <header className={`md:hidden fixed top-0 left-0 right-0 z-20 flex items-center justify-between ${colors.background} px-2 py-2 border-b ${colors.border}`}>
+        <div className={`bg-gradient-to-r from-${THEME_COLORS.primary.DEFAULT} to-${THEME_COLORS.secondary.DEFAULT} font-bold h-9 w-9 flex items-center justify-center rounded-lg shadow-lg shadow-${THEME_COLORS.primary.DEFAULT}/20`}>
           M
         </div>
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-gray-400 hover:text-white transition-colors"
+          className={`${colors.text.secondary} ${colors.hover.replace('hover:', '')} transition-colors`}
         >
           {isSidebarOpen ? (
             <XMarkIcon className="h-7 w-7" />
@@ -61,17 +90,17 @@ const Sidebar = () => {
 
       {/* Sidebar */}
       <motion.aside 
-        className={`fixed md:sticky top-0 left-0 h-[100dvh] w-[280px] bg-gray-950 text-white shadow-xl md:shadow-2xl md:shadow-gray-950/50 z-30 flex flex-col justify-between ${
+        className={`fixed md:sticky top-0 left-0 h-[100dvh] w-[280px] ${colors.background} ${colors.text.primary} shadow-xl md:shadow-2xl md:shadow-gray-950/50 z-30 flex flex-col justify-between ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } transition-transform duration-300`}
       >
         <div>
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-800/50">
-            <h1 className="text-2xl font-bold text-white">
+          <div className={`px-6 py-4 border-b ${colors.border}`}>
+            <h1 className={`text-2xl font-bold ${colors.text.primary}`}>
               Menutify
             </h1>
-            <p className="text-sm text-gray-400 mt-1">Gestor de menús</p>
+            <p className={`text-sm ${colors.text.secondary} mt-1`}>Gestor de menús</p>
           </div>
 
           {/* Menu Creator Button */}
@@ -82,10 +111,10 @@ const Sidebar = () => {
                 navigate('/');
                 setIsSidebarOpen(false);
               }}
-              className="w-full group relative flex items-center justify-between px-4 py-2.5 rounded-lg animate-gradient text-white shadow-lg shadow-orange-400/20 hover:shadow-orange-400/30 transition-all duration-300"
+              className={`w-full group relative flex items-center justify-between px-4 py-2.5 rounded-lg animate-gradient ${colors.text.primary} shadow-lg shadow-${THEME_COLORS.primary.DEFAULT}/20 hover:shadow-${THEME_COLORS.primary.DEFAULT}/30 transition-all duration-300`}
             >
               <span className="text-sm font-medium">Creador de Menú</span>
-              <DocumentPlusIcon className="h-5 w-5 text-orange-50 transition-all duration-300 group-hover:rotate-12" />
+              <DocumentPlusIcon className={`h-5 w-5 text-${THEME_COLORS.primary.light} transition-all duration-300 group-hover:rotate-12`} />
             </button>
           </div>
 
@@ -101,8 +130,8 @@ const Sidebar = () => {
                 }}
                 className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg transition-all text-sm font-medium group ${
                   active === item.name
-                    ? 'bg-gray-800/50 text-orange-300'
-                    : 'text-gray-400 hover:bg-gray-800/30 hover:text-gray-100'
+                    ? `${colors.active} text-${THEME_COLORS.primary.DEFAULT}`
+                    : `${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')}`
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -117,8 +146,8 @@ const Sidebar = () => {
                 >
                   <ArrowRightIcon className={`h-4 w-4 ${
                     active === item.name 
-                      ? 'text-orange-300' 
-                      : 'text-gray-400'
+                      ? `text-${THEME_COLORS.primary.DEFAULT}`
+                      : colors.text.secondary
                   }`} />
                 </motion.div>
               </button>
@@ -127,22 +156,22 @@ const Sidebar = () => {
         </div>
 
         {/* User Profile */}
-        <div className="relative px-4 py-3 border-t border-gray-800/50">
+        <div className={`relative px-4 py-3 border-t ${colors.border}`}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             aria-label="Menu de usuario"
             aria-expanded={isDropdownOpen}
             aria-haspopup="true"
-            className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-gray-800/30 transition-all"
+            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg ${colors.hover} transition-all`}
           >
             <div className="flex items-center gap-2.5">
               <img
                 src="https://i.pravatar.cc/300"
                 alt="Avatar"
-                className="h-8 w-8 rounded-lg object-cover ring-2 ring-gray-800"
+                className={`h-8 w-8 rounded-lg object-cover ring-2 ${colors.border}`}
               />
               <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-gray-200">Restaurant Demo</p>
+                <p className={`text-sm font-medium ${colors.text.primary}`}>Restaurant Demo</p>
                 <div className="inline-flex items-center gap-1.5 px-1.5 py-0.5 bg-orange-400/10 rounded-md mt-0.5">
                   <span className="w-1 h-1 rounded-full bg-orange-400"></span>
                   <span className="text-[10px] font-medium text-orange-400">Menutify Pro</span>
@@ -155,7 +184,7 @@ const Sidebar = () => {
               animate={isDropdownOpen ? "animate" : "initial"}
               className="ml-1.5"
             >
-              <ChevronDownIcon className="h-4 w-4 text-gray-400" />
+              <ChevronDownIcon className={`h-4 w-4 ${colors.text.secondary}`} />
             </motion.div>
           </button>
 
@@ -167,10 +196,10 @@ const Sidebar = () => {
                 animate="animate"
                 exit="exit"
                 transition={TRANSITION_SPRING}
-                className="absolute bottom-full left-4 right-4 mb-2 bg-gray-900/80 backdrop-blur-sm rounded-lg shadow-xl border border-gray-800/50 py-1.5 space-y-1"
+                className={`absolute bottom-full left-4 right-4 mb-2 ${colors.background}/80 backdrop-blur-sm rounded-lg shadow-xl border ${colors.border} py-1.5 space-y-1`}
               >
                 <button 
-                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors group"
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     <UserIcon className="h-5 w-5" /> 
@@ -186,7 +215,7 @@ const Sidebar = () => {
                   </motion.div>
                 </button>
                 <button 
-                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-400 hover:text-gray-200 hover:bg-gray-800/50 transition-colors group"
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     <Cog6ToothIcon className="h-5 w-5" /> 
@@ -201,9 +230,30 @@ const Sidebar = () => {
                     <ArrowRightIcon className="h-4 w-4" />
                   </motion.div>
                 </button>
-                <div className="h-px bg-gray-800/50 mx-3 my-1" />
+                {/* Theme Switch */}
                 <button 
-                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-950/30 transition-colors group"
+                  onClick={() => setIsDarkMode(!isDarkMode)}
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm ${colors.text.secondary} ${colors.hover} ${colors.text.primary.replace('text-', 'hover:text-')} transition-colors group`}
+                >
+                  <div className="flex items-center gap-3">
+                    {isDarkMode ? (
+                      <SunIcon className="h-5 w-5" />
+                    ) : (
+                      <MoonIcon className="h-5 w-5" />
+                    )}
+                    <span>{isDarkMode ? 'Modo claro' : 'Modo oscuro'}</span>
+                  </div>
+                  <div className={`w-9 h-5 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isDarkMode ? 'bg-gray-600' : 'bg-gray-300'
+                  }`}>
+                    <div className={`bg-white w-3 h-3 rounded-full shadow-md transform duration-300 ease-in-out ${
+                      isDarkMode ? 'translate-x-4' : 'translate-x-0'
+                    }`} />
+                  </div>
+                </button>
+                <div className={`h-px ${colors.border} mx-3 my-1`} />
+                <button 
+                  className={`w-full flex items-center justify-between px-4 py-2 text-sm text-${THEME_COLORS.status.error.text} hover:text-${THEME_COLORS.status.error.text} hover:bg-${THEME_COLORS.status.error.bg} transition-colors group`}
                 >
                   <div className="flex items-center gap-3">
                     <ArrowRightOnRectangleIcon className="h-5 w-5" /> 

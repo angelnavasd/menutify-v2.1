@@ -4,6 +4,9 @@ import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Product } from './types';
+import { PRODUCT_CARD_STYLES } from '../constants/layout';
+import { PRODUCT_CARD_ANIMATION_VARIANTS } from '../constants/animations';
+import { motion } from 'framer-motion';
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +15,14 @@ interface ProductCardProps {
   onDelete: () => void;
   isEditMode: boolean;
 }
+
+const formatPrice = (price: number) => {
+  const priceString = Math.round(price * 100).toString().padStart(3, '0');
+  const integerPart = priceString.slice(0, -2);
+  const decimalPart = priceString.slice(-2);
+  
+  return `${integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${decimalPart}`;
+};
 
 const ProductCard = ({
   product,
@@ -36,41 +47,35 @@ const ProductCard = ({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1
-  };
-
-  const formatPrice = (price: number) => {
-    const priceString = Math.round(price * 100).toString().padStart(3, '0');
-    const integerPart = priceString.slice(0, -2);
-    const decimalPart = priceString.slice(-2);
-    
-    // Format integer part with thousands separator
-    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    
-    return `${formattedInteger},${decimalPart}`;
+    transition
   };
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200 ${
-        !product.visible ? 'opacity-50' : ''
-      }`}
+      variants={PRODUCT_CARD_ANIMATION_VARIANTS.drag}
+      animate={isDragging ? 'dragging' : 'initial'}
+      className={`${PRODUCT_CARD_STYLES.container} ${!product.visible ? 'opacity-50' : ''}`}
     >
       {isEditMode && (
         <div
-          className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
+          className={PRODUCT_CARD_STYLES.dragHandle}
           {...attributes}
           {...listeners}
         >
           <Bars4Icon className="h-4 w-4 text-gray-400" />
         </div>
       )}
-      <div className="relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden">
+
+      <div className={PRODUCT_CARD_STYLES.imageContainer}>
         {product.image && imageLoading && (
-          <div className="absolute inset-0 animate-pulse bg-gray-200" />
+          <motion.div 
+            className={PRODUCT_CARD_STYLES.imagePlaceholder}
+            variants={PRODUCT_CARD_ANIMATION_VARIANTS.image}
+            initial="loading"
+            animate="loaded"
+          />
         )}
         {product.image ? (
           <img
@@ -86,36 +91,36 @@ const ProductCard = ({
         )}
       </div>
 
-      <div className="flex-grow min-w-0 flex flex-col gap-2">
-        <div className="flex justify-between items-start">
-          <h3 className={`font-medium text-gray-900 truncate ${!product.visible ? 'line-through' : ''}`}>
+      <div className={PRODUCT_CARD_STYLES.contentContainer}>
+        <div className={PRODUCT_CARD_STYLES.headerContainer}>
+          <h3 className={`${PRODUCT_CARD_STYLES.title} ${!product.visible ? 'line-through' : ''}`}>
             {product.name}
           </h3>
-          <div className="flex items-center gap-1 ml-2">
+          <div className={PRODUCT_CARD_STYLES.actionsContainer}>
             {product.featured && (
-              <span className="px-2 py-0.5 flex items-center bg-amber-50 rounded-md">
+              <span className={PRODUCT_CARD_STYLES.featuredBadge}>
                 <StarIconSolid className="h-3.5 w-3.5 text-amber-400" />
               </span>
             )}
-            <span className="px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md">
+            <span className={PRODUCT_CARD_STYLES.priceBadge}>
               ${formatPrice(product.price)}
             </span>
           </div>
         </div>
 
-        <div className="flex justify-between items-start">
+        <div className={PRODUCT_CARD_STYLES.headerContainer}>
           {product.description && (
-            <p className={`text-sm text-gray-500 line-clamp-2 flex-grow ${!product.visible ? 'line-through' : ''}`}>
+            <p className={`${PRODUCT_CARD_STYLES.description} ${!product.visible ? 'line-through' : ''}`}>
               {product.description}
             </p>
           )}
-          <div className="flex items-center gap-1 ml-2">
+          <div className={PRODUCT_CARD_STYLES.actionsContainer}>
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit();
               }}
-              className="p-1 text-gray-500 hover:text-orange-400 hover:bg-orange-50 rounded transition-colors"
+              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.edit}`}
             >
               <PencilIcon className="h-3.5 w-3.5" />
             </button>
@@ -124,10 +129,10 @@ const ProductCard = ({
                 e.stopPropagation();
                 onToggleVisibility();
               }}
-              className={`p-1 rounded transition-colors ${
+              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${
                 product.visible 
-                  ? 'text-gray-500 hover:text-orange-400 hover:bg-orange-50'
-                  : 'text-orange-400 hover:text-orange-500 hover:bg-orange-50'
+                  ? PRODUCT_CARD_STYLES.actionButton.visibility.visible
+                  : PRODUCT_CARD_STYLES.actionButton.visibility.hidden
               }`}
             >
               {product.visible ? (
@@ -143,14 +148,14 @@ const ProductCard = ({
                   onDelete();
                 }
               }}
-              className="p-1 text-gray-500 hover:text-red-400 hover:bg-red-50 rounded transition-colors"
+              className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.delete}`}
             >
               <TrashIcon className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
