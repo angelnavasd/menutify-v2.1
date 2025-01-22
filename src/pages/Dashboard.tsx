@@ -205,7 +205,8 @@ const Dashboard = () => {
         categoryId,
         visible: true,
         featured: product.featured || false,
-        order: categories[categoryIndex].products.length
+        order: categories[categoryIndex].products.length,
+        image: product.image || null
       };
 
       const updatedCategory = {
@@ -213,25 +214,34 @@ const Dashboard = () => {
         products: [...categories[categoryIndex].products, newProduct]
       };
 
-      await updateCategory(updatedCategory.id, updatedCategory);
-
+      // Primero actualizar el estado local
       setCategories(prev => {
         const newCategories = [...prev];
         newCategories[categoryIndex] = updatedCategory;
         return newCategories;
       });
 
-      showSuccessMessage('Producto creado exitosamente');
-      setUiState(prev => ({ ...prev, isModalOpen: false }));
+      // Luego actualizar Firebase
+      try {
+        await updateCategory(updatedCategory.id, updatedCategory);
+        showSuccessMessage('Producto creado exitosamente');
+        setUiState(prev => ({ ...prev, isModalOpen: false }));
 
-      if (!expandedCategories.includes(categoryId)) {
-        setExpandedCategories(prev => [...prev, categoryId]);
+        if (!expandedCategories.includes(categoryId)) {
+          setExpandedCategories(prev => [...prev, categoryId]);
+        }
+      } catch (firebaseError) {
+        console.error('Error específico de Firebase:', firebaseError);
+        // Revertir el estado local si falla Firebase
+        const reloadedCategories = await getCategories();
+        setCategories(reloadedCategories);
+        throw firebaseError;
       }
     } catch (error) {
-      console.error('Error al crear producto:', error);
-      throw new Error('Error al crear el producto');
+      console.error('Error detallado al crear producto:', error);
+      throw error;
     }
-  }, [categories, expandedCategories, showSuccessMessage]);
+  }, [categories, expandedCategories, showSuccessMessage, setUiState, setExpandedCategories]);
 
   const handleSubmitProduct = useCallback(async (product: Product, categoryId: string) => {
     setLoading(true);
@@ -258,10 +268,16 @@ const Dashboard = () => {
 
       if (!categoryToUpdate) throw new Error('No se encontró la categoría del producto');
 
+      // Asegurarnos de que la imagen sea null si no hay imagen
+      const sanitizedProduct = {
+        ...updatedProduct,
+        id: productId,
+        categoryId: categoryToUpdate.id,
+        image: updatedProduct.image || null
+      };
+
       const updatedProducts = categoryToUpdate.products.map(product =>
-        product.id === productId 
-          ? { ...updatedProduct, id: productId, categoryId: categoryToUpdate.id }
-          : product
+        product.id === productId ? sanitizedProduct : product
       );
 
       const updatedCategory = {
@@ -269,19 +285,29 @@ const Dashboard = () => {
         products: updatedProducts
       };
 
-      await updateCategory(categoryToUpdate.id, updatedCategory);
-
+      // Primero actualizar el estado local
       setCategories(prev =>
         prev.map(category =>
           category.id === categoryToUpdate.id ? updatedCategory : category
         )
       );
 
-      showSuccessMessage('Producto actualizado correctamente');
-      setUiState(prev => ({ ...prev, isModalOpen: false }));
+      // Luego actualizar Firebase
+      try {
+        await updateCategory(categoryToUpdate.id, updatedCategory);
+        showSuccessMessage('Producto actualizado correctamente');
+        setUiState(prev => ({ ...prev, isModalOpen: false }));
+      } catch (firebaseError) {
+        console.error('Error específico de Firebase:', firebaseError);
+        // Revertir el estado local si falla Firebase
+        const reloadedCategories = await getCategories();
+        setCategories(reloadedCategories);
+        throw firebaseError;
+      }
     } catch (error) {
-      console.error('Error:', error);
-      showErrorMessage('Error al actualizar el producto');
+      console.error('Error detallado al actualizar producto:', error);
+      showErrorMessage('Error al actualizar el producto. Por favor, intenta de nuevo.');
+      throw error;
     } finally {
       setLoading(false);
     }

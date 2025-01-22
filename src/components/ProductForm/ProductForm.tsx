@@ -185,21 +185,78 @@ const ImageUploadField = ({
   imagePreview: string | null; 
   setImagePreview: (preview: string | null) => void; 
 }) => {
-  const onDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file) {
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Si la imagen es más grande que 800x800, redimensionarla manteniendo el aspect ratio
+          const MAX_SIZE = 800;
+          if (width > MAX_SIZE || height > MAX_SIZE) {
+            if (width > height) {
+              height = Math.round((height * MAX_SIZE) / width);
+              width = MAX_SIZE;
+            } else {
+              width = Math.round((width * MAX_SIZE) / height);
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('No se pudo obtener el contexto del canvas'));
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Comprimir a JPEG con calidad 0.8
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(compressedDataUrl);
+        };
+        img.onerror = () => {
+          reject(new Error('Error al cargar la imagen'));
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => {
+        reject(new Error('Error al leer el archivo'));
       };
       reader.readAsDataURL(file);
+    });
+  };
+
+  const onDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      try {
+        // Validar tamaño (máximo 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error('La imagen es demasiado grande. El tamaño máximo es 5MB.');
+        }
+
+        const compressedImage = await compressImage(file);
+        setImagePreview(compressedImage);
+      } catch (error) {
+        console.error('Error al procesar la imagen:', error);
+        alert('Error al procesar la imagen. Por favor, intenta con otra imagen.');
+      }
     }
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': [] },
-    maxFiles: 1
+    maxFiles: 1,
+    maxSize: 5 * 1024 * 1024 // 5MB
   });
 
   return (
@@ -208,7 +265,7 @@ const ImageUploadField = ({
         <label className={PRODUCT_FORM_STYLES.field.label.text}>
           Foto del platillo
         </label>
-        <InfoTooltip content="Sube una imagen atractiva de tu platillo. Recomendamos usar fotos bien iluminadas y en formato cuadrado" />
+        <InfoTooltip content="Sube una imagen atractiva de tu platillo. Recomendamos usar fotos bien iluminadas y en formato cuadrado. Tamaño máximo: 5MB" />
       </div>
       <div className={PRODUCT_FORM_STYLES.imageUpload.wrapper}>
         <div {...getRootProps()}
@@ -473,7 +530,7 @@ const ProductForm = ({
     setIsSuccess(false);
 
     try {
-      await onSubmit({
+      const productData = {
         id: productToEdit?.id || '',
         name: title.trim(),
         description: description.trim(),
@@ -483,7 +540,9 @@ const ProductForm = ({
         image: imagePreview,
         visible: isVisible,
         featured: isAvailable
-      }, categoryId);
+      };
+
+      await onSubmit(productData, categoryId);
 
       setIsSuccess(true);
       onSuccess?.(categoryId);
@@ -491,7 +550,7 @@ const ProductForm = ({
       // Esperar a que termine la animación de éxito
       setTimeout(() => {
         onClose();
-        // Resetear el formulario
+        // Resetear el formulario solo si la operación fue exitosa
         setTitle('');
         setDescription('');
         setPrice('');
@@ -503,7 +562,10 @@ const ProductForm = ({
       }, 1000);
 
     } catch (error) {
-      console.error('Error al guardar el producto:', error);
+      console.error('Error detallado al guardar el producto:', error);
+      setIsSuccess(false);
+      // No cerrar el formulario y mantener los datos actuales
+      throw error;
     } finally {
       setIsLoading(false);
     }
