@@ -1,18 +1,26 @@
-import { PencilSquareIcon, TrashIcon, EyeIcon, EyeSlashIcon, Bars4Icon } from '@heroicons/react/24/outline';
+import { memo } from 'react';
+import { PencilSquareIcon, EyeIcon, EyeSlashIcon, TrashIcon, Bars3Icon, PhotoIcon } from '@heroicons/react/24/outline';
+import { StarIcon } from '@heroicons/react/24/solid';
 import { Product } from './types';
+import { PRODUCT_CARD_STYLES } from '../constants/layout';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { PRODUCT_CARD_STYLES } from '../constants/layout';
 
 interface ProductCardProps {
   product: Product;
-  onEdit: () => void;
-  onToggleVisibility: () => void;
-  onDelete: () => void;
-  isEditMode: boolean;
+  isEditMode?: boolean;
+  onEdit?: (product: Product) => void;
+  onToggleVisibility?: () => void;
+  onDelete?: () => void;
 }
 
-const ProductCard = ({ product, onEdit, onToggleVisibility, onDelete, isEditMode }: ProductCardProps) => {
+const ProductCard = memo(({ 
+  product, 
+  isEditMode = false,
+  onEdit,
+  onToggleVisibility,
+  onDelete
+}: ProductCardProps) => {
   const {
     attributes,
     listeners,
@@ -20,83 +28,72 @@ const ProductCard = ({ product, onEdit, onToggleVisibility, onDelete, isEditMode
     transform,
     transition,
     isDragging
-  } = useSortable({
-    id: product.id,
-    disabled: !isEditMode,
-    data: {
-      type: 'product'
-    }
-  });
+  } = useSortable({ id: product.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.5 : 1
   };
 
   return (
-    <div
+    <div 
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors rounded-lg border-b border-gray-200/30 last:border-b-0 ${!product.visible ? 'opacity-50' : ''}`}
+      className={PRODUCT_CARD_STYLES.container}
     >
-      {isEditMode && (
-        <div
-          className="flex-shrink-0 cursor-grab active:cursor-grabbing touch-none"
-          {...attributes}
-          {...listeners}
-        >
-          <Bars4Icon className="w-4 h-4 text-gray-400" />
-        </div>
-      )}
-
-      <div className="relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden">
+      <div className={PRODUCT_CARD_STYLES.imageContainer.wrapper}>
         {product.image ? (
-          <img
-            src={product.image}
+          <img 
+            src={product.image} 
             alt={product.name}
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 animate-pulse bg-gray-200" />
+          <div className={PRODUCT_CARD_STYLES.imageContainer.placeholder.container}>
+            <PhotoIcon className={PRODUCT_CARD_STYLES.imageContainer.placeholder.icon} />
+          </div>
         )}
       </div>
 
-      <div className="flex-grow min-w-0 flex flex-col gap-2">
-        <div className="flex justify-between items-start">
-          <div className="min-w-0">
-            <h3 className="font-medium text-gray-900 truncate">
-              {product.name}
-            </h3>
-            {product.featured && (
-              <span className="px-2 py-0.5 text-xs text-amber-600 bg-amber-50 rounded-md inline-flex items-center">
-                Destacado
-              </span>
-            )}
-          </div>
-          <span className="px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md">
-            ${product.price.toLocaleString('es-AR')}
-          </span>
+      <div className={PRODUCT_CARD_STYLES.contentContainer}>
+        <div className={PRODUCT_CARD_STYLES.headerContainer}>
+          <h3 className={PRODUCT_CARD_STYLES.title}>
+            {product.name}
+          </h3>
+          <p className={PRODUCT_CARD_STYLES.description}>
+            {product.description}
+          </p>
         </div>
-        <p className="text-sm text-gray-500 line-clamp-2 flex-grow">
-          {product.description}
-        </p>
       </div>
 
       {isEditMode && (
-        <div className="flex items-center gap-1 ml-2">
+        <div className={PRODUCT_CARD_STYLES.actionsContainer}>
+          <span className={PRODUCT_CARD_STYLES.priceBadge}>
+            ${product.price.toLocaleString('es-AR')}
+          </span>
+
+          {product.featured ? (
+            <span className={PRODUCT_CARD_STYLES.featuredBadge}>
+              <StarIcon className="w-4 h-4" />
+            </span>
+          ) : (
+            <span className={PRODUCT_CARD_STYLES.featuredPlaceholder} />
+          )}
+
           <button
-            onClick={onEdit}
-            className="p-1 text-gray-500 hover:text-orange-400 hover:bg-orange-50 rounded transition-colors"
+            onClick={() => onEdit?.(product)}
+            className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.edit}`}
           >
             <PencilSquareIcon className="w-4 h-4" />
           </button>
+
           <button
             onClick={onToggleVisibility}
-            className={`p-1 rounded transition-colors ${
-              !product.visible
-                ? 'text-orange-400 hover:text-orange-500 hover:bg-orange-50'
-                : 'text-gray-500 hover:text-orange-400 hover:bg-orange-50'
+            className={`${PRODUCT_CARD_STYLES.actionButton.base} ${
+              product.visible 
+                ? PRODUCT_CARD_STYLES.actionButton.visibility.visible
+                : PRODUCT_CARD_STYLES.actionButton.visibility.hidden
             }`}
           >
             {product.visible ? (
@@ -105,20 +102,25 @@ const ProductCard = ({ product, onEdit, onToggleVisibility, onDelete, isEditMode
               <EyeSlashIcon className="w-4 h-4" />
             )}
           </button>
+
           <button
-            onClick={() => {
-              if (confirm('¿Estás seguro de eliminar este producto?')) {
-                onDelete();
-              }
-            }}
-            className="p-1 text-gray-500 hover:text-red-400 hover:bg-red-50 rounded transition-colors"
+            onClick={onDelete}
+            className={`${PRODUCT_CARD_STYLES.actionButton.base} ${PRODUCT_CARD_STYLES.actionButton.delete}`}
           >
             <TrashIcon className="w-4 h-4" />
           </button>
+
+          <div className={PRODUCT_CARD_STYLES.divider} />
+
+          <div className={PRODUCT_CARD_STYLES.dragHandle} {...attributes} {...listeners}>
+            <Bars3Icon className="w-4 h-4" />
+          </div>
         </div>
       )}
     </div>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default ProductCard;

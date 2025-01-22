@@ -91,26 +91,33 @@ export const MENU_LIST_STYLES = {
 };
 
 export const PRODUCT_CARD_STYLES = {
-  container: 'flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200',
-  imageContainer: 'relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden',
-  imagePlaceholder: 'absolute inset-0 animate-pulse bg-gray-200',
-  dragHandle: 'flex-shrink-0 cursor-grab active:cursor-grabbing touch-none',
-  contentContainer: 'flex-grow min-w-0 flex flex-col gap-2',
-  headerContainer: 'flex justify-between items-start',
+  container: 'flex items-center gap-3 p-3 bg-white rounded-lg border border-gray-200/80 hover:border-gray-300/80 transition-colors',
+  imageContainer: {
+    wrapper: 'relative flex-shrink-0 w-16 h-16 bg-gray-100 rounded-md overflow-hidden',
+    placeholder: {
+      container: 'absolute inset-0 flex items-center justify-center bg-gray-50',
+      icon: 'w-8 h-8 text-gray-300'
+    }
+  },
+  contentContainer: 'flex-grow min-w-0 flex flex-col gap-1.5',
+  headerContainer: 'flex flex-col min-w-0',
   title: 'font-medium text-gray-900 truncate',
-  featuredBadge: 'px-2 py-0.5 flex items-center bg-amber-50 rounded-md',
-  priceBadge: 'px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md',
-  description: 'text-sm text-gray-500 line-clamp-2 flex-grow',
-  actionsContainer: 'flex items-center gap-1 ml-2',
+  description: 'text-sm text-gray-500 line-clamp-2',
+  actionsContainer: 'flex items-center gap-2 ml-auto',
+  priceBadge: 'inline-flex px-2 py-0.5 text-sm font-medium text-green-700 bg-green-50 rounded-md text-right',
+  featuredBadge: 'w-7 h-[26px] flex items-center justify-center bg-amber-50 rounded-md text-amber-600',
+  featuredPlaceholder: 'w-7',
   actionButton: {
     base: 'p-1 rounded transition-colors',
-    edit: 'text-gray-500 hover:text-orange-400 hover:bg-orange-50',
+    edit: 'text-gray-400 hover:text-orange-500 hover:bg-orange-50',
     visibility: {
-      visible: 'text-gray-500 hover:text-orange-400 hover:bg-orange-50',
+      visible: 'text-gray-400 hover:text-orange-500 hover:bg-orange-50',
       hidden: 'text-orange-400 hover:text-orange-500 hover:bg-orange-50'
     },
-    delete: 'text-gray-500 hover:text-red-400 hover:bg-red-50'
-  }
+    delete: 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+  },
+  divider: 'w-px h-4 bg-gray-200 mx-2',
+  dragHandle: 'flex-shrink-0 cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-gray-500'
 } as const;
 
 export const CATEGORY_ITEM_STYLES = {
