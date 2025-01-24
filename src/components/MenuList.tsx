@@ -2,9 +2,9 @@ import { memo } from 'react';
 import CategoryItem from './CategoryItem';
 import DragAndDropWrapper from './DragAndDropWrapper';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Category, Product, MenuListProps } from './types';
+import { Category, MenuListProps } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
-import { updateCategory, getCategories, deleteCategory } from '../firebase/services';
+import { updateCategory } from '../firebase/services';
 
 const MenuList = memo(({
   categories,
@@ -83,28 +83,6 @@ const MenuList = memo(({
       await updateCategory(categoryId, updatedCategory);
     } catch (error) {
       console.error('Error al actualizar el orden:', error);
-    }
-  };
-
-  const handleEditCategoryName = (categoryId: string, newName: string) => {
-    setCategories(
-      categories.map(category =>
-        category.id === categoryId
-          ? { ...category, name: newName }
-          : category
-      )
-    );
-  };
-
-  const handleDeleteCategory = async (categoryId: string) => {
-    try {
-      await deleteCategory(categoryId);
-      setCategories(categories.filter(category => category.id !== categoryId));
-    } catch (error) {
-      console.error('Error deleting category:', error);
-      // Si hay un error, recargar las categorías para mantener la consistencia
-      const reloadedCategories = await getCategories();
-      setCategories(reloadedCategories);
     }
   };
 

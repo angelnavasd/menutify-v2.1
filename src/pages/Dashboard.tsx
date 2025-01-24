@@ -292,13 +292,13 @@ const Dashboard = () => {
 
       await addCategory(newCategory);
       setCategories(prev => sortCategoriesAndProducts([...prev, newCategory]));
-      setUiState(prev => ({ ...prev, isCategoryFormOpen: false }));
+      setLoading(false);
       showSuccessMessage('Sección creada exitosamente');
+      setUiState(prev => ({ ...prev, isCategoryFormOpen: false }));
     } catch (error) {
       console.error('Error:', error);
-      showErrorMessage('Error al crear la sección');
-    } finally {
       setLoading(false);
+      showErrorMessage('Error al crear la sección');
     }
   }, [categories, showSuccessMessage, showErrorMessage, setLoading, sortCategoriesAndProducts]);
 
