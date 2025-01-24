@@ -48,6 +48,8 @@ export interface MenuListProps {
   onEditProduct: (productId: string, product: Product) => void;
   onToggleProductVisibility: (productId: string) => void;
   onDeleteProduct: (productId: string) => void;
+  onEditCategory: (categoryId: string, newName: string) => void;
+  onDeleteCategory: (categoryId: string) => void;
   expandedCategories: string[];
   setExpandedCategories: React.Dispatch<React.SetStateAction<string[]>>;
 }

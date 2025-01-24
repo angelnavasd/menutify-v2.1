@@ -3,7 +3,41 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
+    <meta name="HandheldFriendly" content="true" />
+    <style>
+      html, body {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        touch-action: none;
+        -webkit-text-size-adjust: 100%;
+      }
+      #root {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="email"],
+      input[type="password"],
+      input[type="search"],
+      input[type="tel"],
+      input[type="url"],
+      select,
+      textarea {
+        font-size: 16px !important;
+        max-height: 100000px;
+        touch-action: manipulation;
+      }
+      * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+        touch-action: pan-y;
+      }
+    </style>
     <title>Menutify</title>
   </head>
   <body>

@@ -27,6 +27,7 @@ interface DragAndDropWrapperProps<T extends DraggableItem> {
   children: ReactNode;
   isEditMode: boolean;
   dragVariants?: Variants;
+  type?: 'category' | 'product';
 }
 
 const DragAndDropWrapper = <T extends DraggableItem>({ 
@@ -34,7 +35,8 @@ const DragAndDropWrapper = <T extends DraggableItem>({
   onDragEnd, 
   children, 
   isEditMode,
-  dragVariants 
+  dragVariants,
+  type = 'product'
 }: DragAndDropWrapperProps<T>) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -51,11 +53,15 @@ const DragAndDropWrapper = <T extends DraggableItem>({
     })
   );
 
+  // Para categorías: drag habilitado en modo edición
+  // Para productos: drag habilitado fuera del modo edición
+  const isDragEnabled = type === 'category' ? isEditMode : !isEditMode;
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
-      onDragEnd={isEditMode ? onDragEnd : undefined}
+      onDragEnd={isDragEnabled ? onDragEnd : undefined}
       modifiers={[restrictToParentElement]}
     >
       <SortableContext 

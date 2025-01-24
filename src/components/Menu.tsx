@@ -121,7 +121,7 @@ export default function Menu({
       ref={contentRef}
       className={`${MENU_STYLES.container.base} bg-gradient-to-b ${colors.background.gradient} ${
         isPreview ? 'preview-mode' : ''
-      }`}
+      } font-menu`}
     >
       {/* Header Section */}
       <div className={`${MENU_STYLES.container.header.wrapper} ${colors.background.primary}`}>

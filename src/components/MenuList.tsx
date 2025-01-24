@@ -2,22 +2,9 @@ import { memo } from 'react';
 import CategoryItem from './CategoryItem';
 import DragAndDropWrapper from './DragAndDropWrapper';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Category, Product } from './types';
+import { Category, Product, MenuListProps } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
-import { MENU_LIST_DRAG_VARIANTS } from '../constants/animations';
-import { MENU_LIST_STYLES } from '../constants/layout';
 import { updateCategory, getCategories, deleteCategory } from '../firebase/services';
-
-interface MenuListProps {
-  categories: Category[];
-  setCategories: (categories: Category[]) => void;
-  isEditMode: boolean;
-  onEditProduct: (productId: string, product: Product) => void;
-  onToggleProductVisibility: (productId: string) => void;
-  onDeleteProduct: (productId: string) => void;
-  expandedCategories: string[];
-  setExpandedCategories: (categories: string[]) => void;
-}
 
 const MenuList = memo(({
   categories,
@@ -26,84 +13,76 @@ const MenuList = memo(({
   onEditProduct,
   onToggleProductVisibility,
   onDeleteProduct,
+  onEditCategory,
+  onDeleteCategory,
   expandedCategories,
   setExpandedCategories
 }: MenuListProps) => {
   const handleToggleExpand = (categoryId: string) => {
     if (isEditMode) return; // Prevent expanding when in edit mode
     
-    setExpandedCategories(
-      expandedCategories.includes(categoryId)
-        ? expandedCategories.filter(id => id !== categoryId)
-        : [...expandedCategories, categoryId]
+    setExpandedCategories(prev =>
+      prev.includes(categoryId)
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
     );
   };
 
   const handleDragEndCategories = async (event: DragEndEvent) => {
     const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    if (over && active.id !== over.id) {
-      const oldIndex = categories.findIndex(item => item.id === active.id);
-      const newIndex = categories.findIndex(item => item.id === over.id);
-      
-      const updatedCategories = arrayMove(categories, oldIndex, newIndex).map((category, index) => ({
-        ...category,
-        order: index
-      }));
+    const oldIndex = categories.findIndex(cat => cat.id === active.id);
+    const newIndex = categories.findIndex(cat => cat.id === over.id);
 
-      setCategories(updatedCategories);
+    const reorderedCategories = arrayMove(categories, oldIndex, newIndex).map(
+      (category, index) => ({ ...category, order: index })
+    );
 
-      // Persistir los cambios en Firebase
-      try {
-        await Promise.all(
-          updatedCategories.map(category => updateCategory(category.id, category))
-        );
-      } catch (error) {
-        console.error('Error updating categories order:', error);
-        // Si hay un error, recargar las categorías para mantener la consistencia
-        const reloadedCategories = await getCategories();
-        setCategories(reloadedCategories);
-      }
+    setCategories(reorderedCategories);
+
+    // Actualizar el orden en Firebase
+    try {
+      await Promise.all(
+        reorderedCategories.map(category =>
+          updateCategory(category.id, category)
+        )
+      );
+    } catch (error) {
+      console.error('Error al actualizar el orden:', error);
     }
   };
 
   const handleDragEndProducts = async (event: DragEndEvent, categoryId: string) => {
     const { active, over } = event;
+    if (!over || active.id === over.id) return;
 
-    if (over && active.id !== over.id) {
-      const categoryToUpdate = categories.find(c => c.id === categoryId);
-      if (!categoryToUpdate) return;
+    const categoryToUpdate = categories.find(cat => cat.id === categoryId);
+    if (!categoryToUpdate) return;
 
-      const oldIndex = categoryToUpdate.products.findIndex(product => product.id === active.id);
-      const newIndex = categoryToUpdate.products.findIndex(product => product.id === over.id);
-      
-      const updatedProducts = arrayMove(categoryToUpdate.products, oldIndex, newIndex).map((product, index) => ({
-        ...product,
-        order: index
-      }));
+    const oldIndex = categoryToUpdate.products.findIndex(prod => prod.id === active.id);
+    const newIndex = categoryToUpdate.products.findIndex(prod => prod.id === over.id);
 
-      const updatedCategory = {
-        ...categoryToUpdate,
-        products: updatedProducts
-      };
+    const reorderedProducts = arrayMove(categoryToUpdate.products, oldIndex, newIndex).map(
+      (product, index) => ({ ...product, order: index })
+    );
 
-      setCategories(
-        categories.map(category => 
-          category.id === categoryId 
-            ? updatedCategory
-            : category
-        )
-      );
+    const updatedCategory = {
+      ...categoryToUpdate,
+      products: reorderedProducts
+    };
 
-      // Persistir los cambios en Firebase
-      try {
-        await updateCategory(categoryId, updatedCategory);
-      } catch (error) {
-        console.error('Error updating products order:', error);
-        // Si hay un error, recargar las categorías para mantener la consistencia
-        const reloadedCategories = await getCategories();
-        setCategories(reloadedCategories);
-      }
+    setCategories(prev =>
+      prev.map(category =>
+        category.id === categoryId ? updatedCategory : category
+      )
+    );
+
+    // Actualizar el orden en Firebase
+    try {
+      await updateCategory(categoryId, updatedCategory);
+    } catch (error) {
+      console.error('Error al actualizar el orden:', error);
     }
   };
 
@@ -130,25 +109,23 @@ const MenuList = memo(({
   };
 
   return (
-    <div className={`${MENU_LIST_STYLES.container.base} ${MENU_LIST_STYLES.borders.container}`}>
+    <div>
       <DragAndDropWrapper
         items={categories}
         onDragEnd={handleDragEndCategories}
         isEditMode={isEditMode}
-        dragVariants={MENU_LIST_DRAG_VARIANTS}
+        type="category"
       >
-        <div className={MENU_LIST_STYLES.container.wrapper}>
+        <div>
           {categories.map((category) => (
             <CategoryItem
               key={category.id}
-              id={category.id}
-              name={category.name}
-              products={category.products}
+              {...category}
               isExpanded={expandedCategories.includes(category.id)}
               isEditMode={isEditMode}
               onToggleExpand={handleToggleExpand}
-              onEditName={handleEditCategoryName}
-              onDelete={handleDeleteCategory}
+              onEditName={onEditCategory}
+              onDelete={onDeleteCategory}
               onEditProduct={onEditProduct}
               onToggleVisibility={onToggleProductVisibility}
               onDeleteProduct={onDeleteProduct}
