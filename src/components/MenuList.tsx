@@ -2,7 +2,7 @@ import { memo } from 'react';
 import CategoryItem from './CategoryItem';
 import DragAndDropWrapper from './DragAndDropWrapper';
 import { arrayMove } from '@dnd-kit/sortable';
-import { Category, MenuListProps } from './types';
+import { MenuListProps } from './types';
 import { DragEndEvent } from '@dnd-kit/core';
 import { updateCategory } from '../firebase/services';
 
