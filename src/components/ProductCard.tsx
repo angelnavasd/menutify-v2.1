@@ -58,13 +58,15 @@ const ProductCard = memo(({
       </div>
 
       {/* Contenido del producto */}
-      <div className="flex-grow min-w-0 flex flex-col h-20 md:pr-24 w-full md:w-auto">
-        <h3 className={PRODUCT_CARD_STYLES.title}>{product.name}</h3>
-        <p className={PRODUCT_CARD_STYLES.description}>{product.description}</p>
+      <div className="flex-grow min-w-0 flex flex-col h-20">
+        <div className="md:max-w-[60%]">
+          <h3 className={PRODUCT_CARD_STYLES.title}>{product.name}</h3>
+          <p className={PRODUCT_CARD_STYLES.description}>{product.description}</p>
+        </div>
       </div>
 
       {/* Precio y botones alineados horizontalmente */}
-      <div className="flex items-center justify-between w-full md:w-auto mt-1 md:mt-0">
+      <div className="flex items-center justify-between w-full md:w-auto mt-1 md:mt-0 md:absolute md:right-3 md:top-3">
         <div className="flex items-center gap-2">
           <span className={PRODUCT_CARD_STYLES.priceBadge}>
             ${product.price.toLocaleString('es-AR')}
@@ -76,7 +78,7 @@ const ProductCard = memo(({
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 md:absolute md:right-0 md:bottom-[-60px]">
           <button 
             onClick={() => onEdit?.(product)} 
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"

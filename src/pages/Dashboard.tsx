@@ -77,7 +77,7 @@ const AddMenuButton = ({ onAddCategory, onAddProduct }: {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 mt-1 bg-gray-900 rounded-md shadow-lg border border-gray-700 py-1 z-50 w-64"
+            className="absolute top-full left-0 mt-1 bg-white rounded-md shadow-lg border border-gray-200 py-1 w-64 z-[9999]"
           >
             <button 
               type="button"
@@ -85,7 +85,7 @@ const AddMenuButton = ({ onAddCategory, onAddProduct }: {
                 onAddCategory();
                 setIsOpen(false);
               }}
-              className="w-full px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 flex items-center gap-3 transition-colors"
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3 transition-colors"
             >
               <Square2StackIcon className="h-4 w-4" />
               <span>Nueva sección del menú</span>
@@ -96,7 +96,7 @@ const AddMenuButton = ({ onAddCategory, onAddProduct }: {
                 onAddProduct();
                 setIsOpen(false);
               }}
-              className="w-full px-4 py-2 text-sm text-gray-200 hover:bg-gray-800 flex items-center gap-3 transition-colors"
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3 transition-colors"
             >
               <ClipboardDocumentIcon className="h-4 w-4" />
               <span>Nuevo Producto</span>
@@ -580,15 +580,15 @@ const Dashboard = () => {
 
   // Componentes memorizados
   const configPanel = useMemo(() => (
-    <div className="bg-gray-900 rounded-lg p-6 mb-2 md:mb-4">
+    <div className="bg-white rounded-lg p-6 mb-2 md:mb-4 border border-gray-100 [background-image:radial-gradient(#EDF2F7_0.75px,transparent_0.75px)] [background-size:8px_8px]">
       <button 
         onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)}
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center">
-          <h2 className="text-xl font-bold text-white">Configura tu menú</h2>
+          <h2 className="text-xl font-bold text-gray-900">Edita tu menú</h2>
         </div>
-        <ChevronDownIcon className={`w-5 h-5 text-white transition-transform ${isConfigPanelOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isConfigPanelOpen ? 'rotate-180' : ''}`} />
       </button>
       
       <AnimatePresence>
@@ -604,9 +604,9 @@ const Dashboard = () => {
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.2, delay: 0.1 }}
+              transition={{ duration: 0.2 }}
             >
-              <p className="text-gray-400 text-sm md:text-base mt-4 mb-6">Desde aquí puedes crear secciones, añadir productos y ajustar el orden del menú.</p>
+              <p className="text-gray-600 text-sm md:text-base mt-4 mb-6">Desde aquí puedes crear secciones, añadir productos y ajustar el orden del menú.</p>
               <div className="flex flex-col md:flex-row gap-2 md:gap-4">
                 <AddMenuButton 
                   onAddCategory={() => setUiState(prev => ({ ...prev, isCategoryFormOpen: true }))}
@@ -656,15 +656,15 @@ const Dashboard = () => {
   ), [isConfigPanelOpen, uiState.isEditMode, isDarkMode, handleDarkModeToggle]);
 
   const exportPanel = useMemo(() => (
-    <div className="bg-gray-900 rounded-lg p-6 mb-2 md:mb-4">
+    <div className="bg-white rounded-lg p-6 mb-2 md:mb-4 border border-gray-100 [background-image:radial-gradient(#EDF2F7_0.75px,transparent_0.75px)] [background-size:8px_8px]">
       <button 
         onClick={() => setIsExportPanelOpen(!isExportPanelOpen)}
         className="w-full flex items-center justify-between"
       >
         <div className="flex items-center">
-          <h2 className="text-xl font-bold text-white">Exporta tu menú</h2>
+          <h2 className="text-xl font-bold text-gray-900">Exporta tu menú</h2>
         </div>
-        <ChevronDownIcon className={`w-5 h-5 text-white transition-transform ${isExportPanelOpen ? 'rotate-180' : ''}`} />
+        <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isExportPanelOpen ? 'rotate-180' : ''}`} />
       </button>
       
       <AnimatePresence>
@@ -680,14 +680,14 @@ const Dashboard = () => {
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.2, delay: 0.1 }}
+              transition={{ duration: 0.2 }}
             >
-              <p className="text-gray-400 text-sm md:text-base mt-4 mb-6">Genera un código QR para compartir tu menú fácilmente.</p>
+              <p className="text-gray-600 text-sm md:text-base mt-4 mb-6">Genera un código QR para compartir tu menú fácilmente.</p>
               <button
                 onClick={() => window.open('/preview', '_blank')}
-                className="w-full px-4 py-2.5 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-all flex items-center gap-2 justify-center"
+                className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-md transition-all flex items-center gap-2 justify-center"
               >
-                <QrCodeIcon className="h-4 w-4 text-white" />
+                <QrCodeIcon className="h-4 w-4" />
                 <span>Generar código QR</span>
               </button>
             </motion.div>
@@ -705,18 +705,18 @@ const Dashboard = () => {
       <main className="flex-1 flex min-w-0">
         <section className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
           <div className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-visible scrollbar-none">
-            <div className="flex-1 px-2 py-4 md:p-4">
-              <div className="max-w-5xl mx-auto md:px-4">
+            <div className="flex-1 p-4">
+              <div className="max-w-5xl mx-auto space-y-4">
                 {configPanel}
                 {exportPanel}
 
-                <div className="bg-white rounded-lg p-6 mb-16">
+                <div className="bg-white rounded-lg p-6">
                   <div className="space-y-1 mb-6">
                     <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-gray-800">Secciones del menú</h2>
+                      <h2 className="text-xl font-bold text-gray-900">Secciones del menú</h2>
                       <Squares2X2Icon className="w-5 h-5 text-gray-400" />
                     </div>
-                    <p className="text-gray-500 text-sm md:text-base">Aquí se muestran las secciones y productos de tu menú, puedes editar, reorganizar y eliminar lo que quieras.</p>
+                    <p className="text-gray-600 text-sm md:text-base">Aquí se muestran las secciones y productos de tu menú, puedes editar, reorganizar y eliminar lo que quieras.</p>
                   </div>
                   <MenuList
                     categories={categories}
