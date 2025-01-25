@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { 
   PlusIcon, 
   PencilSquareIcon, 
@@ -30,6 +30,7 @@ import {
   getThemeConfig, 
   updateThemeConfig 
 } from '../firebase/services';
+import { getCurrentUser } from '@/firebase/authService';
 
 // Interfaces
 interface UIState {
@@ -42,6 +43,11 @@ interface UIState {
 }
 
 const Dashboard = () => {
+  const user = getCurrentUser()
+
+  if(!user?.emailVerified){
+    return <Navigate to="/verify-email"/>
+  }
   // Estado principal
   const [categories, setCategories] = useState<Category[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
@@ -501,9 +507,11 @@ const Dashboard = () => {
   ), [uiState.isLoading, uiState.error, uiState.successMessage]);
 
   return (
-    <div className="h-screen w-screen flex overflow-hidden">
+    <>
+
+    <div className={`h-screen w-screen flex overflow-hidden`}>
       <Sidebar />
-      <main className="flex-1 flex bg-gray-50 min-w-0">
+      <main className={`flex-1 flex bg-gray-50 min-w-0`}>
         <section className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 px-2 md:p-6 pt-16 md:pt-6 overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
             {statusMessages}
@@ -559,7 +567,9 @@ const Dashboard = () => {
         <ArrowTopRightOnSquareIcon className="w-6 h-6" />
       </Link>
     </div>
+    </>
   );
+  
 };
 
 export default Dashboard;

@@ -17,6 +17,7 @@ import {
 import { SIDEBAR_BACKDROP_VARIANTS, SIDEBAR_DROPDOWN_VARIANTS, SIDEBAR_CHEVRON_VARIANTS, SIDEBAR_ARROW_VARIANTS, TRANSITION_SPRING } from '../constants/animations';
 import { THEME_COLORS, SIDEBAR_COLORS } from '../constants/colors';
 import { updateThemeConfig } from '../firebase/services';
+import { logout } from '@/firebase/authService';
 
 const menuItems = [
   { name: 'Restaurante', icon: BuildingStorefrontIcon, path: '/restaurant' },
@@ -241,13 +242,13 @@ const Sidebar = () => {
                   </div>
                 </button>
                 <div className={`h-px ${colors.border} mx-3 my-1`} />
-                <button 
+                <div 
                   className={`w-full flex items-center justify-between px-4 py-2 text-sm text-red-500 ${colors.hover} transition-colors group`}
                 >
-                  <div className="flex items-center gap-3">
+                  <button onClick={logout} className="flex items-center gap-3">
                     <ArrowRightOnRectangleIcon className="h-5 w-5" /> 
                     <span>Cerrar sesión</span>
-                  </div>
+                  </button>
                   <motion.div
                     variants={SIDEBAR_ARROW_VARIANTS}
                     initial="initial"
@@ -256,7 +257,7 @@ const Sidebar = () => {
                   >
                     <ArrowRightIcon className="h-4 w-4" />
                   </motion.div>
-                </button>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
