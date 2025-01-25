@@ -149,12 +149,12 @@ export const PREVIEW_PANEL_STYLES = {
   iphone: {
     frame: {
       container: 'relative mx-auto w-[360px] h-[680px] bg-[#111111] rounded-[48px] shadow-xl border-[12px] border-[#111111] overflow-hidden',
-      dynamicIsland: 'absolute top-2 left-1/2 -translate-x-1/2 w-[112px] h-[30px] bg-[#111111] rounded-[18px]'
+      dynamicIsland: 'absolute top-[12px] left-1/2 -translate-x-1/2 w-[95px] h-[27px] bg-[#111111] rounded-[16px] z-30'
     },
     statusBar: {
-      container: 'sticky top-0 z-30 transition-colors duration-300',
-      content: 'h-7 px-7 pt-2.5 pb-1 flex items-center justify-between relative',
-      time: 'text-[14px] font-medium',
+      container: 'sticky top-0 z-20 transition-colors duration-300',
+      content: 'h-[44px] px-7 flex items-center justify-between relative',
+      time: 'text-[14px] font-medium font-[Inter]',
       icons: {
         container: 'flex items-center gap-1',
         signal: 'w-3.5 h-2.5',
@@ -182,16 +182,16 @@ export const MENU_STYLES = {
       content: {
         base: 'px-4 transition-all duration-200',
         expanded: 'py-5',
-        collapsed: 'pt-4 pb-2'
+        collapsed: 'pt-2 pb-1'
       },
       heights: {
         preview: {
           expanded: 120,
-          collapsed: 60
+          collapsed: 44
         },
         normal: {
           expanded: 140,
-          collapsed: 80
+          collapsed: 60
         }
       },
       logo: {
@@ -202,14 +202,18 @@ export const MENU_STYLES = {
         container: 'flex items-center gap-1.5 mt-2',
         icon: 'w-3.5 h-3.5',
         text: 'text-xs font-medium'
+      },
+      categoriesTitle: {
+        wrapper: 'px-4 py-1.5 text-center',
+        text: 'text-[15px] font-semibold text-gray-900'
       }
     },
     navigation: {
       wrapper: 'border-b relative',
       content: 'overflow-x-auto scrollbar-none relative',
-      list: 'flex px-4 space-x-6 min-w-max py-3.5 pb-0 snap-x snap-mandatory',
+      list: 'flex px-4 space-x-6 min-w-max py-2.5 pb-0 snap-x snap-mandatory',
       item: {
-        base: 'text-[17px] font-semibold whitespace-nowrap transition-all duration-300 relative px-1.5 pb-3.5 snap-center active:scale-[0.97] select-none break-keep',
+        base: 'text-[17px] font-semibold whitespace-nowrap transition-all duration-300 relative px-1.5 pb-2.5 snap-center active:scale-[0.97] select-none break-keep',
         indicator: 'absolute bottom-0 left-0 right-0 h-[2px] bg-orange-500'
       },
       fade: {

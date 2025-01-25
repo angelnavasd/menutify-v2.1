@@ -24,7 +24,7 @@ const CategoryNavigation = memo(forwardRef<HTMLDivElement, CategoryNavigationPro
           
           <div className={MENU_STYLES.container.navigation.list}>
             {categories.map((category) => (
-              <motion.button
+              <button
                 key={category.id}
                 data-category-id={category.id}
                 onClick={() => onCategoryClick(category.id)}
@@ -33,22 +33,14 @@ const CategoryNavigation = memo(forwardRef<HTMLDivElement, CategoryNavigationPro
                     ? colors.navigation.active
                     : colors.navigation.inactive
                 }`}
-                whileTap={{ scale: 0.97 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               >
                 {category.name}
                 {activeCategory === category.id && (
-                  <motion.div
+                  <div
                     className={`${MENU_STYLES.container.navigation.item.indicator} ${colors.navigation.indicator}`}
-                    layoutId="categoryIndicator"
-                    transition={{
-                      type: 'spring',
-                      stiffness: 500,
-                      damping: 30
-                    }}
                   />
                 )}
-              </motion.button>
+              </button>
             ))}
           </div>
         </div>
