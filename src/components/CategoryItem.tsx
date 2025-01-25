@@ -92,8 +92,8 @@ const CategoryItem = ({
                   </form>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-medium">{name}</span>
-                    {!isEditMode && <span className="text-gray-500">({products.length} productos)</span>}
+                    <span className="text-lg font-semibold">{name}</span>
+                    {!isEditMode && <span className="text-xs text-gray-500">({products.length})</span>}
                   </div>
                 )}
               </div>
@@ -150,7 +150,7 @@ const CategoryItem = ({
             isEditMode={isEditMode}
             type="product"
           >
-            <div>
+            <div className="space-y-3 md:space-y-4">
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
