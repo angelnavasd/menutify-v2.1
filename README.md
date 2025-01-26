@@ -48,3 +48,6 @@ export default tseslint.config({
   },
 })
 ```
+
+.env variables = 
+To make requests to Firebase you must create a .env file, once created ask the devs for API KEYS
