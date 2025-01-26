@@ -8,18 +8,16 @@ import { PRODUCT_CARD_STYLES } from '../constants/layout';
 
 interface ProductCardProps {
   product: Product;
-  isEditMode?: boolean;
   onEdit?: (product: Product) => void;
-  onToggleVisibility?: () => void;
-  onDelete?: () => void;
+  onDelete?: (product: Product) => void;
+  onToggleVisibility?: (product: Product) => void;
 }
 
 const ProductCard = memo(({ 
   product, 
-  isEditMode = false,
   onEdit,
+  onDelete,
   onToggleVisibility,
-  onDelete
 }: ProductCardProps) => {
   const {
     attributes,
@@ -87,7 +85,7 @@ const ProductCard = memo(({
             <PencilSquareIcon className="w-5 h-5 text-gray-500" />
           </button>
           <button 
-            onClick={onToggleVisibility} 
+            onClick={() => onToggleVisibility?.(product)} 
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title={product.visible ? "Ocultar" : "Mostrar"}
           >
@@ -98,7 +96,7 @@ const ProductCard = memo(({
             )}
           </button>
           <button 
-            onClick={onDelete} 
+            onClick={() => onDelete?.(product)} 
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="Eliminar"
           >

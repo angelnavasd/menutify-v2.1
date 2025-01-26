@@ -2,7 +2,6 @@ import { memo, forwardRef } from 'react';
 import { Category } from './types';
 import { MENU_STYLES } from '../constants/layout';
 import { MENU_COLORS } from '../constants/colors';
-import { motion } from 'framer-motion';
 
 interface CategoryNavigationProps {
   categories: Category[];

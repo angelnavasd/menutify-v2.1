@@ -154,7 +154,7 @@ export const MENU_COLORS = {
       item: 'bg-[#151820]'
     },
     text: {
-      primary: 'text-gray-100',
+      primary: 'text-white',
       secondary: 'text-gray-400',
       tertiary: 'text-gray-600'
     },

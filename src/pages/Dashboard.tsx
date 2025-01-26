@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { 
   PlusIcon, 
   QrCodeIcon, 
@@ -165,22 +165,6 @@ const Dashboard = () => {
     });
   }, []);
 
-  const confirmDelete = useCallback(async (message: string): Promise<boolean> => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: message,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
-      confirmButtonColor: '#EF4444',
-      cancelButtonColor: '#6B7280',
-      background: '#fff',
-      color: '#000'
-    });
-    return result.isConfirmed;
-  }, []);
-
   const setLoading = useCallback((isLoading: boolean) => {
     if (isLoading) {
       Swal.fire({
@@ -195,6 +179,16 @@ const Dashboard = () => {
     } else {
       Swal.close();
     }
+  }, []);
+
+  // Funciones de utilidad
+  const sortCategoriesAndProducts = useCallback((categories: Category[]) => {
+    return categories
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map(category => ({
+        ...category,
+        products: category.products.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      }));
   }, []);
 
   // Carga inicial de datos
@@ -249,7 +243,7 @@ const Dashboard = () => {
     };
 
     loadInitialData();
-  }, [showSuccessMessage, showErrorMessage, setLoading]);
+  }, [showSuccessMessage, showErrorMessage, setLoading, sortCategoriesAndProducts]);
 
   useEffect(() => {
     const loadThemeConfig = async () => {
@@ -262,22 +256,12 @@ const Dashboard = () => {
     };
 
     loadThemeConfig();
-  }, []);
+  }, [setIsDarkMode]);
 
   // Persistir categorías en localStorage
   useEffect(() => {
     localStorage.setItem('categories', JSON.stringify(categories));
   }, [categories]);
-
-  // Funciones de utilidad
-  const sortCategoriesAndProducts = useCallback((categories: Category[]) => {
-    return categories
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map(category => ({
-        ...category,
-        products: category.products.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      }));
-  }, []);
 
   // Manejadores de eventos
   const handleCreateCategory = useCallback(async (name: string) => {
@@ -580,7 +564,7 @@ const Dashboard = () => {
 
   // Componentes memorizados
   const configPanel = useMemo(() => (
-    <div className="bg-white rounded-lg p-6 mb-2 md:mb-4 border border-gray-100 [background-image:radial-gradient(#EDF2F7_0.75px,transparent_0.75px)] [background-size:8px_8px]">
+    <div className="bg-white rounded-lg p-6 mt-6 mb-2 md:mb-4 border border-gray-100 [background-image:radial-gradient(#EDF2F7_0.75px,transparent_0.75px)] [background-size:8px_8px]">
       <button 
         onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)}
         className="w-full flex items-center justify-between"
@@ -696,8 +680,6 @@ const Dashboard = () => {
       </AnimatePresence>
     </div>
   ), [isExportPanelOpen]);
-
-  const statusMessages = useMemo(() => null, []);
 
   return (
     <div className="h-screen w-screen flex">

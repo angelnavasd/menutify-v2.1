@@ -155,7 +155,6 @@ const CategoryItem = ({
                 <ProductCard
                   key={product.id}
                   product={product}
-                  isEditMode={isEditMode}
                   onEdit={() => onEditProduct(product.id, product)}
                   onToggleVisibility={() => onToggleVisibility(product.id)}
                   onDelete={() => onDeleteProduct(product.id)}

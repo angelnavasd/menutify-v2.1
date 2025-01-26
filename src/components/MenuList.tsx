@@ -87,7 +87,7 @@ const MenuList = memo(({
   };
 
   return (
-    <div>
+    <div className={categories.length > 0 ? 'md:mb-0 mb-16' : ''}>
       <DragAndDropWrapper
         items={categories}
         onDragEnd={handleDragEndCategories}
