@@ -55,8 +55,11 @@ const Register: React.FC = () => {
     }
 
     if(clickedButton === registerGoogleButton.current){
-      const token = await registerWithGoogle();
-      console.log('Usuario autenticado:', token);
+      try {
+        await registerWithGoogle();
+      } catch (error) {
+        console.error("Error en registro con Google:", error);
+      }
     }
   };
 

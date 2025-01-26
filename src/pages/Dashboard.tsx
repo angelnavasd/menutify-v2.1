@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Navigate } from 'react-router-dom';
 // import { Link } from 'react-router-dom';
 import { 
   PlusIcon, 
@@ -34,7 +33,7 @@ import {
   getThemeConfig, 
   updateThemeConfig 
 } from '../firebase/services';
-import { getCurrentUser } from '@/firebase/authService';
+import { getCurrentUser } from '../firebase/authService';
 
 // Interfaces
 interface UIState {
@@ -110,12 +109,14 @@ const AddMenuButton = ({ onAddCategory, onAddProduct }: {
   );
 };
 
-const Dashboard = () => {
-  const user = getCurrentUser()
+const currentUser = getCurrentUser()
 
-  if(!user?.emailVerified){
-    return <Navigate to="/verify-email"/>
-  }
+if(currentUser?.emailVerified || localStorage.getItem('emailVerified') === 'true'){
+  localStorage.removeItem('emailVerified');
+}
+
+
+const Dashboard = () => {
   // Estado principal
   const [categories, setCategories] = useState<Category[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
@@ -760,7 +761,6 @@ const Dashboard = () => {
         />
       </main>
     </div>
-    </>
   );
   
 };

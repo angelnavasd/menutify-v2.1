@@ -1,86 +1,75 @@
-import { useEffect, useState } from "react";
-import { 
-  isEmailVerifiedAsync, 
-  getCurrentUser, 
-  sendVerificationEmail, 
-  deleteCurrentUser 
-} from "@/firebase/authService";
-import { useNavigate, Outlet, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { isEmailVerifiedAsync, sendVerificationEmail, getCurrentUser, deleteCurrentUser } from "@/firebase/authService";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const VerifyView = () => {
-  const navigate = useNavigate();
-  const [isVerified, setIsVerified] = useState(false);
-  const [checking, setChecking] = useState(true);
   const user = getCurrentUser();
+  const navigate = useNavigate();
 
-  // Redirigir al login si el usuario no está autenticado
-  if (!user) {
-    return <Navigate to="/login" /> 
+  if (!user || user.providerData[0]?.providerId === 'google.com') {
+    return <Navigate to="/" replace />;
+  }
+
+  if(user.emailVerified && localStorage.getItem('emailVerified') === null || user.emailVerified && window.location.pathname.endsWith('/success') && !localStorage.getItem('emailVerified')){
+    localStorage.removeItem('emailVerified');
+    return <Navigate to="/" replace />;
+  }
+
+  if (user.emailVerified && localStorage.getItem('emailVerified') === 'true') {
+    return <Navigate to="/verify-email/success" replace />;
+  }
+
+  if (!user.emailVerified && window.location.pathname.endsWith('/success')) {
+    return <Navigate to="/verify-email" replace />;
   }
 
   useEffect(() => {
     const checkEmailVerification = async () => {
       const emailVerified = await isEmailVerifiedAsync();
       if (emailVerified) {
-        setIsVerified(true);
-        return;
+        localStorage.setItem('emailVerified', 'true');
+        navigate("/verify-email/success", { replace: true });
       }
-      setChecking(false);
     };
 
-    checkEmailVerification();
-
-    // Intervalo para verificar si el correo ha sido validado
-    const interval = setInterval(() => {
-      if (!isVerified) {
-        checkEmailVerification();
-      }
-    }, 1000);
+    const interval = setInterval(checkEmailVerification, 1000);
 
     return () => clearInterval(interval);
-  }, [isVerified]);
+  }, []);
 
-  useEffect(() => {
-    if (isVerified) {
-      navigate("success");
+  const deleteUser = async () => {
+    const userDel = await deleteCurrentUser()
+    if(userDel){
+      navigate('/');
     }
-  }, [isVerified, navigate]);
-
-  if (!isVerified && !checking && window.location.pathname.endsWith("/success")) {
-    return <Navigate to="/verify-email" />
   }
 
-  const handleChangeEmail = async () => {
-    const delCurrentUser = await deleteCurrentUser();
-    if (delCurrentUser) {
-      navigate("/register");
-    }
-  };
-
-  const isOnSubroute = window.location.pathname.endsWith("/success");
-
   return (
-    <div className="flex justify-center items-center w-full h-screen bg-slate-800 text-white">
-      {!isOnSubroute && (
-        <div className="text-center">
-          <h1 className="text-2xl mb-4">¡Correo de verificación enviado!</h1>
-          <p className="mb-4">
-            Por favor, revisa tu correo electrónico y sigue el enlace de verificación para continuar.
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Verifica tu correo electrónico
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Por favor, revisa tu bandeja de entrada y haz clic en el enlace de verificación.
           </p>
-          <div className="grid gap-4">
-            <button className="hover:underline" onClick={handleChangeEmail}>
-              ¿Te equivocaste de email?
+          <div className="mt-4 grid gap-2 justify-center">
+            <button
+              onClick={() => sendVerificationEmail()}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Reenviar correo de verificación
             </button>
             <button
-              className="hover:underline"
-              onClick={() => sendVerificationEmail()}
+              onClick={() => deleteUser()}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
-              Reenviar enlace de confirmación
+              Te equivocaste de correo?
             </button>
           </div>
         </div>
-      )}
-      <Outlet />
+      </div>
     </div>
   );
 };
