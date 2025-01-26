@@ -10,6 +10,7 @@ import app from "../firebase/config";
 
 interface AuthContextType {
   currentUser: User | null;
+  loading: boolean;
   logout: () => Promise<void>;
 }
 
@@ -70,7 +71,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     await signOut(auth);
   };
 
-  const value = { currentUser, logout };
+  const value = { currentUser, loading, logout };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };
