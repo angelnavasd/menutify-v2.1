@@ -1,15 +1,18 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { 
   PlusIcon, 
-  PencilSquareIcon, 
   QrCodeIcon, 
   MoonIcon, 
   SunIcon, 
-  ArrowTopRightOnSquareIcon,
-  ExclamationCircleIcon, 
-  CheckCircleIcon 
+  Square2StackIcon,
+  ClipboardDocumentIcon,
+  ArrowsUpDownIcon,
+  Squares2X2Icon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
+import { AnimatePresence, motion } from 'framer-motion';
+import Swal from 'sweetalert2';
 
 // Componentes
 import Sidebar from '../components/Sidebar';
@@ -37,10 +40,74 @@ interface UIState {
   isModalOpen: boolean;
   isCategoryFormOpen: boolean;
   isEditMode: boolean;
-  isLoading: boolean;
-  error: string | null;
-  successMessage: string | null;
 }
+
+const AddMenuButton = ({ onAddCategory, onAddProduct }: { 
+  onAddCategory: () => void;
+  onAddProduct: () => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative w-full md:w-auto" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full md:w-auto px-5 py-2.5 bg-orange-400 text-white rounded-md hover:bg-orange-500 transition-all flex items-center gap-3 text-sm font-semibold whitespace-nowrap"
+      >
+        <PlusIcon className="h-4 w-4" />
+        <span>Agregar</span>
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="absolute top-full left-0 mt-1 bg-white rounded-md shadow-lg border border-gray-200 py-1 w-64 z-[9999]"
+          >
+            <button 
+              type="button"
+              onClick={() => {
+                onAddCategory();
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3 transition-colors"
+            >
+              <Square2StackIcon className="h-4 w-4" />
+              <span>Nueva sección del menú</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => {
+                onAddProduct();
+                setIsOpen(false);
+              }}
+              className="w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-3 transition-colors"
+            >
+              <ClipboardDocumentIcon className="h-4 w-4" />
+              <span>Nuevo Producto</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const Dashboard = () => {
   const user = getCurrentUser()
@@ -58,9 +125,6 @@ const Dashboard = () => {
     isModalOpen: false,
     isCategoryFormOpen: false,
     isEditMode: false,
-    isLoading: false,
-    error: null,
-    successMessage: null
   });
 
   // Estado del tema
@@ -71,19 +135,72 @@ const Dashboard = () => {
     return initialMode;
   });
 
+  const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(true);
+  const [isExportPanelOpen, setIsExportPanelOpen] = useState(true);
+
   // Funciones de utilidad
   const showSuccessMessage = useCallback((message: string) => {
-    setUiState(prev => ({ ...prev, successMessage: message }));
-    setTimeout(() => setUiState(prev => ({ ...prev, successMessage: null })), 3000);
+    Swal.fire({
+      title: '¡Éxito!',
+      text: message,
+      icon: 'success',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      background: '#fff',
+      color: '#000',
+      iconColor: '#10B981'
+    });
   }, []);
 
   const showErrorMessage = useCallback((message: string) => {
-    setUiState(prev => ({ ...prev, error: message }));
-    setTimeout(() => setUiState(prev => ({ ...prev, error: null })), 5000);
+    Swal.fire({
+      title: 'Error',
+      text: message,
+      icon: 'error',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 5000,
+      timerProgressBar: true,
+      background: '#fff',
+      color: '#000',
+      iconColor: '#EF4444'
+    });
+  }, []);
+
+  const confirmDelete = useCallback(async (message: string): Promise<boolean> => {
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: message,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, eliminar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      background: '#fff',
+      color: '#000'
+    });
+    return result.isConfirmed;
   }, []);
 
   const setLoading = useCallback((isLoading: boolean) => {
-    setUiState(prev => ({ ...prev, isLoading }));
+    if (isLoading) {
+      Swal.fire({
+        title: 'Cargando...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+    } else {
+      Swal.close();
+    }
   }, []);
 
   // Carga inicial de datos
@@ -170,34 +287,26 @@ const Dashboard = () => {
 
   // Manejadores de eventos
   const handleCreateCategory = useCallback(async (name: string) => {
-    if (!name.trim()) {
-      showErrorMessage('El nombre de la categoría no puede estar vacío');
-      return;
-    }
-    
     setLoading(true);
-    
     try {
       const newCategory: Category = {
-        id: '',
-        name: name.trim(),
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name,
         products: [],
         order: categories.length
       };
 
-      const categoryId = await addCategory(newCategory);
-      const createdCategory: Category = { ...newCategory, id: categoryId };
-
-      setCategories(prev => [...prev, createdCategory]);
-      showSuccessMessage('Categoría creada exitosamente');
+      await addCategory(newCategory);
+      setCategories(prev => sortCategoriesAndProducts([...prev, newCategory]));
+      setLoading(false);
+      showSuccessMessage('Sección creada exitosamente');
       setUiState(prev => ({ ...prev, isCategoryFormOpen: false }));
     } catch (error) {
-      console.error('Error creating category:', error);
-      showErrorMessage('Error al crear la categoría. Por favor, intenta de nuevo.');
-    } finally {
+      console.error('Error:', error);
       setLoading(false);
+      showErrorMessage('Error al crear la sección');
     }
-  }, [categories.length, showSuccessMessage, showErrorMessage, setLoading]);
+  }, [categories, showSuccessMessage, showErrorMessage, setLoading, sortCategoriesAndProducts]);
 
   const handleCreateProduct = useCallback(async (product: Product, categoryId: string) => {
     try {
@@ -228,42 +337,22 @@ const Dashboard = () => {
       });
 
       // Luego actualizar Firebase
-      try {
-        await updateCategory(updatedCategory.id, updatedCategory);
-        showSuccessMessage('Producto creado exitosamente');
-        setUiState(prev => ({ ...prev, isModalOpen: false }));
+      await updateCategory(updatedCategory.id, updatedCategory);
+      showSuccessMessage('Producto creado exitosamente');
+      setUiState(prev => ({ ...prev, isModalOpen: false }));
 
-        if (!expandedCategories.includes(categoryId)) {
-          setExpandedCategories(prev => [...prev, categoryId]);
-        }
-      } catch (firebaseError) {
-        console.error('Error específico de Firebase:', firebaseError);
-        // Revertir el estado local si falla Firebase
-        const reloadedCategories = await getCategories();
-        setCategories(reloadedCategories);
-        throw firebaseError;
+      if (!expandedCategories.includes(categoryId)) {
+        setExpandedCategories(prev => [...prev, categoryId]);
       }
     } catch (error) {
       console.error('Error detallado al crear producto:', error);
+      showErrorMessage('Error al crear el producto');
+      // Recargar categorías en caso de error
+      const reloadedCategories = await getCategories();
+      setCategories(reloadedCategories);
       throw error;
     }
-  }, [categories, expandedCategories, showSuccessMessage, setUiState, setExpandedCategories]);
-
-  const handleSubmitProduct = useCallback(async (product: Product, categoryId: string) => {
-    setLoading(true);
-    try {
-      if (productToEdit) {
-        await handleUpdateProduct(productToEdit.id, { ...product, id: productToEdit.id });
-      } else {
-        await handleCreateProduct(product, categoryId);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      showErrorMessage('Error al guardar el producto. Por favor, intenta de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  }, [productToEdit, handleCreateProduct, showErrorMessage, setLoading]);
+  }, [categories, expandedCategories, showSuccessMessage, showErrorMessage]);
 
   const handleUpdateProduct = useCallback(async (productId: string, updatedProduct: Product) => {
     setLoading(true);
@@ -299,28 +388,142 @@ const Dashboard = () => {
       );
 
       // Luego actualizar Firebase
-      try {
-        await updateCategory(categoryToUpdate.id, updatedCategory);
-        showSuccessMessage('Producto actualizado correctamente');
-        setUiState(prev => ({ ...prev, isModalOpen: false }));
-      } catch (firebaseError) {
-        console.error('Error específico de Firebase:', firebaseError);
-        // Revertir el estado local si falla Firebase
-        const reloadedCategories = await getCategories();
-        setCategories(reloadedCategories);
-        throw firebaseError;
-      }
+      await updateCategory(categoryToUpdate.id, updatedCategory);
+      showSuccessMessage('Producto actualizado correctamente');
+      setUiState(prev => ({ ...prev, isModalOpen: false }));
     } catch (error) {
       console.error('Error detallado al actualizar producto:', error);
       showErrorMessage('Error al actualizar el producto. Por favor, intenta de nuevo.');
+      // Recargar categorías en caso de error
+      const reloadedCategories = await getCategories();
+      setCategories(reloadedCategories);
       throw error;
     } finally {
       setLoading(false);
     }
   }, [categories, showSuccessMessage, showErrorMessage, setLoading]);
 
+  const handleSubmitProduct = useCallback(async (product: Product, categoryId: string) => {
+    setLoading(true);
+    try {
+      if (productToEdit) {
+        await handleUpdateProduct(productToEdit.id, { ...product, id: productToEdit.id });
+      } else {
+        await handleCreateProduct(product, categoryId);
+      }
+      setLoading(false);
+      showSuccessMessage(productToEdit ? 'Producto actualizado correctamente' : 'Producto creado exitosamente');
+      setUiState(prev => ({ ...prev, isModalOpen: false }));
+    } catch (error) {
+      setLoading(false);
+      console.error('Error:', error);
+      showErrorMessage('Error al guardar el producto. Por favor, intenta de nuevo.');
+    }
+  }, [productToEdit, handleCreateProduct, handleUpdateProduct, showSuccessMessage, showErrorMessage, setLoading]);
+
+  const handleDeleteProduct = useCallback(async (productId: string) => {
+    try {
+      const confirmed = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas eliminar este producto?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280'
+      });
+
+      if (!confirmed.isConfirmed) return;
+
+      setLoading(true);
+      const categoryToUpdate = categories.find(category => 
+        category.products.some(product => product.id === productId)
+      );
+
+      if (!categoryToUpdate) return;
+
+      const updatedProducts = categoryToUpdate.products.filter(product => product.id !== productId);
+      const updatedCategory = {
+        ...categoryToUpdate,
+        products: updatedProducts
+      };
+
+      await updateCategory(categoryToUpdate.id, updatedCategory);
+      
+      setCategories(prev =>
+        prev.map(category =>
+          category.id === categoryToUpdate.id ? updatedCategory : category
+        )
+      );
+
+      setLoading(false);
+      showSuccessMessage('Producto eliminado correctamente');
+    } catch (error) {
+      setLoading(false);
+      console.error('Error:', error);
+      showErrorMessage('Error al eliminar el producto');
+      // Recargar categorías en caso de error
+      const reloadedCategories = await getCategories();
+      setCategories(sortCategoriesAndProducts(reloadedCategories));
+    }
+  }, [categories, showSuccessMessage, showErrorMessage, setLoading, sortCategoriesAndProducts]);
+
+  const handleDeleteCategory = useCallback(async (categoryId: string) => {
+    try {
+      const confirmed = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Deseas eliminar esta categoría y todos sus productos?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280'
+      });
+
+      if (!confirmed.isConfirmed) return;
+
+      setLoading(true);
+      await deleteCategory(categoryId);
+      setCategories(prev => prev.filter(category => category.id !== categoryId));
+      
+      setLoading(false);
+      showSuccessMessage('Categoría eliminada correctamente');
+    } catch (error) {
+      setLoading(false);
+      console.error('Error:', error);
+      showErrorMessage('Error al eliminar la categoría');
+    }
+  }, [showSuccessMessage, showErrorMessage, setLoading]);
+
+  const handleEditCategory = useCallback(async (categoryId: string, newName: string) => {
+    try {
+      setLoading(true);
+      const categoryToUpdate = categories.find(c => c.id === categoryId);
+      if (!categoryToUpdate) return;
+
+      const updatedCategory = { ...categoryToUpdate, name: newName };
+      await updateCategory(categoryId, updatedCategory);
+      
+      setCategories(prev =>
+        prev.map(category =>
+          category.id === categoryId ? updatedCategory : category
+        )
+      );
+      
+      setLoading(false);
+      showSuccessMessage('Categoría actualizada correctamente');
+    } catch (error) {
+      setLoading(false);
+      console.error('Error:', error);
+      showErrorMessage('Error al actualizar la categoría');
+    }
+  }, [categories, showSuccessMessage, showErrorMessage, setLoading]);
+
   const handleToggleProductVisibility = useCallback(async (productId: string) => {
     try {
+      setLoading(true);
       const categoryToUpdate = categories.find(category => 
         category.products.some(product => product.id === productId)
       );
@@ -336,55 +539,26 @@ const Dashboard = () => {
         products: updatedProducts
       };
 
+      await updateCategory(categoryToUpdate.id, updatedCategory);
+      
       setCategories(prev =>
         prev.map(category =>
           category.id === categoryToUpdate.id ? updatedCategory : category
         )
       );
 
-      await updateCategory(categoryToUpdate.id, updatedCategory);
-      showSuccessMessage('Visibilidad actualizada correctamente');
+      const product = categoryToUpdate.products.find(p => p.id === productId);
+      showSuccessMessage(`Producto ${product?.visible ? 'ocultado' : 'visible'} correctamente`);
     } catch (error) {
       console.error('Error:', error);
-      showErrorMessage('Error al actualizar la visibilidad');
+      showErrorMessage('Error al actualizar la visibilidad del producto');
       // Recargar categorías en caso de error
       const reloadedCategories = await getCategories();
       setCategories(sortCategoriesAndProducts(reloadedCategories));
+    } finally {
+      setLoading(false);
     }
-  }, [categories, showSuccessMessage, showErrorMessage, sortCategoriesAndProducts]);
-
-  const handleDeleteProduct = useCallback(async (productId: string) => {
-    try {
-      if (!confirm('¿Estás seguro de eliminar este producto?')) return;
-
-      const categoryToUpdate = categories.find(category => 
-        category.products.some(product => product.id === productId)
-      );
-
-      if (!categoryToUpdate) return;
-
-      const updatedProducts = categoryToUpdate.products.filter(product => product.id !== productId);
-      const updatedCategory = {
-        ...categoryToUpdate,
-        products: updatedProducts
-      };
-
-      setCategories(prev =>
-        prev.map(category =>
-          category.id === categoryToUpdate.id ? updatedCategory : category
-        )
-      );
-
-      await updateCategory(categoryToUpdate.id, updatedCategory);
-      showSuccessMessage('Producto eliminado correctamente');
-    } catch (error) {
-      console.error('Error:', error);
-      showErrorMessage('Error al eliminar el producto');
-      // Recargar categorías en caso de error
-      const reloadedCategories = await getCategories();
-      setCategories(sortCategoriesAndProducts(reloadedCategories));
-    }
-  }, [categories, showSuccessMessage, showErrorMessage, sortCategoriesAndProducts]);
+  }, [categories, showSuccessMessage, showErrorMessage, setLoading, sortCategoriesAndProducts]);
 
   const handleDarkModeToggle = useCallback(async () => {
     try {
@@ -400,6 +574,7 @@ const Dashboard = () => {
       console.error('Error al cambiar el modo:', error);
       showErrorMessage('Error al cambiar el modo de visualización');
       
+      // Revertir al modo anterior en caso de error
       const savedMode = localStorage.getItem('menuDarkMode');
       if (savedMode !== null) {
         const previousMode = JSON.parse(savedMode);
@@ -410,145 +585,190 @@ const Dashboard = () => {
   }, [isDarkMode, showSuccessMessage, showErrorMessage]);
 
   // Componentes memorizados
-  const actionButtons = useMemo(() => (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 mb-6">
-      <div className="flex flex-col md:flex-row gap-3">
-        <div className="flex-1 flex flex-col gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setUiState(prev => ({ ...prev, isCategoryFormOpen: true }))}
-              className="w-full px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-all flex items-center gap-2 text-sm justify-center whitespace-nowrap"
-              disabled={uiState.isLoading}
+  const configPanel = useMemo(() => (
+    <div className="bg-white rounded-lg p-6 mb-2 md:mb-4 border border-gray-100 [background-image:radial-gradient(#EDF2F7_0.75px,transparent_0.75px)] [background-size:8px_8px]">
+      <button 
+        onClick={() => setIsConfigPanelOpen(!isConfigPanelOpen)}
+        className="w-full flex items-center justify-between"
+      >
+        <div className="flex items-center">
+          <h2 className="text-xl font-bold text-gray-900">Edita tu menú</h2>
+        </div>
+        <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isConfigPanelOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      <AnimatePresence>
+        {isConfigPanelOpen && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            exit={{ height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-visible"
+          >
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
             >
-              <PlusIcon className="h-4 w-4 text-white" /> 
-              <span>Nueva Categoría</span>
-            </button>
+              <p className="text-gray-600 text-sm md:text-base mt-4 mb-6">Desde aquí puedes crear secciones, añadir productos y ajustar el orden del menú.</p>
+              <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+                <AddMenuButton 
+                  onAddCategory={() => setUiState(prev => ({ ...prev, isCategoryFormOpen: true }))}
+                  onAddProduct={() => {
+                    setProductToEdit(null);
+                    setUiState(prev => ({ ...prev, isModalOpen: true }));
+                  }}
+                />
 
-            <ModalCategoryForm
-              isOpen={uiState.isCategoryFormOpen}
-              onSubmit={handleCreateCategory}
-              onClose={() => setUiState(prev => ({ ...prev, isCategoryFormOpen: false }))}
-              existingCategories={categories.map(cat => cat.name)}
-            />
-          </div>
+                <button
+                  onClick={() => setUiState(prev => ({ ...prev, isEditMode: !prev.isEditMode }))}
+                  className={`w-full md:w-auto px-5 py-2.5 ${
+                    uiState.isEditMode ? 'bg-blue-700 hover:bg-blue-800' : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white rounded-md transition-all text-sm flex items-center gap-3 font-semibold whitespace-nowrap`}
+                >
+                  <ArrowsUpDownIcon className="h-4 w-4" />
+                  <span>{uiState.isEditMode ? 'Terminar Edición' : 'Reordenar Secciones'}</span>
+                </button>
 
-          <button
-            onClick={() => {
-              setProductToEdit(null);
-              setUiState(prev => ({ ...prev, isModalOpen: true }));
-            }}
-            className="w-full px-3 py-2 bg-orange-400 text-white rounded-md hover:bg-orange-500 transition-all text-sm flex items-center gap-2 justify-center whitespace-nowrap"
-            disabled={uiState.isLoading}
-          >
-            <PlusIcon className="h-4 w-4 text-white" />
-            <span>Nuevo Plato</span>
-          </button>
-
-          <button
-            onClick={() => setUiState(prev => ({ ...prev, isEditMode: !prev.isEditMode }))}
-            className={`w-full px-3 py-2 ${
-              uiState.isEditMode ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-gray-600 hover:bg-gray-700'
-            } text-white rounded-md transition-all text-sm flex items-center gap-2 justify-center whitespace-nowrap`}
-            disabled={uiState.isLoading}
-          >
-            <PencilSquareIcon className="h-4 w-4 text-white" />
-            <span>{uiState.isEditMode ? 'Terminar Edición' : 'Editar Categorías'}</span>
-          </button>
-        </div>
-
-        <div className="flex flex-row gap-2 md:w-auto w-full">
-          <button
-            onClick={() => window.open('/preview', '_blank')}
-            className="flex-1 md:flex-initial p-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-all flex items-center justify-center"
-            disabled={uiState.isLoading}
-            title="Ver QR"
-          >
-            <QrCodeIcon className="h-4 w-4 text-white" />
-          </button>
-
-          <button
-            onClick={handleDarkModeToggle}
-            className="flex-1 md:flex-initial p-2 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-all flex items-center justify-center"
-            disabled={uiState.isLoading}
-            title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
-          >
-            {isDarkMode ? (
-              <SunIcon className="h-4 w-4 text-white" />
-            ) : (
-              <MoonIcon className="h-4 w-4 text-white" />
-            )}
-          </button>
-        </div>
-      </div>
+                <button
+                  onClick={handleDarkModeToggle}
+                  className={`w-full md:w-auto px-5 py-2.5 transition-all text-sm flex items-center gap-3 font-semibold whitespace-nowrap rounded-md ${
+                    isDarkMode 
+                      ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                      : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                  }`}
+                  title={isDarkMode ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro'}
+                >
+                  {isDarkMode ? (
+                    <>
+                      <MoonIcon className="h-4 w-4" />
+                      <span>Modo oscuro</span>
+                    </>
+                  ) : (
+                    <>
+                      <SunIcon className="h-4 w-4" />
+                      <span>Modo claro</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  ), [uiState.isEditMode, uiState.isLoading, isDarkMode, handleDarkModeToggle, uiState.isCategoryFormOpen, categories, handleCreateCategory]);
+  ), [isConfigPanelOpen, uiState.isEditMode, isDarkMode, handleDarkModeToggle]);
 
-  const statusMessages = useMemo(() => (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
-      {uiState.isLoading && (
-        <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-md shadow-lg flex items-center gap-2">
-          <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-700 border-t-transparent"></div>
-          Cargando...
+  const exportPanel = useMemo(() => (
+    <div className="bg-white rounded-lg p-6 mb-2 md:mb-4 border border-gray-100 [background-image:radial-gradient(#EDF2F7_0.75px,transparent_0.75px)] [background-size:8px_8px]">
+      <button 
+        onClick={() => setIsExportPanelOpen(!isExportPanelOpen)}
+        className="w-full flex items-center justify-between"
+      >
+        <div className="flex items-center">
+          <h2 className="text-xl font-bold text-gray-900">Exporta tu menú</h2>
         </div>
-      )}
-      {uiState.error && (
-        <div className="bg-red-50 text-red-700 px-4 py-2 rounded-md shadow-lg flex items-center gap-2">
-          <ExclamationCircleIcon className="h-5 w-5" />
-          {uiState.error}
-        </div>
-      )}
-      {uiState.successMessage && (
-        <div className="bg-green-50 text-green-700 px-4 py-2 rounded-md shadow-lg flex items-center gap-2">
-          <CheckCircleIcon className="h-5 w-5" />
-          {uiState.successMessage}
-        </div>
-      )}
+        <ChevronDownIcon className={`w-5 h-5 text-gray-500 transition-transform duration-300 ${isExportPanelOpen ? 'rotate-180' : ''}`} />
+      </button>
+      
+      <AnimatePresence>
+        {isExportPanelOpen && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: 'auto' }}
+            exit={{ height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="text-gray-600 text-sm md:text-base mt-4 mb-6">Genera un código QR para compartir tu menú fácilmente.</p>
+              <button
+                onClick={() => window.open('/preview', '_blank')}
+                className="w-full px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-md transition-all flex items-center gap-2 justify-center"
+              >
+                <QrCodeIcon className="h-4 w-4" />
+                <span>Generar código QR</span>
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  ), [uiState.isLoading, uiState.error, uiState.successMessage]);
+  ), [isExportPanelOpen]);
+
+  const statusMessages = useMemo(() => null, []);
 
   return (
-    <>
-
-    <div className={`h-screen w-screen flex overflow-hidden`}>
+    <div className="h-screen w-screen flex">
       <Sidebar />
-      <main className={`flex-1 flex bg-gray-50 min-w-0`}>
-        <section className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 px-2 md:p-6 pt-16 md:pt-6 overflow-y-scroll scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400">
-            {statusMessages}
-            {actionButtons}
+      <main className="flex-1 flex min-w-0">
+        <section className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+          <div className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-visible scrollbar-none">
+            <div className="flex-1 p-4">
+              <div className="max-w-5xl mx-auto space-y-4">
+                {configPanel}
+                {exportPanel}
 
-            <MenuList
-              categories={categories}
-              setCategories={setCategories}
-              isEditMode={uiState.isEditMode}
-              onEditProduct={(_, product) => {
-                setProductToEdit(product);
-                setUiState(prev => ({ ...prev, isModalOpen: true }));
-              }}
-              onToggleProductVisibility={handleToggleProductVisibility}
-              onDeleteProduct={handleDeleteProduct}
-              expandedCategories={expandedCategories}
-              setExpandedCategories={setExpandedCategories}
-            />
-
-            {uiState.isModalOpen && (
-              <ProductForm
-                isOpen={uiState.isModalOpen}
-                onClose={() => {
-                  setUiState(prev => ({ ...prev, isModalOpen: false }));
-                  setProductToEdit(null);
-                }}
-                onSubmit={handleSubmitProduct}
-                categories={categories}
-                productToEdit={productToEdit}
-                onSuccess={(categoryId) => {
-                  if (!expandedCategories.includes(categoryId)) {
-                    setExpandedCategories(prev => [...prev, categoryId]);
-                  }
-                }}
-              />
-            )}
+                <div className="bg-white rounded-lg p-6">
+                  <div className="space-y-1 mb-6">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-xl font-bold text-gray-900">Secciones del menú</h2>
+                      <Squares2X2Icon className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <p className="text-gray-600 text-sm md:text-base">Aquí se muestran las secciones y productos de tu menú, puedes editar, reorganizar y eliminar lo que quieras.</p>
+                  </div>
+                  <MenuList
+                    categories={categories}
+                    setCategories={setCategories}
+                    isEditMode={uiState.isEditMode}
+                    onEditProduct={(_, product) => {
+                      setProductToEdit(product);
+                      setUiState(prev => ({ ...prev, isModalOpen: true }));
+                    }}
+                    onToggleProductVisibility={handleToggleProductVisibility}
+                    onDeleteProduct={handleDeleteProduct}
+                    onEditCategory={handleEditCategory}
+                    onDeleteCategory={handleDeleteCategory}
+                    expandedCategories={expandedCategories}
+                    setExpandedCategories={setExpandedCategories}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
+          {uiState.isModalOpen && (
+            <ProductForm
+              isOpen={uiState.isModalOpen}
+              onClose={() => {
+                setUiState(prev => ({ ...prev, isModalOpen: false }));
+                setProductToEdit(null);
+              }}
+              onSubmit={handleSubmitProduct}
+              categories={categories}
+              productToEdit={productToEdit}
+              onSuccess={(categoryId) => {
+                if (!expandedCategories.includes(categoryId)) {
+                  setExpandedCategories(prev => [...prev, categoryId]);
+                }
+              }}
+            />
+          )}
+
+          {uiState.isCategoryFormOpen && (
+            <ModalCategoryForm
+              isOpen={uiState.isCategoryFormOpen}
+              onClose={() => setUiState(prev => ({ ...prev, isCategoryFormOpen: false }))}
+              onSubmit={handleCreateCategory}
+              existingCategories={categories.map(c => c.name)}
+            />
+          )}
         </section>
 
         <PreviewPanel 
@@ -556,16 +776,6 @@ const Dashboard = () => {
           isDarkMode={isDarkMode}
         />
       </main>
-
-      <Link
-        to="/menu"
-        target="_blank"
-        rel="noopener noreferrer"
-        state={{ categories }}
-        className="md:hidden fixed bottom-6 right-6 z-50 bg-orange-500 text-white p-4 rounded-full shadow-lg hover:bg-orange-600 transition-colors flex items-center justify-center"
-      >
-        <ArrowTopRightOnSquareIcon className="w-6 h-6" />
-      </Link>
     </div>
     </>
   );

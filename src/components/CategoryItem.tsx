@@ -4,11 +4,8 @@ import { motion } from 'framer-motion';
 import { CategoryItemProps } from './types';
 import DragAndDropWrapper from './DragAndDropWrapper';
 import ProductCard from './ProductCard';
-import { DragEndEvent } from '@dnd-kit/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TRANSITION_EASE, CATEGORY_ITEM_ANIMATION_VARIANTS } from '../constants/animations';
-import { MENU_LIST_STYLES, CATEGORY_ITEM_STYLES } from '../constants/layout';
 
 const CategoryItem = ({
   id,
@@ -35,160 +32,140 @@ const CategoryItem = ({
     transform,
     transition,
     isDragging
-  } = useSortable({ 
-    id,
-    disabled: !isEditMode,
-    data: {
-      type: 'category'
-    }
-  });
+  } = useSortable({ id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    borderBottom: '1px solid #e5e7eb',
+    padding: '16px 0'
   };
 
-  const handleDragEndProducts = (event: DragEndEvent) => {
-    onDragEndProducts(event, id);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editedName.trim()) {
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (editedName.trim() !== name) {
       onEditName(id, editedName.trim());
-      setIsEditing(false);
     }
+    setIsEditing(false);
   };
 
-  const handleCategoryClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleCategoryClick = () => {
     if (!isEditMode) {
       onToggleExpand(id);
     }
   };
 
   return (
-    <div 
-      ref={setNodeRef}
+    <motion.div 
+      ref={setNodeRef} 
       style={style}
-      className={`${CATEGORY_ITEM_STYLES.container.base} hover:bg-gray-50 transition-colors border-b border-gray-100/70 last:border-b-0`}
+      transition={{ duration: 0.2 }}
     >
-      <div className="relative">
-        <div
-          className={`${CATEGORY_ITEM_STYLES.header.base} ${MENU_LIST_STYLES.spacing.categoryPadding} ${
-            !isEditMode && 'cursor-pointer'
-          }`}
-          onClick={!isEditMode ? handleCategoryClick : undefined}
+      <div>
+        <div 
+          onClick={handleCategoryClick} 
+          style={{ cursor: !isEditMode ? 'pointer' : 'default' }}
+          className="transition-all duration-200"
         >
-          {isEditMode && (
-            <button 
-              type="button"
-              className={CATEGORY_ITEM_STYLES.header.dragHandle}
-              {...attributes}
-              {...listeners}
-            >
-              <Bars4Icon className={CATEGORY_ITEM_STYLES.icons.base} />
-            </button>
-          )}
-          
-          <div className={`flex-1 ${isEditMode ? CATEGORY_ITEM_STYLES.header.editMode : ''}`}>
-            {isEditing ? (
-              <form onSubmit={handleSubmit} className="flex items-center" onClick={e => e.stopPropagation()}>
-                <input
-                  type="text"
-                  value={editedName}
-                  onChange={(e) => setEditedName(e.target.value)}
-                  className={`${CATEGORY_ITEM_STYLES.input.base} ${CATEGORY_ITEM_STYLES.input.focus}`}
-                  autoFocus
-                  onBlur={handleSubmit}
-                />
-              </form>
-            ) : (
-              <div className={`flex flex-col ${MENU_LIST_STYLES.spacing.contentGap}`}>
-                <h3 className={CATEGORY_ITEM_STYLES.title.base}>
-                  {name}
-                </h3>
-                <p className={CATEGORY_ITEM_STYLES.title.count}>
-                  {products.length} {products.length === 1 ? 'platillo' : 'platillos'}
-                </p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 flex-1">
+              {isEditMode && !isEditing && (
+                <button 
+                  {...attributes}
+                  {...listeners}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors cursor-grab touch-none"
+                >
+                  <Bars4Icon className="w-5 h-5 text-gray-500" />
+                </button>
+              )}
+              <div className="flex-1 flex items-center gap-2">
+                {isEditing ? (
+                  <form onSubmit={handleSubmit} className="flex-1">
+                    <input
+                      type="text"
+                      value={editedName}
+                      onChange={(e) => setEditedName(e.target.value)}
+                      className="w-full text-base font-medium bg-transparent border-none focus:outline-none focus:ring-0"
+                      autoFocus
+                    />
+                  </form>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-semibold">{name}</span>
+                    {!isEditMode && <span className="text-xs text-gray-500">({products.length})</span>}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className={`flex items-center ${MENU_LIST_STYLES.spacing.iconGap}`}>
-            {isEditMode && !isEditing && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditing(true);
-                  }}
-                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} text-gray-500 hover:text-gray-600 transition-colors`}
-                >
-                  <PencilSquareIcon className={CATEGORY_ITEM_STYLES.icons.base} />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (confirm('¿Estás seguro de eliminar esta categoría?')) {
+            <div className="flex items-center gap-2">
+              {isEditMode && !isEditing && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditing(true);
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <PencilSquareIcon className="w-5 h-5 text-gray-500" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       onDelete(id);
-                    }
-                  }}
-                  className={`${MENU_LIST_STYLES.spacing.buttonPadding} text-gray-500 hover:text-red-500 transition-colors`}
+                    }}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <TrashIcon className="w-5 h-5 text-gray-500" />
+                  </button>
+                </>
+              )}
+              {!isEditMode && showExpandIcon && (
+                <motion.div
+                  animate={isExpanded ? { rotate: 180 } : { rotate: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="p-2"
                 >
-                  <TrashIcon className={CATEGORY_ITEM_STYLES.icons.base} />
-                </button>
-              </>
-            )}
-            {showExpandIcon && (
-              <motion.div
-                animate={isExpanded ? "expanded" : "collapsed"}
-                variants={CATEGORY_ITEM_ANIMATION_VARIANTS.chevron}
-                transition={TRANSITION_EASE}
-              >
-                <ChevronDownIcon className={CATEGORY_ITEM_STYLES.icons.base} />
-              </motion.div>
-            )}
+                  <ChevronDownIcon className="w-5 h-5 text-gray-400" />
+                </motion.div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Contenido expandible */}
-      <motion.div 
-        variants={CATEGORY_ITEM_ANIMATION_VARIANTS.content}
-        initial="collapsed"
-        animate={isExpanded ? "expanded" : "collapsed"}
-        className="overflow-hidden"
-      >
-        <div className={`${MENU_LIST_STYLES.spacing.contentPadding} ${MENU_LIST_STYLES.spacing.sectionGap}`}>
-          <div className="border-t border-gray-100" />
-          {products.length === 0 ? (
-            <p className="text-gray-500">0 platillos</p>
-          ) : (
-            <DragAndDropWrapper
-              items={products}
-              onDragEnd={handleDragEndProducts}
-              isEditMode={isExpanded}
-            >
-              <div className={MENU_LIST_STYLES.spacing.sectionGap}>
-                {products.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    onEdit={() => onEditProduct(product.id, product)}
-                    onToggleVisibility={() => onToggleVisibility(product.id)}
-                    onDelete={() => onDeleteProduct(product.id)}
-                    isEditMode={isExpanded}
-                  />
-                ))}
-              </div>
-            </DragAndDropWrapper>
-          )}
-        </div>
-      </motion.div>
-    </div>
+      {!isEditMode && isExpanded && (
+        <motion.div 
+          className="mt-4"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <DragAndDropWrapper
+            items={products}
+            onDragEnd={(event) => onDragEndProducts(event, id)}
+            isEditMode={isEditMode}
+            type="product"
+          >
+            <div className="space-y-3 md:space-y-4">
+              {products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isEditMode={isEditMode}
+                  onEdit={() => onEditProduct(product.id, product)}
+                  onToggleVisibility={() => onToggleVisibility(product.id)}
+                  onDelete={() => onDeleteProduct(product.id)}
+                />
+              ))}
+            </div>
+          </DragAndDropWrapper>
+        </motion.div>
+      )}
+    </motion.div>
   );
 };
 

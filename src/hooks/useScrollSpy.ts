@@ -14,16 +14,22 @@ export const useScrollSpy = (elements: string[], options: UseScrollSpyOptions) =
 
     const observerOptions = {
       root: options.root,
-      rootMargin: options.isPreview ? '-20% 0px -60% 0px' : '-10% 0px -70% 0px',
-      threshold: 0
+      rootMargin: options.isPreview ? '-30% 0px -50% 0px' : '-20% 0px -60% 0px',
+      threshold: [0, 0.1, 0.2]
     };
 
     const callback: IntersectionObserverCallback = (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          options.onIntersect(entry.target.id);
+      const significantEntries = entries.filter(entry => entry.intersectionRatio >= 0.1);
+      
+      if (significantEntries.length > 0) {
+        const mostVisible = significantEntries.reduce((prev, current) => {
+          return current.intersectionRatio > prev.intersectionRatio ? current : prev;
+        });
+
+        if (mostVisible.isIntersecting) {
+          options.onIntersect(mostVisible.target.id);
         }
-      });
+      }
     };
 
     observerRef.current = new IntersectionObserver(callback, observerOptions);

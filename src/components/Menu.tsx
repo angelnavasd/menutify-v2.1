@@ -9,6 +9,7 @@ import CategorySection from './CategorySection';
 import { useScrollSpy } from '../hooks/useScrollSpy';
 import { useScrollBehavior } from '../hooks/useScrollBehavior';
 import { useFilteredCategories } from '../hooks/useFilteredCategories';
+import { AnimatePresence, motion } from 'framer-motion';
 
 interface MenuProps {
   isDarkMode?: boolean;
@@ -121,11 +122,26 @@ export default function Menu({
       ref={contentRef}
       className={`${MENU_STYLES.container.base} bg-gradient-to-b ${colors.background.gradient} ${
         isPreview ? 'preview-mode' : ''
-      }`}
+      } font-menu`}
     >
       {/* Header Section */}
       <div className={`${MENU_STYLES.container.header.wrapper} ${colors.background.primary}`}>
         {headerComponent}
+        <AnimatePresence>
+          {isScrolled && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className={MENU_STYLES.container.header.categoriesTitle.wrapper}
+            >
+              <h2 className={`${MENU_STYLES.container.header.categoriesTitle.text} ${colors.text.primary}`}>
+                Categorías
+              </h2>
+            </motion.div>
+          )}
+        </AnimatePresence>
         {navigationComponent}
       </div>
 

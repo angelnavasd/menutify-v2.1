@@ -52,7 +52,7 @@ const ModalCategoryForm = ({ isOpen, onSubmit, onClose, existingCategories }: Mo
             <form onSubmit={handleSubmit} className={MODAL_CATEGORY_FORM_STYLES.form.wrapper}>
               <div className={MODAL_CATEGORY_FORM_STYLES.form.input.container}>
                 <label htmlFor="categoryName" className={MODAL_CATEGORY_FORM_STYLES.form.input.label}>
-                  Nombre de la categoría
+                  Nombre de la sección
                 </label>
                 <input
                   id="categoryName"
@@ -77,7 +77,7 @@ const ModalCategoryForm = ({ isOpen, onSubmit, onClose, existingCategories }: Mo
                   type="submit"
                   className={MODAL_CATEGORY_FORM_STYLES.form.buttons.create}
                 >
-                  Crear categoría
+                  Crear Sección
                 </button>
                 <button
                   type="button"

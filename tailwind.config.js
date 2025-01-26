@@ -1,8 +1,22 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'sans': ['Montserrat', 'system-ui'],
+        'menu': ['Inter', 'system-ui'],
+      },
+      fontWeight: {
+        'normal': '400',
+        'medium': '500',
+        'semibold': '600',
+        'bold': '700',
+      },
+    },
   },
   plugins: [],
 }
