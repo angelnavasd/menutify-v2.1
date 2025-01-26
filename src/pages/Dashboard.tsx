@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { Navigate } from 'react-router-dom';
 // import { Link } from 'react-router-dom';
 import { 
   PlusIcon, 
@@ -33,6 +34,7 @@ import {
   getThemeConfig, 
   updateThemeConfig 
 } from '../firebase/services';
+import { getCurrentUser } from '@/firebase/authService';
 
 // Interfaces
 interface UIState {
@@ -109,6 +111,11 @@ const AddMenuButton = ({ onAddCategory, onAddProduct }: {
 };
 
 const Dashboard = () => {
+  const user = getCurrentUser()
+
+  if(!user?.emailVerified){
+    return <Navigate to="/verify-email"/>
+  }
   // Estado principal
   const [categories, setCategories] = useState<Category[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
@@ -719,7 +726,6 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
           {uiState.isModalOpen && (
             <ProductForm
               isOpen={uiState.isModalOpen}
@@ -754,7 +760,9 @@ const Dashboard = () => {
         />
       </main>
     </div>
+    </>
   );
+  
 };
 
 export default Dashboard;
