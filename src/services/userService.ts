@@ -4,7 +4,7 @@ import { getCurrentUser } from "@/firebase/authService";
 import bcrypt from 'bcryptjs' ; // para cifrar passwords
 
 
-export function addUser(email: string, password: string, nombres: string, hash?: boolean) {
+export async function addUser(email: string, password: string, nombres: string, hash?: boolean) {
     try {
         const user = getCurrentUser();
 
@@ -17,13 +17,13 @@ export function addUser(email: string, password: string, nombres: string, hash?:
         }
 
         if(password === 'google'){
-            setDoc(doc(db, "users", user.uid), {
+            await setDoc(doc(db, "users", user.uid), {
                 email: email,
                 nombres: nombres,
                 createdAt: new Date().toISOString(),
             });
         } else {
-            setDoc(doc(db, "users", user.uid), {
+            await setDoc(doc(db, "users", user.uid), {
                 email: email,
                 nombres: nombres,
                 password: password,

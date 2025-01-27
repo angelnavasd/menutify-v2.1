@@ -2,8 +2,10 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAeOrarfqqgcrhpXxcrEXaWQiOPKhBvkMQ",
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+
+export const firebaseConfig = {
+  apiKey: apiKey,
   authDomain: "menutify-test.firebaseapp.com",
   projectId: "menutify-test",
   storageBucket: "menutify-test.firebasestorage.app",

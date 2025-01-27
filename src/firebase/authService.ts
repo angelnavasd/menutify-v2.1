@@ -1,19 +1,19 @@
 import { 
   signInWithEmailAndPassword, 
-  User, 
-  signOut, 
-  GoogleAuthProvider, 
-  signInWithPopup,
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
   sendPasswordResetEmail,
   sendEmailVerification,
   EmailAuthProvider, 
   reauthenticateWithCredential,
-  deleteUser } from 'firebase/auth';
-// import { db } from "@/firebase/config";
-import { addUser, getUser, deleteDBUser } from '@/services/userService';
+  User } from 'firebase/auth';
+import { db } from "@/firebase/config";
+import { addUser, getUser } from '@/services/userService';
 import { authToken } from '@/types/auth'
-import { auth } from './config';  
+import { auth } from './config';
+import { doc, deleteDoc } from 'firebase/firestore';
 
 export const loginWithEmailAndPassword = async (email: string, password: string): Promise<boolean> => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -42,52 +42,53 @@ export const loginWithGoogle = async (): Promise<boolean> => {
   }
 };
 
-export const registerWithEmailAndPassword = async (email: string, password: string, nombres: string): Promise<boolean|undefined> => {
-  const userCreated = await createUserWithEmailAndPassword(auth, email, password);
-  const user = userCreated.user
-  const token = await user.getIdToken()
-  const idToken = {token}
-  setIdToken(idToken)
-  if(user){
-    const userExists = await getUser(user.uid)
-    addUser(email, password, nombres, true);
-    if(!userExists){
-      await sendVerificationEmail()
-    }
-    return true
-  } else {
-    return false
-  }
-}
+export const registerWithEmailAndPassword = async (email: string, password: string, nombres: string): Promise<boolean> => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-export const registerWithGoogle = async (): Promise<boolean|undefined> => {
+    const token = await userCredential.user.getIdToken();
+    const idToken = { token };
+    setIdToken(idToken);
+
+    const user = userCredential.user;
+
+    if (user) {
+      await addUser(email, password, nombres);
+
+      await sendEmailVerification(user);
+
+      return true;
+    }
+    return false;
+  } catch (error: any) {
+    console.error("Error en registro:", error);
+    if (auth.currentUser) {
+      try {
+        await auth.currentUser.delete();
+      } catch (deleteError) {
+        console.error("Error borrando usuario después de fallo:", deleteError);
+      }
+    }
+    throw error;
+  }
+};
+
+export const registerWithGoogle = async (): Promise<{success: boolean, isGoogleUser: boolean}> => {
   const provider = new GoogleAuthProvider(); 
   const result = await signInWithPopup(auth, provider);
-  // const credential = GoogleAuthProvider.credentialFromResult(result)
-
-  //const que permite acceder al accessToken
-
-  //datos del usuario por si queremos nombre apellido 
-  // y demas de la cuenta de google 
-  // const user = result.user
-
-  //token de acceso para apis de google y sus servicios
-  //habilitar cuando se necesite
-  // const accessToken = credential?.accessToken 
-  
   const user = result.user
 
   if(user){
     const token = await user.getIdToken()
-    const idToken = {token}
+    const idToken = {token, provider: 'google'}  
     setIdToken(idToken)
     const userExists = await getUser(user.uid)
     if(userExists == null){
-      addUser(user.email!, 'google', user.displayName!);
+      await addUser(user.email!, 'google', user.displayName!);
     }
-      return true
+    return { success: true, isGoogleUser: true }
   } else {
-    return false
+    return { success: false, isGoogleUser: false }
   }
 }
 
@@ -98,7 +99,6 @@ export const logout = async (): Promise<void> => {
   await signOut(auth);
 };
 
-//verificar que hace esta shit
 export const getCurrentUser = (): User | null => {
   return auth.currentUser;
 };
@@ -126,10 +126,20 @@ export const sendVerificationEmail = async (): Promise<void> => {
   }
 }
 
-export const isEmailVerifiedAsync = async (): Promise<boolean> => {
-  await auth.currentUser?.reload();
-  return auth.currentUser?.emailVerified ?? false;
-}
+export const isEmailVerifiedAsync = async () => {
+  const user = auth.currentUser;
+  if (user) {
+    try {
+      // Forzar recarga del usuario para obtener el estado más reciente
+      await user.reload();
+      return user.emailVerified;
+    } catch (error) {
+      console.error("Error checking email verification:", error);
+      return false;
+    }
+  }
+  return false;
+};
 
 /**
  * Reautenticar al usuario actual utilizando email y contraseña.
@@ -157,22 +167,42 @@ export const reauthenticateUser = async (email: string, password: string): Promi
   }
 };
 
-export const deleteCurrentUser = async (): Promise<void|boolean> => {
-  const currentUser: User | null = auth.currentUser;
-  //hay un tema con esto y es que si pasa mucho tiempo sin cliquear que se quiere cambiar el mail porque se equivoco
-  //pide una reautenticacion, cosa que es complicada por el meollo que hace para validar y nose que
-  if(currentUser){
-    deleteDBUser(currentUser)
-    await deleteUser(currentUser);
-    logout();
-    return true
-  }
-  if (!currentUser) {
-    throw new Error("No hay un usuario autenticado.");
-  }
+//Solo deletea usuario cuando el token no pasa mucho tiempo
+//si pasa mucho tiempo ya no deja eliminar la cuenta por lo que 
+//firebase pide que reautenticar y es un quilombo
+export const deleteCurrentUser = async (): Promise<boolean> => {
+  try {
+    const currentUser = auth.currentUser;
 
-}
+    if (currentUser) {
+      try {
+        await currentUser.delete();
+        console.log('User deleted successfully');
+      } catch (error: any) {
+        console.error('Error deleting user:', error);
+        throw new Error('Error al borrar usuario: ' + error.message);
+      }
+    } else {
+      throw new Error('No user is currently signed in.');
+    }
 
+    const uid = currentUser.uid;
+
+    try {
+      const userRef = doc(db, "users", uid);
+      await deleteDoc(userRef);
+    } catch (dbError) {
+      console.error("Error borrando de la base de datos:", dbError);
+    }
+
+    await logout();
+    localStorage.clear();
+    return true;
+  } catch (error) {
+    console.error("Error en deleteCurrentUser:", error);
+    return false;
+  }
+};
 
 //seteamos el token en cookies asi podemos validar consultas y demas mediante el token
 //HttpOnly; solo accesibles desde el servidor local no funcion
