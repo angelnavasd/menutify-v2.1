@@ -1,27 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { isEmailVerifiedAsync, sendVerificationEmail, getCurrentUser, deleteCurrentUser } from "@/firebase/authService";
 import { Navigate, useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const VerifyView = () => {
+  const [loading, setLoading] = useState(false);
   const user = getCurrentUser();
   const navigate = useNavigate();
-
-  if (!user || user.providerData[0]?.providerId === 'google.com') {
-    return <Navigate to="/" replace />;
-  }
-
-  if(user.emailVerified && localStorage.getItem('emailVerified') === null || user.emailVerified && window.location.pathname.endsWith('/success') && !localStorage.getItem('emailVerified')){
-    localStorage.removeItem('emailVerified');
-    return <Navigate to="/" replace />;
-  }
-
-  if (user.emailVerified && localStorage.getItem('emailVerified') === 'true') {
-    return <Navigate to="/verify-email/success" replace />;
-  }
-
-  if (!user.emailVerified && window.location.pathname.endsWith('/success')) {
-    return <Navigate to="/verify-email" replace />;
-  }
 
   useEffect(() => {
     const checkEmailVerification = async () => {
@@ -38,10 +23,29 @@ const VerifyView = () => {
   }, []);
 
   const deleteUser = async () => {
+    setLoading(true)
     const userDel = await deleteCurrentUser()
     if(userDel){
+      setLoading(false)
       navigate('/');
     }
+  }
+
+  if (!user || user.providerData[0]?.providerId === 'google.com') {
+    return <Navigate to="/" replace />;
+  }
+
+  if(user.emailVerified && localStorage.getItem('emailVerified') === null || user.emailVerified && window.location.pathname.endsWith('/success') && !localStorage.getItem('emailVerified')){
+    localStorage.removeItem('emailVerified');
+    return <Navigate to="/" replace />;
+  }
+
+  if (user.emailVerified && localStorage.getItem('emailVerified') === 'true') {
+    return <Navigate to="/verify-email/success" replace />;
+  }
+
+  if (!user.emailVerified && window.location.pathname.endsWith('/success')) {
+    return <Navigate to="/verify-email" replace />;
   }
 
   return (
@@ -63,9 +67,10 @@ const VerifyView = () => {
             </button>
             <button
               onClick={() => deleteUser()}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
+              className={`flex justify-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 ${loading ? 'cursor-not-allowed pointer-events-none' : ''}`}
+            > 
               Te equivocaste de correo?
+              {loading && <Loader2 className="animate-spin ml-2" />}
             </button>
           </div>
         </div>

@@ -10,6 +10,7 @@ const Register: React.FC = () => {
   const { currentUser } = useAuth();
   const [nombre, setNombre] = useState<string>('');
   const [email, setEmail] = useState<string>('');
+  const [numero, setNumero] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rePassword, setRePassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +43,7 @@ const Register: React.FC = () => {
     if(clickedButton === registerEmailPassButton.current){
       setLoading(true);
       try {
-        await registerWithEmailAndPassword(email, password, nombre);
+        await registerWithEmailAndPassword(email, password, nombre, numero);
         setLoading(true);
         setError(null);
         return
@@ -73,6 +74,14 @@ const Register: React.FC = () => {
           placeholder="Nombres"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
+        />
+
+        <input
+          className='px-2 py-2'
+          type="number"
+          placeholder="Telefono"
+          value={numero}
+          onChange={(e) => setNumero(e.target.value)}
         />
 
         <input

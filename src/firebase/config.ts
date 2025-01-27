@@ -3,14 +3,20 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore';
 
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+const authDomain = import.meta.env.VITE_AUTH_DOMAIN;
+const projectId = import.meta.env.VITE_PROJECT_ID;
+const storageBucket = import.meta.env.VITE_STORAGE_BUCKET;
+const messagingSenderId = import.meta.env.VITE_MESSAGING_SENDER_ID;
+const appId = import.meta.env.VITE_APP_ID;
+
 
 export const firebaseConfig = {
   apiKey: apiKey,
-  authDomain: "menutify-test.firebaseapp.com",
-  projectId: "menutify-test",
-  storageBucket: "menutify-test.firebasestorage.app",
-  messagingSenderId: "105920755253",
-  appId: "1:105920755253:web:0b6521c7a4a353e4c2637c"
+  authDomain: authDomain,
+  projectId:projectId,
+  storageBucket: storageBucket,
+  messagingSenderId: messagingSenderId,
+  appId: appId
 };
 
 // Initialize Firebase

@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import Swal from 'sweetalert2';
+import Wizard from '@/components/wizard/Wizard';
 
 // Componentes
 import Sidebar from '../components/Sidebar';
@@ -34,6 +35,7 @@ import {
   updateThemeConfig 
 } from '../firebase/services';
 import { getCurrentUser } from '../firebase/authService';
+import { getUser } from '@/services/userService';
 
 // Interfaces
 interface UIState {
@@ -139,6 +141,26 @@ const Dashboard = () => {
 
   const [isConfigPanelOpen, setIsConfigPanelOpen] = useState(true);
   const [isExportPanelOpen, setIsExportPanelOpen] = useState(true);
+
+  const [startWizard, setStartWizard] = useState(false);
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        const user = getCurrentUser();
+        if (user) {
+          const result = await getUser(user.uid);
+          if (result && result.newUser) {
+            setStartWizard(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+      }
+    };
+
+    loadInitialData();
+  }, []);
 
   // Funciones de utilidad
   const showSuccessMessage = useCallback((message: string) => {
@@ -612,7 +634,7 @@ const Dashboard = () => {
                   onClick={() => setUiState(prev => ({ ...prev, isEditMode: !prev.isEditMode }))}
                   className={`w-full md:w-auto px-5 py-2.5 ${
                     uiState.isEditMode ? 'bg-blue-700 hover:bg-blue-800' : 'bg-blue-600 hover:bg-blue-700'
-                  } text-white rounded-md transition-all text-sm flex items-center gap-3 font-semibold whitespace-nowrap`}
+                  } text-white rounded-md transition-all flex items-center gap-3 text-sm font-semibold whitespace-nowrap`}
                 >
                   <ArrowsUpDownIcon className="h-4 w-4" />
                   <span>{uiState.isEditMode ? 'Terminar Edición' : 'Reordenar Secciones'}</span>
@@ -690,43 +712,60 @@ const Dashboard = () => {
   ), [isExportPanelOpen]);
 
   return (
-    <div className="h-screen w-screen flex">
-      <Sidebar />
-      <main className="flex-1 flex min-w-0">
-        <section className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
-          <div className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-visible scrollbar-none">
-            <div className="flex-1 p-4">
-              <div className="max-w-5xl mx-auto space-y-4">
-                {configPanel}
-                {exportPanel}
+    <div>
+      <AnimatePresence>
+        {startWizard && (
+          <motion.div
+            className="fixed inset-0 z-50  bg-opacity-50 backdrop-blur-sm flex items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <Wizard 
+              isNewUser={true} 
+              onClose={() => setStartWizard(false)} 
+              currentUser={currentUser?.uid} 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className="h-screen w-screen flex">
+        <Sidebar />
+        <main className="flex-1 flex min-w-0">
+          <section className="flex-1 flex flex-col min-w-0 pt-14 md:pt-0">
+            <div className="flex-1 flex flex-col min-w-0 overflow-y-auto overflow-x-visible scrollbar-none">
+              <div className="flex-1 p-4">
+                <div className="max-w-5xl mx-auto space-y-4">
+                  {configPanel}
+                  {exportPanel}
 
-                <div className="bg-white rounded-lg p-6">
-                  <div className="space-y-1 mb-6">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-bold text-gray-900">Secciones del menú</h2>
-                      <Squares2X2Icon className="w-5 h-5 text-gray-400" />
+                  <div className="bg-white rounded-lg p-6">
+                    <div className="space-y-1 mb-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-gray-900">Secciones del menú</h2>
+                        <Squares2X2Icon className="w-5 h-5 text-gray-400" />
+                      </div>
+                      <p className="text-gray-600 text-sm md:text-base">Aquí se muestran las secciones y productos de tu menú, puedes editar, reorganizar y eliminar lo que quieras.</p>
                     </div>
-                    <p className="text-gray-600 text-sm md:text-base">Aquí se muestran las secciones y productos de tu menú, puedes editar, reorganizar y eliminar lo que quieras.</p>
+                    <MenuList
+                      categories={categories}
+                      setCategories={setCategories}
+                      isEditMode={uiState.isEditMode}
+                      onEditProduct={(_, product) => {
+                        setProductToEdit(product);
+                        setUiState(prev => ({ ...prev, isModalOpen: true }));
+                      }}
+                      onToggleProductVisibility={handleToggleProductVisibility}
+                      onDeleteProduct={handleDeleteProduct}
+                      onEditCategory={handleEditCategory}
+                      onDeleteCategory={handleDeleteCategory}
+                      expandedCategories={expandedCategories}
+                      setExpandedCategories={setExpandedCategories}
+                    />
                   </div>
-                  <MenuList
-                    categories={categories}
-                    setCategories={setCategories}
-                    isEditMode={uiState.isEditMode}
-                    onEditProduct={(_, product) => {
-                      setProductToEdit(product);
-                      setUiState(prev => ({ ...prev, isModalOpen: true }));
-                    }}
-                    onToggleProductVisibility={handleToggleProductVisibility}
-                    onDeleteProduct={handleDeleteProduct}
-                    onEditCategory={handleEditCategory}
-                    onDeleteCategory={handleDeleteCategory}
-                    expandedCategories={expandedCategories}
-                    setExpandedCategories={setExpandedCategories}
-                  />
                 </div>
               </div>
             </div>
-          </div>
           {uiState.isModalOpen && (
             <ProductForm
               isOpen={uiState.isModalOpen}
@@ -759,7 +798,8 @@ const Dashboard = () => {
           categories={categories} 
           isDarkMode={isDarkMode}
         />
-      </main>
+        </main>
+      </div>
     </div>
   );
   

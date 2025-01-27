@@ -1,10 +1,10 @@
 import { db } from "@/firebase/config";
-import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, collection } from "firebase/firestore";
 import { getCurrentUser } from "@/firebase/authService";
 import bcrypt from 'bcryptjs' ; // para cifrar passwords
 
 
-export async function addUser(email: string, password: string, nombres: string, hash?: boolean) {
+export async function addUser(email: string, password: string, nombres: string, numero: string, hash?: boolean) {
     try {
         const user = getCurrentUser();
 
@@ -20,15 +20,19 @@ export async function addUser(email: string, password: string, nombres: string, 
             await setDoc(doc(db, "users", user.uid), {
                 email: email,
                 nombres: nombres,
+                numero: numero,
                 createdAt: new Date().toISOString(),
+                newUser: true,
             });
         } else {
             await setDoc(doc(db, "users", user.uid), {
                 email: email,
                 nombres: nombres,
+                numero: numero,
                 password: password,
                 createdAt: new Date().toISOString(),
                 emailConfirmed: false,
+                newUser: true,
             },{ merge: true });
             }
         return true
@@ -78,7 +82,7 @@ export const deleteDBUser = (user: any) => {
     }
 }
 
-export const updateVerificationEmail = async (userId: string, newEmail: string): Promise<void> => {
+export const updateEmail = async (userId: string, newEmail: string): Promise<void> => {
     try {
       const userRef = doc(db, "users", userId);
       
@@ -92,3 +96,21 @@ export const updateVerificationEmail = async (userId: string, newEmail: string):
       console.error("Error al actualizar el correo:", error);
     }
   };
+
+export const setBussinessData = async (formData: any, userId: string): Promise<any> => {
+    console.log(formData, userId)
+
+    //queda armar la collection y setear los datos
+    return
+    try {
+        const docRef = doc(collection(db, 'bussinesData'));
+        await setDoc(docRef, {
+            UID: userId,
+            ...formData
+        });
+        return true;
+    } catch (error) {
+        console.error("Error al guardar los datos del negocio:", error);
+        return error;
+    }
+};

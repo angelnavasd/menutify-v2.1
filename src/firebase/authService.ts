@@ -42,7 +42,7 @@ export const loginWithGoogle = async (): Promise<boolean> => {
   }
 };
 
-export const registerWithEmailAndPassword = async (email: string, password: string, nombres: string): Promise<boolean> => {
+export const registerWithEmailAndPassword = async (email: string, password: string, nombres: string, numero: string,): Promise<boolean> => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -53,7 +53,7 @@ export const registerWithEmailAndPassword = async (email: string, password: stri
     const user = userCredential.user;
 
     if (user) {
-      await addUser(email, password, nombres);
+      await addUser(email, password, nombres, numero, true);
 
       await sendEmailVerification(user);
 
@@ -84,7 +84,7 @@ export const registerWithGoogle = async (): Promise<{success: boolean, isGoogleU
     setIdToken(idToken)
     const userExists = await getUser(user.uid)
     if(userExists == null){
-      await addUser(user.email!, 'google', user.displayName!);
+      await addUser(user.email!, 'google', user.displayName!, user.phoneNumber!, true);
     }
     return { success: true, isGoogleUser: true }
   } else {
