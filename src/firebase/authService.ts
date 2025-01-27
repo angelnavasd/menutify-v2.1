@@ -139,7 +139,7 @@ export const isEmailVerifiedAsync = async (): Promise<boolean> => {
  * @param password 
  * @throws
  */
-const reauthenticateUser = async (email: string, password: string): Promise<void|boolean> => {
+export const reauthenticateUser = async (email: string, password: string): Promise<void|boolean> => {
   const currentUser = auth.currentUser;
 
   if (!currentUser) {

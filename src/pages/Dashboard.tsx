@@ -760,9 +760,7 @@ const Dashboard = () => {
         />
       </main>
     </div>
-    </>
   );
-  
 };
 
 export default Dashboard;
